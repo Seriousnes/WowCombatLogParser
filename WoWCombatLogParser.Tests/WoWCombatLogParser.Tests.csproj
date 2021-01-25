@@ -7,28 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="TestLogs\WoWCombatLog_Torghast-20201221-001_Full.txt" />
-    <None Remove="TestLogs\WoWCombatLog_Torghast-20201223-001_Partial.txt" />
-    <None Remove="TestLogs\WoWCombatLog_Torghast-20210103-001_Full.txt" />
-    <None Remove="TestLogs\WoWCombatLog_Torghast-20210113-001 Partial.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="TestLogs\WoWCombatLog_Torghast-20201221-001_Full.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestLogs\WoWCombatLog_Torghast-20201223-001_Partial.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestLogs\WoWCombatLog_Torghast-20210103-001_Full.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestLogs\WoWCombatLog_Torghast-20210113-001 Partial.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
@@ -43,6 +21,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WoWCombatLogParser\WoWCombatLogParser.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="TestLogs\" />
   </ItemGroup>
 
 </Project>
