@@ -13,8 +13,7 @@ namespace WoWCombatLogParser.Events.Parts
         {
             Type = type;
         }
-
-        [FieldOrder(1)]
+        
         public byte Type { get; set; }
     }
 }

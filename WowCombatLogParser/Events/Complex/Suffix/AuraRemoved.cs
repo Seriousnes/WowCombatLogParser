@@ -10,9 +10,7 @@ namespace WoWCombatLogParser.Events.Complex.Suffix
     [Suffix("_AURA_REMOVED")]
     public class AuraRemoved : EventSection
     {
-        [FieldOrder(1)]
         public string AuraType { get; set; }
-        [FieldOrder(2)]
         public decimal Amount { get; set; }
     }
 }

@@ -6,17 +6,6 @@ using System.Threading.Tasks;
 
 namespace WoWCombatLogParser.Models
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public class FieldOrderAttribute : Attribute
-    {
-        public FieldOrderAttribute(int value)
-        {
-            Id = value;
-        }
-
-        public int Id { get; private set; }
-    }
-
     public class AffixAttribute : Attribute
     {
         public AffixAttribute(string value)

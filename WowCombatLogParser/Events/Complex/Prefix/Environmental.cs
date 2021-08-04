@@ -10,7 +10,6 @@ namespace WoWCombatLogParser.Events.Complex.Prefix
     [Prefix("ENVIRONMENTAL")]
     public class Environmental : EventSection
     {
-        [FieldOrder(1)]
         public object EnvironmentalType { get; set; }        
     }
 }

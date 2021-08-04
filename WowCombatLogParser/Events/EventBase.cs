@@ -11,11 +11,7 @@ namespace WoWCombatLogParser.Events
     {
         public virtual void Parse(IEnumerator<string> enumerator)
         {
-            var properties = this.GetType()
-                    .GetProperties()
-                    .Where(i => Attribute.IsDefined(i, typeof(FieldOrderAttribute)))
-                    .OrderBy(i => ((FieldOrderAttribute)Attribute.GetCustomAttribute(i, typeof(FieldOrderAttribute))).Id)
-                    .ToList();            
+            var properties = this.GetType().GetProperties().ToList();            
             ParsePropeties(enumerator, properties);
         }
 
@@ -42,24 +38,15 @@ namespace WoWCombatLogParser.Events
         }
     }
 
-    public class SimpleEventBase : EventSection
+    public class EventBase : EventSection
     {
-        [FieldOrder(1)]
         public DateTime Timestamp { get; set; }
-        [FieldOrder(2)]
         public string Event { get; set; }
     }
 
-    public class ComplexEventBase : EventSection
+    public class ComplexEventBase : EventBase
     {
-        [FieldOrder(1)]
-        public DateTime Timestamp { get; set; }
-        [FieldOrder(2)]
-        public string Event { get; set; }
-        
-        [FieldOrder(3)]
-        public Unit Source { get; } = new Unit();
-        [FieldOrder(4)]
-        public Unit Destination { get; } = new Unit();        
+        public Actor Source { get; } = new Actor();
+        public Actor Destination { get; } = new Actor();        
     }
 }

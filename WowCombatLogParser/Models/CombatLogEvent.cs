@@ -23,9 +23,7 @@ namespace WoWCombatLogParser.Models
         {
         }
 
-        [FieldOrder(1)]
-        public SimpleEventBase BaseEvent { get; } = new SimpleEventBase();
-        [FieldOrder(2)]
+        public EventBase BaseEvent { get; } = new EventBase();
         public TEvent Event { get; } = new TEvent();
     }
 
@@ -37,11 +35,8 @@ namespace WoWCombatLogParser.Models
         {
         }
 
-        [FieldOrder(1)]
         public ComplexEventBase BaseEvent { get; } = new ComplexEventBase();
-        [FieldOrder(2)]
         public TPrefix Prefix { get; } = new TPrefix();
-        [FieldOrder(3)]
         public TSuffix Suffix { get; } = new TSuffix();
     }      
 }

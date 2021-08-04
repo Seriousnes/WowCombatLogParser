@@ -41,16 +41,14 @@ namespace WoWCombatLogParser.Events
 
         private static Dictionary<string, Type> _events = new Dictionary<string, Type>();
 
-        public static CombatLogEvent GetCombatLogEvent(string line)            
+        public static IEnumerable<CombatLogEvent> GetCombatLogEvent(string line)            
         {
             var args = Regex.Replace(line, @"\s\s", ",").Split(',');
             var eventName = args[1];
             if (_events.ContainsKey(eventName))
             {
-                return (CombatLogEvent)Activator.CreateInstance(_events[eventName], new object[] { args });
+                yield return (CombatLogEvent)Activator.CreateInstance(_events[eventName], new object[] { args });
             }            
-
-            return null;
         }
     }
 }

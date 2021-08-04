@@ -10,7 +10,6 @@ namespace WoWCombatLogParser.Events.Complex.Prefix
 {
     public class SpellBase : EventSection
     {
-        [FieldOrder(1)]
         public Spells.Spell Spell { get; } = new Spells.Spell();        
     }
 }

@@ -10,9 +10,7 @@ namespace WoWCombatLogParser.Events.Complex.Suffix
     [Suffix("_AURA_APPLIED_DOSE")]
     public class AuraAppliedDose : EventSection
     {
-        [FieldOrder(1)]
         public string AuraType { get; set; }
-        [FieldOrder(2)]
         public decimal Stacks { get; set; }
     }
 }
