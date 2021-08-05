@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WoWCombatLogParser.Models
+﻿namespace WoWCombatLogParser.Models
 {
     public enum Reaction
     {
@@ -18,6 +12,12 @@ namespace WoWCombatLogParser.Models
         Player,
         Pet,
         NPC,
+    }
+
+    public enum Faction
+    {
+        Horde = 0,
+        Alliance
     }
 
     public enum SpellSchool

@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 using WoWCombatLogParser.Events.Parts;
-using WoWCombatLogParser.Models;
-using WoWCombatLogParser.Utilities;
 
 namespace WoWCombatLogParser.Events
 {
     public interface IEventSection
-    {        
+    {
     }
 
     public class EventBase : IEventSection
@@ -23,6 +18,6 @@ namespace WoWCombatLogParser.Events
     public class ComplexEventBase : EventBase
     {
         public Actor Source { get; } = new();
-        public Actor Destination { get; } = new();        
+        public Actor Destination { get; } = new();
     }
 }

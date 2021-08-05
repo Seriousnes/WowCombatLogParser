@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using WoWCombatLogParser.Models;
 
-namespace WoWCombatLogParser.Events
+namespace WoWCombatLogParser
 {
     public static class EventGenerator
     {
@@ -41,7 +39,7 @@ namespace WoWCombatLogParser.Events
 
         private static Dictionary<string, Type> _events = new Dictionary<string, Type>();
 
-        public static CombatLogEvent GetCombatLogEvent(string line)            
+        public static CombatLogEvent GetCombatLogEvent(string line)
         {
             var @event = GetCombatLogEventType(line);
             return @event != null ? (CombatLogEvent)Activator.CreateInstance(@event, new object[] { line }) : null;

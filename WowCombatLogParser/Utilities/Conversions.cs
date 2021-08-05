@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Utilities
 {
@@ -16,6 +17,7 @@ namespace WoWCombatLogParser.Utilities
                 var logical when logical == typeof(bool) => (value == "-1"),
                 var str when str == typeof(string) => value.Replace("\"", ""),
                 var enumVal when enumVal.IsEnum => Enum.ToObject(typeof(T), Convert.ToInt32(value, value.StartsWith("0x") ? 16 : 10)),
+                var wowguid when wowguid == typeof(WowGuid) => new WowGuid(value),
                 _ => value,
             };
 

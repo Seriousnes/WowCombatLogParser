@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using WoWCombatLogParser.Events;
 using static WoWCombatLogParser.Utilities.Extensions;
 
@@ -16,13 +12,13 @@ namespace WoWCombatLogParser.Models
 
         public CombatLogEvent(string text)
         {
-            rawData = Regex.Replace(text, @"\s\s", ",").Split(',').ToList();            
+            rawData = Regex.Replace(text, @"\s\s", ",").Split(',').ToList();
         }
 
         private protected void DoParse()
         {
             using var data = rawData.GetEnumerator();
-            this.Parse(data);            
+            this.Parse(data);
             rawData.Clear();
         }
 
@@ -53,5 +49,5 @@ namespace WoWCombatLogParser.Models
 
         public TPrefix Prefix { get; } = new();
         public TSuffix Suffix { get; } = new();
-    }      
+    }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WoWCombatLogParser.Models;
+﻿using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Events.Parts
 {
@@ -11,11 +6,11 @@ namespace WoWCombatLogParser.Events.Parts
     {
         public string InfoGuid { get; set; }
         public string OwnerGuid { get; set; }
-        public TargetDetails TargetDetails { get; set; } = new();
+        public UnitInfo UnitInfo { get; set; } = new();
         public Location Location { get; set; } = new();
     }
 
-    public class TargetDetails : IEventSection
+    public class UnitInfo : IEventSection
     {
         public int CurrentHP { get; set; }
         public int MaxHP { get; set; }

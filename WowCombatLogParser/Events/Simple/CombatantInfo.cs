@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WoWCombatLogParser.Events.Parts;
-using WoWCombatLogParser.Models;
+﻿using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Events.Simple
 {
     [Affix("COMBATANT_INFO")]
     public class CombatantInfo : IEventSection
     {
-        public string PlayerGUID { get; set; }
+        public WowGuid PlayerGuid { get; set; }
+        public Faction Faction { get; set; }
         public decimal Strength { get; set; }
         public decimal Agility { get; set; }
         public decimal Stamina { get; set; }
