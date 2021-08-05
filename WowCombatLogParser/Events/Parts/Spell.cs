@@ -8,7 +8,7 @@ using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Events.Parts
 {
-    public class Spell : EventSection
+    public class Spell : IEventSection
     {
         public int Id { get; set; }
         public string Name { get; set; }

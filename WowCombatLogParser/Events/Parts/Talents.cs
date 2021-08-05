@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WoWCombatLogParser.Events.Parts
 {
-    public class Talents : EventSection
+    public class Talents : IEventSection
     {
         //public Talents(string text) : base(text)
         //{

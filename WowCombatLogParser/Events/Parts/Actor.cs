@@ -9,7 +9,7 @@ using WoWCombatLogParser.Models;
 namespace WoWCombatLogParser.Events.Parts
 {
     [DebuggerDisplay("{Name}")]
-    public class Actor : EventSection
+    public class Actor : IEventSection
     {
         public string Guid { get; set; }
         public string Name { get; set; }

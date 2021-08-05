@@ -9,7 +9,7 @@ using WoWCombatLogParser.Models;
 namespace WoWCombatLogParser.Events.Complex
 {
     [Suffix("_DAMAGE")]
-    public class Damage : EventSection
+    public class Damage : IEventSection
     {
         public AdvancedLoggingDetails AdvancedLoggingDetails { get; set; } = new();
         public decimal Amount { get; set; }

@@ -9,7 +9,7 @@ using WoWCombatLogParser.Models;
 namespace WoWCombatLogParser.Events.Simple
 {
     [Affix("COMBATANT_INFO")]
-    public class CombatantInfo : EventSection
+    public class CombatantInfo : IEventSection
     {
         public string PlayerGUID { get; set; }
         public decimal Strength { get; set; }

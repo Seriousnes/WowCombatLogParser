@@ -6,10 +6,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Events;
+using static WoWCombatLogParser.Utilities.Extensions;
 
 namespace WoWCombatLogParser.Models
 {
-    public abstract class CombatLogEvent : EventSection
+    public abstract class CombatLogEvent : IEventSection
     {
         private readonly IList<string> rawData;
 
@@ -20,18 +21,8 @@ namespace WoWCombatLogParser.Models
 
         private protected void DoParse()
         {
-            using var enumerator = rawData.GetEnumerator();
-            try
-            {
-                Parse(enumerator);
-            }
-            catch (CombatLogParseException ex)
-            {
-                Console.WriteLine($"{ex} Current line: {string.Join(',', rawData)}");
-            }            
-            catch
-            {
-            }
+            using var data = rawData.GetEnumerator();
+            this.Parse(data);            
             rawData.Clear();
         }
 
@@ -39,7 +30,7 @@ namespace WoWCombatLogParser.Models
     }
 
     public class CombatLogEvent<TEvent> : CombatLogEvent
-        where TEvent : EventSection, new()
+        where TEvent : IEventSection, new()
     {
         public CombatLogEvent(string text) : base(text)
         {
@@ -51,8 +42,8 @@ namespace WoWCombatLogParser.Models
     }
 
     public class CombatLogEvent<TPrefix, TSuffix> : CombatLogEvent
-        where TPrefix : EventSection, new()
-        where TSuffix : EventSection, new()
+        where TPrefix : IEventSection, new()
+        where TSuffix : IEventSection, new()
     {
         public CombatLogEvent(string text) : base(text)
         {

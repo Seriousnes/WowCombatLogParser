@@ -7,7 +7,7 @@ using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Events.Parts
 {
-    public class AdvancedLoggingDetails : EventSection
+    public class AdvancedLoggingDetails : IEventSection
     {
         public string InfoGuid { get; set; }
         public string OwnerGuid { get; set; }
@@ -15,7 +15,7 @@ namespace WoWCombatLogParser.Events.Parts
         public Location Location { get; set; } = new();
     }
 
-    public class TargetDetails : EventSection
+    public class TargetDetails : IEventSection
     {
         public int CurrentHP { get; set; }
         public int MaxHP { get; set; }
@@ -25,7 +25,7 @@ namespace WoWCombatLogParser.Events.Parts
         public Power Power { get; set; } = new();
     }
 
-    public class Power : EventSection
+    public class Power : IEventSection
     {
         [Offset(1)]
         public PowerType PowerType { get; set; }
@@ -34,7 +34,7 @@ namespace WoWCombatLogParser.Events.Parts
         public decimal PowerCost { get; set; }
     }
 
-    public class Location : EventSection
+    public class Location : IEventSection
     {
         public decimal X { get; set; }
         public decimal Y { get; set; }
