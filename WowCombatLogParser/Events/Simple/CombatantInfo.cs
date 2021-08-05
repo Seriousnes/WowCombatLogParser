@@ -34,7 +34,7 @@ namespace WoWCombatLogParser.Events.Simple
         public decimal VersatilityDamageTaken { get; set; }
         public decimal Armor { get; set; }
         public decimal CurrentSpecID { get; set; }
-        public Talents Talents { get; set; } = new Talents();
+        //public Talents Talents { get; set; } = new Talents();
         //
         //public decimal VersatilityHealingDone { get; set; }
         //
