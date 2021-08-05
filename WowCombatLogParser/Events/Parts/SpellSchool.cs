@@ -9,11 +9,7 @@ namespace WoWCombatLogParser.Events.Parts
 {
     public class SpellSchool : EventSection
     {
-        public SpellSchool(byte type)
-        {
-            Type = type;
-        }
-        
-        public byte Type { get; set; }
-    }
+        public long Type { get; set; }
+        public SpellSchools School => (SpellSchools)Type;        
+    }   
 }

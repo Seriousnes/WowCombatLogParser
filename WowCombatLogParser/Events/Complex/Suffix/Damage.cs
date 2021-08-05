@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WoWCombatLogParser.Events.Parts;
 using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Events.Complex.Suffix
@@ -12,7 +13,7 @@ namespace WoWCombatLogParser.Events.Complex.Suffix
     {
         public decimal Amount { get; set; }
         public decimal Overkill { get; set; }
-        public long School { get; set; }
+        public SpellSchool School { get; set; }
         public decimal Resisted { get; set; }
         public decimal Blocked { get; set; }
         public decimal Absorbed { get; set; }

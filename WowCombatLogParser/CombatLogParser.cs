@@ -11,29 +11,23 @@ namespace WoWCombatLogParser
 {
     public class CombatLogParser
     {
-        public List<CombatLogEvent> Events { get; } = new List<CombatLogEvent>();
-
-        public void Parse(string fileName)
+        public static IEnumerable<CombatLogEvent> ParseCombatLog(string fileName)
         {
-            Parse(File.ReadAllLinesAsync(fileName).Result);
-        }
-
-        public void Parse(IEnumerable<string> lines)
-        {
-            Parallel.ForEach(lines, new ParallelOptions() { MaxDegreeOfParallelism = 1 }, (line) =>
+            using var sr = new StreamReader(fileName);
+            string line;
+            while ((line = sr.ReadLine()) != null)
             {
-                Events.AddRange(EventGenerator.GetCombatLogEvent(line));
-                //var @event = ;
-                //if (@event != null)
-                //{
-                //    Events.Add(@event);
-                //}
-            });
+                var combatLogEvent = EventGenerator.GetCombatLogEvent(line);
+                if (combatLogEvent != null)
+                {
+                    yield return combatLogEvent;
+                }
+            }
         }
 
-        private void OptimizeEvent(CombatLogEvent @event)
+        public static IEnumerable<(CombatLogEvent Event, string Data)> QuickParse(string fileName)
         {
-
+            yield return (null, null);
         }
     }
 }

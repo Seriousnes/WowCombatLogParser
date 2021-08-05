@@ -6,6 +6,7 @@ using WoWCombatLogParser.Events.Complex.Suffix;
 using WoWCombatLogParser.Events.Simple;
 using WoWCombatLogParser.Models;
 using Xunit;
+using static WoWCombatLogParser.CombatLogParser;
 
 namespace WoWCombatLogParser.Tests
 {
@@ -14,10 +15,11 @@ namespace WoWCombatLogParser.Tests
         [Fact]
         public void TestCombatLogParses()
         {
-            var parser = new CombatLogParser();
-            parser.Parse(@"TestLogs/WoWCombatLog.txt");
+            var events = ParseCombatLog(@"TestLogs/WoWCombatLog.txt").ToList();
 
-            Assert.True(parser.Events.Count > 0);
+            var spellDamage = events.OfType<CombatLogEvent<Spell, Damage>>().ToList();
+
+            Assert.True(events.Count() > 0);
         }
 
         [Fact]
@@ -26,6 +28,19 @@ namespace WoWCombatLogParser.Tests
             var obj = new CombatantInfo();
             var fields = obj.GetType().GetProperties();
             Assert.True(fields.Count() > 0);
+        }
+
+        [Theory]
+        [InlineData(SpellSchools.Elemental, SpellSchools.Nature, SpellSchools.Fire, SpellSchools.Frost)]
+        public void TestSpellSchools(SpellSchools expected, params SpellSchools[] spellSchools)
+        {
+            SpellSchools calculated = SpellSchools.None;
+            foreach (var school in spellSchools)
+            {
+                calculated |= school;
+            }
+
+            Assert.True(expected == calculated);
         }
     }    
 }

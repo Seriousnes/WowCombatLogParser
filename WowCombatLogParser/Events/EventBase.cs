@@ -11,7 +11,9 @@ namespace WoWCombatLogParser.Events
     {
         public virtual void Parse(IEnumerator<string> enumerator)
         {
-            var properties = this.GetType().GetProperties().ToList();            
+            var properties = this.GetType()
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .ToList();            
             ParsePropeties(enumerator, properties);
         }
 
@@ -26,6 +28,7 @@ namespace WoWCombatLogParser.Events
                 }
                 else
                 {
+                    if (!property.CanWrite) continue;
                     var method = typeof(Conversions).GetMethod(nameof(Conversions.GetValue));
                     var generic = method.MakeGenericMethod(property.PropertyType);
 
