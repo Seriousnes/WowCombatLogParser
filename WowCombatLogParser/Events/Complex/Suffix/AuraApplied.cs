@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Models;
 
-namespace WoWCombatLogParser.Events.Complex.Suffix
+namespace WoWCombatLogParser.Events.Complex
 {
     [Suffix("_AURA_APPLIED")]
     public class AuraApplied : EventSection

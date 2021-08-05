@@ -12,7 +12,7 @@ namespace WoWCombatLogParser.Models
         Friendly,
         Hostile
     }
-    
+
     public enum UnitType
     {
         Player,
@@ -20,7 +20,7 @@ namespace WoWCombatLogParser.Models
         NPC,
     }
 
-    public enum SpellSchools
+    public enum SpellSchool
     {
         None = 0,
         Physical = 0x1,
@@ -55,5 +55,30 @@ namespace WoWCombatLogParser.Models
         Chromatic = Arcane | Shadow | Frost | Nature,
         Magic = Chromatic | Holy,
         Chaos = Magic | Physical
+    }
+
+    public enum PowerType
+    {
+        HealthCost = -2,
+        None,
+        Mana,
+        Rage,
+        Focus,
+        Energy,
+        ComboPoints,
+        Runes,
+        RunicPower,
+        SoulShards,
+        LunaPower,
+        HolyPower,
+        Alternate,
+        Chi,
+        Insanity,
+        Obsolete,
+        Obsolete2,
+        ArcaneCharges,
+        Fury,
+        Pain,
+        NumPowerTypes
     }
 }

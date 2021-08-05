@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using WoWCombatLogParser.Models;
 using Spells = WoWCombatLogParser.Events.Parts;
 
-namespace WoWCombatLogParser.Events.Complex.Prefix
+namespace WoWCombatLogParser.Events.Complex
 {
     public class SpellBase : EventSection
     {

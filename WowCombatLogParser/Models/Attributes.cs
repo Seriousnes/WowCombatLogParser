@@ -30,4 +30,15 @@ namespace WoWCombatLogParser.Models
         {
         }
     }
+
+    [AttributeUsage(AttributeTargets.Property)]
+    public class OffsetAttribute : Attribute
+    {
+        public OffsetAttribute(int value)
+        {
+            Value = value;
+        }
+
+        public int Value { get; set; }
+    }
 }

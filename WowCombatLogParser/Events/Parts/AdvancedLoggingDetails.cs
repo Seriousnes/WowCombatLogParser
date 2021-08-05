@@ -1,0 +1,45 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using WoWCombatLogParser.Models;
+
+namespace WoWCombatLogParser.Events.Parts
+{
+    public class AdvancedLoggingDetails : EventSection
+    {
+        public string InfoGuid { get; set; }
+        public string OwnerGuid { get; set; }
+        public TargetDetails TargetDetails { get; set; } = new();
+        public Location Location { get; set; } = new();
+    }
+
+    public class TargetDetails : EventSection
+    {
+        public int CurrentHP { get; set; }
+        public int MaxHP { get; set; }
+        public int AttackPower { get; set; }
+        public int SpellPower { get; set; }
+        public int Armor { get; set; }
+        public Power Power { get; set; } = new();
+    }
+
+    public class Power : EventSection
+    {
+        [Offset(1)]
+        public PowerType PowerType { get; set; }
+        public decimal CurrentPower { get; set; }
+        public decimal MaxPower { get; set; }
+        public decimal PowerCost { get; set; }
+    }
+
+    public class Location : EventSection
+    {
+        public decimal X { get; set; }
+        public decimal Y { get; set; }
+        public int MapId { get; set; }
+        public decimal Facing { get; set; }
+        public decimal Level { get; set; }
+    }
+}

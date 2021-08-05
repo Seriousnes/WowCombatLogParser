@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 using WoWCombatLogParser.Events.Parts;
 using WoWCombatLogParser.Models;
 
-namespace WoWCombatLogParser.Events.Complex.Suffix
+namespace WoWCombatLogParser.Events.Complex
 {
     [Suffix("_DAMAGE")]
     public class Damage : EventSection
     {
+        public AdvancedLoggingDetails AdvancedLoggingDetails { get; set; } = new();
         public decimal Amount { get; set; }
+        public decimal RawAmount { get; set; }
         public decimal Overkill { get; set; }
         public SpellSchool School { get; set; }
         public decimal Resisted { get; set; }

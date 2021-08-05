@@ -12,6 +12,6 @@ namespace WoWCombatLogParser.Events.Parts
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public SpellSchool School { get; set; }       
+        public SpellSchool School { get; set; }
     }
 }

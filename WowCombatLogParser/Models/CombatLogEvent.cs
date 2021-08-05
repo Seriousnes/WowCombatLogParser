@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,13 +11,31 @@ namespace WoWCombatLogParser.Models
 {
     public abstract class CombatLogEvent : EventSection
     {
-        private readonly IEnumerable<string> rawData;
+        private readonly IList<string> rawData;
+
         public CombatLogEvent(string text)
         {
-            rawData = Regex.Replace(text, @"\s\s", ",").Split(',').ToList();
+            rawData = Regex.Replace(text, @"\s\s", ",").Split(',').ToList();            
         }
+
+        private protected void DoParse()
+        {
+            using var enumerator = rawData.GetEnumerator();
+            try
+            {
+                Parse(enumerator);
+            }
+            catch (CombatLogParseException ex)
+            {
+                Console.WriteLine($"{ex} Current line: {string.Join(',', rawData)}");
+            }            
+            catch
+            {
+            }
+            rawData.Clear();
+        }
+
         public virtual EventBase BaseEvent { get; set; }
-        private protected IEnumerator<string> DataEnumerator => rawData.GetEnumerator();
     }
 
     public class CombatLogEvent<TEvent> : CombatLogEvent
@@ -25,10 +44,10 @@ namespace WoWCombatLogParser.Models
         public CombatLogEvent(string text) : base(text)
         {
             BaseEvent = new EventBase();
-            Parse(DataEnumerator);
+            DoParse();
         }
 
-        public TEvent Event { get; } = new TEvent();
+        public TEvent Event { get; } = new();
     }
 
     public class CombatLogEvent<TPrefix, TSuffix> : CombatLogEvent
@@ -38,10 +57,10 @@ namespace WoWCombatLogParser.Models
         public CombatLogEvent(string text) : base(text)
         {
             BaseEvent = new ComplexEventBase();
-            Parse(DataEnumerator);
+            DoParse();
         }
 
-        public TPrefix Prefix { get; } = new TPrefix();
-        public TSuffix Suffix { get; } = new TSuffix();
+        public TPrefix Prefix { get; } = new();
+        public TSuffix Suffix { get; } = new();
     }      
 }

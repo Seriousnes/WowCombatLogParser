@@ -1,8 +1,7 @@
 using System;
 using System.Linq;
 using WoWCombatLogParser;
-using WoWCombatLogParser.Events.Complex.Prefix;
-using WoWCombatLogParser.Events.Complex.Suffix;
+using WoWCombatLogParser.Events.Complex;
 using WoWCombatLogParser.Events.Simple;
 using WoWCombatLogParser.Models;
 using Xunit;
@@ -31,10 +30,10 @@ namespace WoWCombatLogParser.Tests
         }
 
         [Theory]
-        [InlineData(SpellSchools.Elemental, SpellSchools.Nature, SpellSchools.Fire, SpellSchools.Frost)]
-        public void TestSpellSchools(SpellSchools expected, params SpellSchools[] spellSchools)
+        [InlineData(SpellSchool.Elemental, SpellSchool.Nature, SpellSchool.Fire, SpellSchool.Frost)]
+        public void TestSpellSchools(SpellSchool expected, params SpellSchool[] spellSchools)
         {
-            SpellSchools calculated = SpellSchools.None;
+            SpellSchool calculated = SpellSchool.None;
             foreach (var school in spellSchools)
             {
                 calculated |= school;
