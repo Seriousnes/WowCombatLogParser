@@ -2,6 +2,7 @@
 
 namespace WoWCombatLogParser.Models
 {
+    [AttributeUsage(AttributeTargets.Class)]
     public class AffixAttribute : Attribute
     {
         public AffixAttribute(string value)
@@ -12,6 +13,7 @@ namespace WoWCombatLogParser.Models
         public string Name { get; private set; }
     }
 
+    [AttributeUsage(AttributeTargets.Class)]
     public class PrefixAttribute : AffixAttribute
     {
         public PrefixAttribute(string value) : base(value)
@@ -36,5 +38,10 @@ namespace WoWCombatLogParser.Models
         }
 
         public int Value { get; set; }
+    }
+
+    [AttributeUsage(AttributeTargets.Property)]
+    public class NonDataAttribute : Attribute
+    {
     }
 }

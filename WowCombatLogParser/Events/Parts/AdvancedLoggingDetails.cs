@@ -4,8 +4,8 @@ namespace WoWCombatLogParser.Events.Parts
 {
     public class AdvancedLoggingDetails : IEventSection
     {
-        public string InfoGuid { get; set; }
-        public string OwnerGuid { get; set; }
+        public WowGuid InfoGuid { get; set; } = new();
+        public WowGuid OwnerGuid { get; set; } = new();
         public UnitInfo UnitInfo { get; set; } = new();
         public Location Location { get; set; } = new();
     }
@@ -17,12 +17,12 @@ namespace WoWCombatLogParser.Events.Parts
         public int AttackPower { get; set; }
         public int SpellPower { get; set; }
         public int Armor { get; set; }
+        public int Absorb { get; set; }
         public Power Power { get; set; } = new();
     }
 
     public class Power : IEventSection
     {
-        [Offset(1)]
         public PowerType PowerType { get; set; }
         public decimal CurrentPower { get; set; }
         public decimal MaxPower { get; set; }

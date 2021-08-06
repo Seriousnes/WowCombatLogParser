@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace WoWCombatLogParser.Models
 {
@@ -38,11 +39,6 @@ namespace WoWCombatLogParser.Models
         public static bool operator !=(WowGuid left, WowGuid right)
         {
             return !left.Equals(right);
-        }
-
-        public static implicit operator WowGuid(string input)
-        {
-            return new WowGuid(input);
         }
     }
 }

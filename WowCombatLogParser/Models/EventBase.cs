@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using WoWCombatLogParser.Events.Parts;
+using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Events
 {
@@ -9,7 +10,7 @@ namespace WoWCombatLogParser.Events
     }
 
     public class EventBase : IEventSection
-    {
+    {        
         public DateTime Timestamp { get; set; }
         public string Event { get; set; }
     }
@@ -17,7 +18,7 @@ namespace WoWCombatLogParser.Events
     [DebuggerDisplay("{Event} @ {Timestamp} {Source} > {Destination}")]
     public class ComplexEventBase : EventBase
     {
-        public Actor Source { get; } = new();
-        public Actor Destination { get; } = new();
+        public Unit Source { get; } = new();
+        public Unit Destination { get; } = new();
     }
 }

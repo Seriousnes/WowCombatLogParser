@@ -21,16 +21,9 @@ namespace WoWCombatLogParser.Tests
             Assert.True(events.Count() > 0);
         }
 
-        [Fact]
-        public void TestFieldOrder()
-        {
-            var obj = new CombatantInfo();
-            var fields = obj.GetType().GetProperties();
-            Assert.True(fields.Count() > 0);
-        }
-
         [Theory]
         [InlineData(SpellSchool.Elemental, SpellSchool.Nature, SpellSchool.Fire, SpellSchool.Frost)]
+        [InlineData(SpellSchool.FlameStrike, SpellSchool.Fire, SpellSchool.Physical)]
         public void TestSpellSchools(SpellSchool expected, params SpellSchool[] spellSchools)
         {
             SpellSchool calculated = SpellSchool.None;

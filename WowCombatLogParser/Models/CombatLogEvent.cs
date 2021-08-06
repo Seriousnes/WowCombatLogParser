@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using WoWCombatLogParser.Events;
 using static WoWCombatLogParser.Utilities.Extensions;
 
@@ -8,21 +9,32 @@ namespace WoWCombatLogParser.Models
 {
     public abstract class CombatLogEvent : IEventSection
     {
-        private readonly IList<string> rawData;
+        private IEnumerable<string> rawData;
+        private static int _count = 0;
+
+        public CombatLogEvent()
+        {
+            Id = _count++;
+        }
 
         public CombatLogEvent(string text)
         {
-            rawData = Regex.Replace(text, @"\s\s", ",").Split(',').ToList();
+            rawData = Regex.Replace(text, @"\s\s", ",").Split(',');
         }
 
         private protected void DoParse()
         {
-            using var data = rawData.GetEnumerator();
-            this.Parse(data);
-            rawData.Clear();
+            var data = rawData.GetEnumerator();
+            this.Parse(data).ContinueWith(result =>
+            {
+                data.Dispose();
+                rawData = Enumerable.Empty<string>();
+            });
         }
 
         public virtual EventBase BaseEvent { get; set; }
+        [NonData]
+        public int Id { get; set; }
     }
 
     public class CombatLogEvent<TEvent> : CombatLogEvent

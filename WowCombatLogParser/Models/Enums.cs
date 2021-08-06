@@ -1,4 +1,6 @@
-﻿namespace WoWCombatLogParser.Models
+﻿using System.ComponentModel;
+
+namespace WoWCombatLogParser.Models
 {
     public enum Reaction
     {
