@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace WoWCombatLogParser.Models
+﻿namespace WoWCombatLogParser.Models
 {
     public enum Reaction
     {
@@ -14,6 +12,36 @@ namespace WoWCombatLogParser.Models
         Player,
         Pet,
         NPC,
+    }
+
+    public enum EnvironmentalType
+    {
+        Drowning,
+        Falling,
+        Fatigue,
+        Fire,
+        Lava,
+        Slime
+    }
+
+    public enum AuraType
+    {
+        BUFF,
+        DEBUFF
+    }
+
+    public enum MissType
+    {
+        ABSORB,
+        BLOCK,
+        DEFLECT,
+        DODGE,
+        EVADE,
+        IMMUNE,
+        MISS,
+        PARRY,
+        REFLECT,
+        RESIST
     }
 
     public enum Faction
@@ -30,7 +58,7 @@ namespace WoWCombatLogParser.Models
         HolyStrike = Holy | Physical,
         Fire = 0x4,
         FlameStrike = Fire | Physical,
-        Holyfire = Holy | Fire,
+        Radiant = Holy | Fire,
         Nature = 0x8,
         Stormstrike = Nature | Physical,
         Holystorm = Nature | Holy,
@@ -51,10 +79,10 @@ namespace WoWCombatLogParser.Models
         Spellstrike = Arcane | Physical,
         Divine = Arcane | Holy,
         Spellfire = Arcane | Fire,
-        Spellstorm = Arcane | Nature,
+        Astral = Arcane | Nature,
         Spellfrost = Arcane | Frost,
         Spellshadow = Arcane | Shadow,
-        Chromatic = Arcane | Shadow | Frost | Nature,
+        Chromatic = Spellshadow | Elemental,
         Magic = Chromatic | Holy,
         Chaos = Magic | Physical
     }

@@ -5,7 +5,7 @@ namespace WoWCombatLogParser.Events.Simple
     [Affix("COMBATANT_INFO")]
     public class CombatantInfo : IEventSection
     {
-        public WowGuid PlayerGuid { get; set; } = new();
+        public WowGuid PlayerGuid { get; set; }
         public Faction Faction { get; set; }
         public decimal Strength { get; set; }
         public decimal Agility { get; set; }

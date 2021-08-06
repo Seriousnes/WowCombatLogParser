@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using WoWCombatLogParser.Events.Parts;
-using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Events
 {
@@ -10,7 +9,7 @@ namespace WoWCombatLogParser.Events
     }
 
     public class EventBase : IEventSection
-    {        
+    {
         public DateTime Timestamp { get; set; }
         public string Event { get; set; }
     }

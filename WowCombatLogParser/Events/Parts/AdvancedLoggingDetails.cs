@@ -4,8 +4,8 @@ namespace WoWCombatLogParser.Events.Parts
 {
     public class AdvancedLoggingDetails : IEventSection
     {
-        public WowGuid InfoGuid { get; set; } = new();
-        public WowGuid OwnerGuid { get; set; } = new();
+        public WowGuid InfoGuid { get; set; }
+        public WowGuid OwnerGuid { get; set; }
         public UnitInfo UnitInfo { get; set; } = new();
         public Location Location { get; set; } = new();
     }

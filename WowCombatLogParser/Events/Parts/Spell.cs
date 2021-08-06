@@ -1,11 +1,13 @@
-﻿using WoWCombatLogParser.Models;
+﻿using System.Diagnostics;
+using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Events.Parts
 {
+    [DebuggerDisplay("{Name} ({Id})")]
     public class Spell : IEventSection
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public SpellSchool School { get; set; }
+        public SpellSchool School { get; set; }        
     }
 }

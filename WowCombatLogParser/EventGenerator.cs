@@ -14,27 +14,31 @@ namespace WoWCombatLogParser
             var events = Assembly.GetExecutingAssembly()
                 .GetTypes()
                 .Where(i => i.GetCustomAttribute<AffixAttribute>() != null)
-                .Select(i => new { AffixType = i.GetCustomAttribute<AffixAttribute>(), Type = i })
-                .ToList();
+                .ToList()
+                .ConvertAll(i => new EventAffixItem(i));
 
-            var prefixEvents = events.Where(i => i.AffixType is PrefixAttribute);
-            var suffixEvents = events.Where(i => i.AffixType is SuffixAttribute);
+            var prefixEvents = events.Where(i => i.IsPrefix);
+            var suffixEvents = events.Where(i => i.IsSuffix);
 
             var complexType = typeof(CombatLogEvent<,>);
             foreach (var prefix in prefixEvents)
             {
-                foreach (var suffix in suffixEvents)
+                var suffixes = prefix.HasRestrictedSuffixes ? prefix.RestrictedSuffixes : suffixEvents;
+                foreach (var suffix in suffixes)
                 {
+                    if (prefix.CheckSuffixIsAllowed(suffix.EventType))
+                        continue;
+
                     _events.Add(
-                        $"{prefix.AffixType.Name}{suffix.AffixType.Name}",
-                        complexType.MakeGenericType(prefix.Type, suffix.Type));
+                        $"{prefix.Affix.Name}{suffix.Affix.Name}",
+                        complexType.MakeGenericType(prefix.EventType, suffix.EventType));
                 }
             }
 
             var simpleType = typeof(CombatLogEvent<>);
-            events.Where(i => !(i.AffixType is PrefixAttribute) && !(i.AffixType is SuffixAttribute))
+            events.Where(i => i.IsSimple)
                 .ToList()
-                .ForEach(i => _events.Add(i.AffixType.Name, simpleType.MakeGenericType(i.Type)));
+                .ForEach(i => _events.Add(i.Affix.Name, simpleType.MakeGenericType(i.EventType)));
         }
 
         private static Dictionary<string, Type> _events = new Dictionary<string, Type>();

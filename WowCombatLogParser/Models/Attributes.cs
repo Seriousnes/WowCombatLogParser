@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace WoWCombatLogParser.Models
 {
@@ -27,6 +28,28 @@ namespace WoWCombatLogParser.Models
         public SuffixAttribute(string value) : base(value)
         {
         }
+    }
+
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    public class SuffixAllowedAttribute : Attribute
+    {
+        public SuffixAllowedAttribute(params Type[] suffix)
+        {
+            Suffixes.AddRange(suffix);
+        }
+
+        public List<Type> Suffixes { get; set; } = new();
+    }
+
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    public class SuffixNotAllowedAttribute : Attribute
+    {
+        public SuffixNotAllowedAttribute(params Type[] suffix)
+        {
+            Suffixes.AddRange(suffix);
+        }
+
+        public List<Type> Suffixes { get; set; } = new();
     }
 
     [AttributeUsage(AttributeTargets.Property)]

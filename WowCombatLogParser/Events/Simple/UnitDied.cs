@@ -6,7 +6,7 @@ namespace WoWCombatLogParser.Events.Simple
     [Affix("UNIT_DIED")]
     public class UnitDied : IEventSection
     {
-        public WowGuid RecapId { get; set; } = new();
+        public WowGuid RecapId { get; set; }
         public bool UnconsciousOnDeath { get; set; }
         // skip next two fields
         [Offset(2)]

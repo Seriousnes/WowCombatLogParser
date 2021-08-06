@@ -1,8 +1,5 @@
-using System;
 using System.Linq;
-using WoWCombatLogParser;
 using WoWCombatLogParser.Events.Complex;
-using WoWCombatLogParser.Events.Simple;
 using WoWCombatLogParser.Models;
 using Xunit;
 using static WoWCombatLogParser.CombatLogParser;
@@ -34,5 +31,5 @@ namespace WoWCombatLogParser.Tests
 
             Assert.True(expected == calculated);
         }
-    }    
+    }
 }

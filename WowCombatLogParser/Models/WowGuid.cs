@@ -1,8 +1,9 @@
 ﻿using System;
-using System.ComponentModel;
+using System.Diagnostics;
 
 namespace WoWCombatLogParser.Models
 {
+    [DebuggerDisplay("{Value}")]
     public readonly struct WowGuid : IEquatable<WowGuid>
     {
         public static readonly WowGuid Empty = new("0000000000000000");

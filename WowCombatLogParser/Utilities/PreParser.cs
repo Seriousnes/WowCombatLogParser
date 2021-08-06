@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Utilities
 {
     public static class PreParser
     {
-        public static IEnumerable<string> PreParse(string line)
+        public static IEnumerable<Segment> PreParse(string line)
         {
             yield return null;
         }

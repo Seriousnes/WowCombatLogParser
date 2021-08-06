@@ -15,23 +15,35 @@ namespace WoWCombatLogParser.Utilities
             { typeof(bool), value => value == "-1" },
             { typeof(string), value => value.Replace("\"", "") }
         };
-        
+
         public static object GetValue(string value, Type type)
         {
             if (value == "nil") return default;
-            
+
             if (_convertableTypes.ContainsKey(type))
             {
                 return _convertableTypes[type](value);
             }
             else if (type.IsEnum)
             {
-                return Enum.ToObject(type, ConvertToInt(value));
+                return ConvertToEnum(value, type);
             }
 
             return Convert.ChangeType(value, type);
         }
 
         private static int ConvertToInt(string value) => Convert.ToInt32(value, value.StartsWith("0x") ? 16 : 10);
+
+        private static object ConvertToEnum(string value, Type type)
+        {
+            try
+            {
+                return Enum.ToObject(type, ConvertToInt(value));
+            }
+            catch (FormatException)
+            {
+                return Extensions.FromDescription(value, type);
+            }                
+        }
     }
 }

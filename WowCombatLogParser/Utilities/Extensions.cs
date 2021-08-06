@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Events;
 using WoWCombatLogParser.Models;
-using WoWCombatLogParser.Events.Simple;
 
 namespace WoWCombatLogParser.Utilities
 {
@@ -55,7 +54,7 @@ namespace WoWCombatLogParser.Utilities
                 }
                 else
                 {
-                    if (!property.CanWrite) continue;                                       
+                    if (!property.CanWrite) continue;
                     if (data.MoveBy(columnsToSkip))
                     {
                         property.SetValue(@event, Conversion.GetValue(data.Current, property.PropertyType));
@@ -80,6 +79,19 @@ namespace WoWCombatLogParser.Utilities
                 }
             }
             return element.ToString();
+        }
+
+        public static object FromDescription(string value, Type type)
+        {
+            foreach (Enum @enum in Enum.GetValues(type))
+            {
+                if (@enum.GetDescription().Equals(value, StringComparison.OrdinalIgnoreCase))
+                {
+                    return @enum;
+                }
+            }
+
+            throw new ArgumentException($"{value} isn't a member of {type.Name}");
         }
         #endregion
     }
