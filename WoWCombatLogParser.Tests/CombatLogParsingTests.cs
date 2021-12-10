@@ -12,9 +12,8 @@ namespace WoWCombatLogParser.Tests
         {
             var segments = ParseCombatLogSegments(@"TestLogs/WoWCombatLog.txt").Take(2).ToList();
 
-            //var spellDamage = segment.Events.OfType<CombatLogEvent<Spell, Damage>>().ToList();
-
-            Assert.True(segments.Count() > 0);
+            Assert.True(segments[0].Events.Count == 669, "Segment 1 has 669 events");
+            Assert.True(segments[1].Events.Count == 8408, "Segment 2 has 8408 events");
         }
 
         [Theory]

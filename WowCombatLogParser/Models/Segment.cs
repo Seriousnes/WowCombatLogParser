@@ -25,19 +25,11 @@ namespace WoWCombatLogParser.Models
 
             Events = Events.OrderBy(i => i.Id).ToList();
             Console.WriteLine($"{Events.Count} processed in {sw.Elapsed.TotalSeconds}s");
-        }        
-
-        private void ParseParallel()
-        {
-            ParallelOptions po = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
-            Parallel.ForEach(Events, po, @event => @event.Parse());
         }
 
         private void Parse()
         {
-            List<Task> tasks = new();
-            Events.ForEach(i => tasks.Add(i.ParseAsync()));
-            Task.WaitAll(tasks.ToArray());
+            Task.WaitAll(Events.Select(c => c.ParseAsync()).ToArray());        
         }
     }
 }
