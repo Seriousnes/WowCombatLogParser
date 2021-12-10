@@ -17,14 +17,8 @@ namespace WoWCombatLogParser.Models
         public void ParseSegment(IList<CombatLogEvent> events)
         {
             Events.AddRange(events);
-
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
             Parse();
-            sw.Stop();
-
-            Events = Events.OrderBy(i => i.Id).ToList();
-            Console.WriteLine($"{Events.Count} processed in {sw.Elapsed.TotalSeconds}s");
+            Events = Events.OrderBy(i => i.Id).ToList();            
         }
 
         private void Parse()
