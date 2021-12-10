@@ -18,12 +18,11 @@ namespace WoWCombatLogParser
             ConfigureValidCombatLogEvents();
         }
 
-        public static CombatLogEvent GetCombatLogEvent(IEnumerable<string> line)
+        public static CombatLogEvent GetCombatLogEvent(IList<object> line)
         {
-            var ctor = _ctors.Where(c => c.Key == line.ElementAt((int)FieldId.EventType)).Select(c => c.Value).SingleOrDefault();
+            var ctor = _ctors.Where(c => c.Key == (string)line[(int)FieldId.EventType]).Select(c => c.Value).SingleOrDefault();
             if (ctor == null) return null;
-            var @params = new List<object> { line };
-            return ctor(@params.ToArray());
+            return ctor(line);
         }      
 
         public static IList<PropertyInfo> GetClassMap(Type type)

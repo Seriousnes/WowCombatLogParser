@@ -19,17 +19,17 @@ namespace WoWCombatLogParser.Utilities
             { typeof(string), value => value.Replace("\"", "") }
         };
 
-        public static object GetValue(string value, Type type)
+        public static object GetValue(object value, Type type)
         {
-            if (value == "nil") return default;
+            if (value.GetType() == typeof(string) && (string)value == "nil") return default;
 
             if (_convertableTypes.ContainsKey(type))
             {
-                return _convertableTypes[type](value);
+                return _convertableTypes[type]((string)value);
             }
             else if (type.IsEnum)
             {
-                return ConvertToEnum(value, type);
+                return ConvertToEnum((string)value, type);
             }
 
             return Convert.ChangeType(value, type);

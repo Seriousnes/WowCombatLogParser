@@ -31,11 +31,11 @@ namespace WoWCombatLogParser.Tests
             var encountersInFile = ParseCombatLogSegments(filename);
             Assert.True(encountersInFile.Any());
 
-            var bigEncounter = encountersInFile.Skip(1).Take(1).SingleOrDefault();
-            output.WriteLine($"Events: {bigEncounter.Count}");
-            //encountersInFile
-            //    .ToList()
-            //    .ForEach(e => output.WriteLine($"Events: {e.Count}"));
+            //var bigEncounter = encountersInFile.Skip(1).Take(1).SingleOrDefault();
+            //output.WriteLine($"Events: {bigEncounter.Count}");
+            encountersInFile
+                .ToList()
+                .ForEach(e => output.WriteLine($"Events: {e.Count}"));
         }
 
         [Theory]

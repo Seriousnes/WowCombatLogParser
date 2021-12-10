@@ -71,12 +71,15 @@ namespace WoWCombatLogParser
             }
         }
 
-        private static IEnumerable<string> PreProcess(string line)
+        private static IList<object> PreProcess(string line)
         {
             using var s = new StringReader(line);
             using var r = new TextFieldParser(s) { Delimiters = new[] { ",", "  " }, HasFieldsEnclosedInQuotes = true };
+            
+            var fields = new List<object>();
+            fields.AddRange(r.ReadFields());
 
-            return r.ReadFields();
+            return fields;
         }
     }
 }

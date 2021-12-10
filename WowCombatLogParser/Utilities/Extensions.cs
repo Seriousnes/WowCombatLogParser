@@ -34,17 +34,12 @@ namespace WoWCombatLogParser.Utilities
         #endregion
 
         #region IEventSection
-        public static void Parse(this IEventSection @event, IEnumerator<string> data)
-        {
-            //var properties = @event.GetType()
-            //    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            //    .Where(i => i.GetCustomAttribute<NonDataAttribute>() == null)
-            //    .OrderBy(i => i.DeclaringType == @event.GetType())
-            //    .ToList();
+        public static void Parse(this IEventSection @event, IEnumerator<object> data)
+        {            
             @event.ParseEventProperties(data, EventGenerator.GetClassMap(@event.GetType()));
         }
 
-        public static void ParseEventProperties(this IEventSection @event, IEnumerator<string> data, IList<PropertyInfo> properties)
+        public static void ParseEventProperties(this IEventSection @event, IEnumerator<object> data, IList<PropertyInfo> properties)
         {
             foreach (var property in properties)
             {

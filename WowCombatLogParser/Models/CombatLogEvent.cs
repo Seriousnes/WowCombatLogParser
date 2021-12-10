@@ -9,7 +9,7 @@ namespace WoWCombatLogParser.Models
 {
     public abstract class CombatLogEvent : IEventSection, ICombatLogEvent
     {
-        private IEnumerable<string> _line;
+        private IEnumerable<object> _line;
         private static int _count = 0;
 
         public CombatLogEvent()
@@ -17,7 +17,7 @@ namespace WoWCombatLogParser.Models
             Id = ++_count;
         }
 
-        public CombatLogEvent(IEnumerable<string> line) : this()
+        public CombatLogEvent(IEnumerable<object> line) : this()
         {
             _line = line;
         }       
@@ -49,7 +49,7 @@ namespace WoWCombatLogParser.Models
     public class CombatLogEvent<TEvent> : CombatLogEvent, ICombatLogEvent
         where TEvent : IEventSection, new()
     {
-        public CombatLogEvent(IEnumerable<string> line) : base(line)
+        public CombatLogEvent(IEnumerable<object> line) : base(line)
         {
             BaseEvent = new EventBase();            
         }
@@ -65,7 +65,7 @@ namespace WoWCombatLogParser.Models
         where TPrefix : IEventSection, new()
         where TSuffix : IEventSection, new()
     {
-        public CombatLogEvent(IEnumerable<string> line) : base(line)
+        public CombatLogEvent(IEnumerable<object> line) : base(line)
         {
             BaseEvent = new ComplexEventBase();            
         }
