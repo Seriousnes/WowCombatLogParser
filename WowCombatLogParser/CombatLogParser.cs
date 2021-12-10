@@ -8,11 +8,12 @@ using CsvHelper.Configuration;
 using System;
 using WoWCombatLogParser.Events.Simple;
 using WoWCombatLogParser.Utilities;
+using Microsoft.VisualBasic.FileIO;
 
 namespace WoWCombatLogParser
 {
     public class CombatLogParser
-    {
+    {        
         private static Regex preParser = new Regex(@"\s\s", RegexOptions.Compiled);
         private static List<Type> _encounterEndEvents = new()
         {
@@ -33,7 +34,7 @@ namespace WoWCombatLogParser
             }
         }
 
-        public static IEnumerable<Segment> ParseCombatLogSegments(string fileName)
+        public static IEnumerable<Encounter> ParseCombatLogSegments(string fileName)
         {
             List<CombatLogEvent> events = null;
             foreach (var @event in ParseCombatLog(fileName))
@@ -43,7 +44,7 @@ namespace WoWCombatLogParser
                     events.Add(@event);
                     if (_encounterEndEvents.Contains(@event.GetType()))
                     {
-                        var segment = new Segment();
+                        var segment = new Encounter();
                         segment.ParseSegment(events);
                         events = null;
                         yield return segment;                        
@@ -72,9 +73,10 @@ namespace WoWCombatLogParser
 
         private static IEnumerable<string> PreProcess(string line)
         {
-            return line
-                .Replace("  ", ",")
-                .Split(',');
+            using var s = new StringReader(line);
+            using var r = new TextFieldParser(s) { Delimiters = new[] { ",", "  " }, HasFieldsEnclosedInQuotes = true };
+
+            return r.ReadFields();
         }
     }
 }

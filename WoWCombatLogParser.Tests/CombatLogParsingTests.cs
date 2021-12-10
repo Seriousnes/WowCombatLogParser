@@ -1,19 +1,41 @@
 using System.Linq;
 using WoWCombatLogParser.Models;
 using Xunit;
+using Xunit.Abstractions;
 using static WoWCombatLogParser.CombatLogParser;
 
 namespace WoWCombatLogParser.Tests
 {
     public class CombatLogParsingTests
     {
+        private readonly ITestOutputHelper output;
+
+        public CombatLogParsingTests(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
+
         [Fact]
         public void TestCombatLogParses()
         {
-            var segments = ParseCombatLogSegments(@"TestLogs/WoWCombatLog.txt").Take(2).ToList();
+            var encounters = ParseCombatLogSegments(@"TestLogs/WoWCombatLog.txt").Take(2).ToList();
 
-            Assert.True(segments[0].Events.Count == 669, "Segment 1 has 669 events");
-            Assert.True(segments[1].Events.Count == 8408, "Segment 2 has 8408 events");
+            Assert.True(encounters[0].Count == 669, "Segment 1 has 669 events");
+            Assert.True(encounters[1].Count == 8408, "Segment 2 has 8408 events");
+        }
+
+        [Theory]
+        [InlineData(@"TestLogs/WoWCombatLog-112821_193218.txt")]
+        public void TestLargeCombatLog(string filename)
+        {
+            var encountersInFile = ParseCombatLogSegments(filename);
+            Assert.True(encountersInFile.Any());
+
+            var bigEncounter = encountersInFile.Skip(1).Take(1).SingleOrDefault();
+            output.WriteLine($"Events: {bigEncounter.Count}");
+            //encountersInFile
+            //    .ToList()
+            //    .ForEach(e => output.WriteLine($"Events: {e.Count}"));
         }
 
         [Theory]

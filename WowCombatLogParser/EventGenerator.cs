@@ -9,8 +9,7 @@ namespace WoWCombatLogParser
 {
     public static class EventGenerator
     {
-        private static int EVENT_TYPE = 1;
-        private static Dictionary<string, Type> _events = new();
+        private static Dictionary<string, ObjectActivator<CombatLogEvent>> _ctors = new();
         private static Dictionary<Type, List<PropertyInfo>> _classMap;
 
         static EventGenerator()
@@ -21,24 +20,11 @@ namespace WoWCombatLogParser
 
         public static CombatLogEvent GetCombatLogEvent(IEnumerable<string> line)
         {
-            var @event = GetCombatLogEventConstructor(line.ToArray()[EVENT_TYPE]);
-            var @params = new List<object>{ line };
-            //var result = @event != null ? (CombatLogEvent)Activator.CreateInstance(@event, @params.ToArray()) : null;
-            var result = @event != null ? CombatLogActivator.GetActivator<CombatLogEvent>(@event)(@params.ToArray()) : null;
-            return result;
-        }
-
-        public static Type GetCombatLogEventType(string eventName)
-        {
-            return _events.Where(i => i.Key == eventName).Select(i => i.Value).SingleOrDefault();
-        }
-
-        public static ConstructorInfo GetCombatLogEventConstructor(string eventName)
-        {
-            Type eventType = GetCombatLogEventType(eventName);
-            ConstructorInfo ctor = eventType?.GetConstructors()?.First();
-            return ctor ?? null;
-        }
+            var ctor = _ctors.Where(c => c.Key == line.ElementAt((int)FieldId.EventType)).Select(c => c.Value).SingleOrDefault();
+            if (ctor == null) return null;
+            var @params = new List<object> { line };
+            return ctor(@params.ToArray());
+        }      
 
         public static IList<PropertyInfo> GetClassMap(Type type)
         {
@@ -81,7 +67,7 @@ namespace WoWCombatLogParser
         private static void AddType(string name, Type type, params Type[] typeArguments)
         {
             var genericType = type.MakeGenericType(typeArguments);
-            _events.Add(name, genericType);
+            _ctors.Add(name, CombatLogActivator.GetActivator<CombatLogEvent>(genericType.GetConstructors().First()));
             _classMap.Add(genericType, GetTypePropertyInfo(genericType));
         }
     
@@ -100,12 +86,5 @@ namespace WoWCombatLogParser
                 .OrderBy(i => i.DeclaringType == type)
                 .ToList(); ;
         }
-    }
-
-    [DebuggerDisplay("{Type.Name}")]
-    internal class Map
-    {
-        public Type Type { get; set; }
-        public IList<PropertyInfo> Properties { get; set; }
     }
 }

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Utilities
 {
     public static class Conversion
     {
+        private static readonly Regex isNumber = new Regex(@"^([0-9]+|0x[0-9a-f]+)$", RegexOptions.Compiled);
         private static readonly Dictionary<Type, Func<string, object>> _convertableTypes = new()
         {
             { typeof(WowGuid), value => new WowGuid(value) },
@@ -37,11 +39,11 @@ namespace WoWCombatLogParser.Utilities
 
         private static object ConvertToEnum(string value, Type type)
         {
-            try
+            if (isNumber.IsMatch(value))
             {
                 return Enum.ToObject(type, ConvertToInt(value));
             }
-            catch (FormatException)
+            else
             {
                 return Extensions.FromDescription(value, type);
             }                

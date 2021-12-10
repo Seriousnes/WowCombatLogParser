@@ -1,10 +1,20 @@
 ﻿namespace WoWCombatLogParser.Models
 {
+    public enum FieldId
+    {
+        Timestamp = 0,
+        EventType
+    }
+
     public enum Reaction
     {
         Neutral,
         Friendly,
         Hostile
+    }
+
+    public enum Difficulty
+    {
     }
 
     public enum UnitType

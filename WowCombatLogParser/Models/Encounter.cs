@@ -6,24 +6,22 @@ using System.Threading.Tasks;
 namespace WoWCombatLogParser.Models
 {
     [DebuggerDisplay("Event Count: {Events.Count}")]
-    public class Segment
+    public class Encounter : List<CombatLogEvent>
     {
-        public Segment()
-        {
+        public Encounter()
+        {            
         }
-
-        public List<CombatLogEvent> Events { get; private set; } = new();
 
         public void ParseSegment(IList<CombatLogEvent> events)
         {
-            Events.AddRange(events);
+            this.AddRange(events);
             Parse();
-            Events = Events.OrderBy(i => i.Id).ToList();            
+            Sort((c1, c2) => c1.Id.CompareTo(c2.Id));
         }
 
         private void Parse()
         {
-            Task.WaitAll(Events.Select(c => c.ParseAsync()).ToArray());        
+            Task.WaitAll(this.Select(c => c.ParseAsync()).ToArray());        
         }
     }
 }
