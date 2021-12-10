@@ -8,6 +8,7 @@ using WoWCombatLogParser.Models;
 namespace WoWCombatLogParser.Events.Complex
 {
     [Suffix("_MISSED")]
+    [DebuggerDisplay("{MissType} {IsOffHand} {AmountMissed} {Critical}")]
     public class Missed : IEventSection
     {
         public MissType MissType { get; set; }

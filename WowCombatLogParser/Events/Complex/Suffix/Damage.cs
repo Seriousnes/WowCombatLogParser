@@ -4,10 +4,9 @@ using WoWCombatLogParser.Models;
 namespace WoWCombatLogParser.Events.Complex
 {
     [Suffix("_DAMAGE")]
-    public class Damage : IEventSection
+    [DebuggerDisplay("{RawAmount} {Overkill} {School} {Resisted} {Blocked} {Absorbed} {Critical} {Glancing} {Crushing} {IsOffHand}")]
+    public class Damage : AdvancedLoggingDetailsBase<decimal>, IEventSection
     {
-        public AdvancedLoggingDetails AdvancedLoggingDetails { get; set; } = new();
-        public decimal Amount { get; set; }
         public decimal RawAmount { get; set; }
         public decimal Overkill { get; set; }
         public SpellSchool School { get; set; }

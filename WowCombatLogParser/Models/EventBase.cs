@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using WoWCombatLogParser.Events.Parts;
+using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Events
 {
@@ -8,13 +12,14 @@ namespace WoWCombatLogParser.Events
     {
     }
 
+    [DebuggerDisplay("{Timestamp} {Event}")]
     public class EventBase : IEventSection
     {
         public DateTime Timestamp { get; set; }
         public string Event { get; set; }
     }
 
-    [DebuggerDisplay("{Event} @ {Timestamp} {Source} > {Destination}")]
+    [DebuggerDisplay("{Timestamp} {Event} {Source} {Destination}")]
     public class ComplexEventBase : EventBase
     {
         public Unit Source { get; } = new();

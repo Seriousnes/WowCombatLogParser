@@ -1,5 +1,4 @@
 using System.Linq;
-using WoWCombatLogParser.Events.Complex;
 using WoWCombatLogParser.Models;
 using Xunit;
 using static WoWCombatLogParser.CombatLogParser;
@@ -11,11 +10,11 @@ namespace WoWCombatLogParser.Tests
         [Fact]
         public void TestCombatLogParses()
         {
-            var events = ParseCombatLog(@"TestLogs/WoWCombatLog.txt").ToList();
+            var segments = ParseCombatLogSegments(@"TestLogs/WoWCombatLog.txt").Take(2).ToList();
 
-            var spellDamage = events.OfType<CombatLogEvent<Spell, Damage>>().ToList();
+            //var spellDamage = segment.Events.OfType<CombatLogEvent<Spell, Damage>>().ToList();
 
-            Assert.True(events.Count() > 0);
+            Assert.True(segments.Count() > 0);
         }
 
         [Theory]

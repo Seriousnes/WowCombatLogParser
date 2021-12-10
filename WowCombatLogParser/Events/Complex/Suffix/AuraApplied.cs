@@ -3,6 +3,7 @@
 namespace WoWCombatLogParser.Events.Complex
 {
     [Suffix("_AURA_APPLIED")]
+    [DebuggerDisplay("{AuraType} {Amount}")]
     public class AuraApplied : IEventSection
     {
         public AuraType AuraType { get; set; }

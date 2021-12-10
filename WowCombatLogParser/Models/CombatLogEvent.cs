@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using WoWCombatLogParser.Events;
 using static WoWCombatLogParser.Utilities.Extensions;
 
@@ -8,54 +7,55 @@ namespace WoWCombatLogParser.Models
 {
     public abstract class CombatLogEvent : IEventSection
     {
-        private IEnumerable<string> rawData;
+        private IEnumerable<string> _line;
         private static int _count = 0;
 
         public CombatLogEvent()
         {
-            Id = _count++;
+            Id = ++_count;
         }
 
-        public CombatLogEvent(string text)
+        public CombatLogEvent(IEnumerable<string> line) : this()
         {
-            rawData = Regex.Replace(text, @"\s\s", ",").Split(',');
-        }
+            _line = line;
+        }       
 
-        private protected void DoParse()
-        {
-            var data = rawData.GetEnumerator();
-            this.Parse(data).ContinueWith(result =>
-            {
-                data.Dispose();
-                rawData = Enumerable.Empty<string>();
-            });
-        }
-
-        public virtual EventBase BaseEvent { get; set; }
         [NonData]
-        public int Id { get; set; }
+        public int Id { get; }
+        [NonData]
+        public bool HasBeenParsed { get; private set; } = false;
+        public virtual EventBase BaseEvent { get; set; }
+        public void DoParse()
+        {
+            if (HasBeenParsed) return;
+            HasBeenParsed = true;
+            var data = _line.GetEnumerator();
+            this.Parse(data);            
+            data.Dispose();
+            _line = Enumerable.Empty<string>();                            
+        }        
     }
 
+    [DebuggerDisplay("{BaseEvent} {Event}")]
     public class CombatLogEvent<TEvent> : CombatLogEvent
         where TEvent : IEventSection, new()
     {
-        public CombatLogEvent(string text) : base(text)
+        public CombatLogEvent(IEnumerable<string> line) : base(line)
         {
-            BaseEvent = new EventBase();
-            DoParse();
+            BaseEvent = new EventBase();            
         }
 
         public TEvent Event { get; } = new();
     }
 
+    [DebuggerDisplay("{BaseEvent} {Prefix} {Suffix}")]
     public class CombatLogEvent<TPrefix, TSuffix> : CombatLogEvent
         where TPrefix : IEventSection, new()
         where TSuffix : IEventSection, new()
     {
-        public CombatLogEvent(string text) : base(text)
+        public CombatLogEvent(IEnumerable<string> line) : base(line)
         {
-            BaseEvent = new ComplexEventBase();
-            DoParse();
+            BaseEvent = new ComplexEventBase();            
         }
 
         public TPrefix Prefix { get; } = new();

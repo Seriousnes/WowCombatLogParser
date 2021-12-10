@@ -9,6 +9,7 @@ using WoWCombatLogParser.Models;
 namespace WoWCombatLogParser.Events.Complex
 {
     [Suffix("_HEAL_ABSORBED")]
+    [DebuggerDisplay("{ExtraUnit} {ExtraSpell} {ExtraAmount}")]
     public class HealingAbsorbed : IEventSection
     {
         public Unit ExtraUnit { get; set; } = new();

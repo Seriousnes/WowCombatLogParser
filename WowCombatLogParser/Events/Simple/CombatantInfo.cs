@@ -3,6 +3,7 @@
 namespace WoWCombatLogParser.Events.Simple
 {
     [Affix("COMBATANT_INFO")]
+    [DebuggerDisplay("{PlayerGuid} {Faction} {Strength} {Agility} {Stamina} {Intelligence} {Dodge} {Parry} {Block} {CritMelee} {CritRanged} {CritSpell} {Speed} {Lifesteel} {HasteMelee} {HasteRanged} {HasteSpell} {Avoidance} {Mastery} {VersatilityDamageDone} {VersatilityHealingDone} {VersatilityDamageTaken} {Armor} {CurrentSpecID} ")]
     public class CombatantInfo : IEventSection
     {
         public WowGuid PlayerGuid { get; set; }

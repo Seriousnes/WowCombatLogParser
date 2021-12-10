@@ -3,7 +3,7 @@ using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Events.Parts
 {
-    [DebuggerDisplay("{Name}")]
+    [DebuggerDisplay("{Id} {Name} {Flags} {RaidFlags}")]
     public class Unit : IEventSection
     {
         public WowGuid Id { get; set; }

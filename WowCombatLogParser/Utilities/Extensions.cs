@@ -29,17 +29,17 @@ namespace WoWCombatLogParser.Utilities
         #endregion
 
         #region IEventSection
-        public static async Task Parse(this IEventSection @event, IEnumerator<string> data)
+        public static void Parse(this IEventSection @event, IEnumerator<string> data)
         {
-            var properties = @event.GetType()
-                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(i => i.GetCustomAttribute<NonDataAttribute>() == null)
-                .OrderBy(i => i.DeclaringType == @event.GetType())
-                .ToList();
-            await @event.ParseEventProperties(data, properties);
+            //var properties = @event.GetType()
+            //    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            //    .Where(i => i.GetCustomAttribute<NonDataAttribute>() == null)
+            //    .OrderBy(i => i.DeclaringType == @event.GetType())
+            //    .ToList();
+            @event.ParseEventProperties(data, EventGenerator.GetClassMap(@event.GetType()));
         }
 
-        public static async Task ParseEventProperties(this IEventSection @event, IEnumerator<string> data, IList<PropertyInfo> properties)
+        public static void ParseEventProperties(this IEventSection @event, IEnumerator<string> data, IList<PropertyInfo> properties)
         {
             foreach (var property in properties)
             {
@@ -49,7 +49,7 @@ namespace WoWCombatLogParser.Utilities
                     var prop = (IEventSection)property.GetValue(@event);
                     if (data.MoveBy(columnsToSkip - 1))
                     {
-                        await prop.Parse(data);
+                        prop.Parse(data);
                     }
                 }
                 else

@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using WoWCombatLogParser.Events.Parts;
 using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Events.Complex
 {
     [Suffix("_ENERGIZE")]
-    public class Energize : IEventSection
+    [DebuggerDisplay("{OverEnergize} {PowerType} {AlternatePowerType}")]
+    public class Energize : AdvancedLoggingDetailsBase<int>, IEventSection
     {
-        public int Amount { get; set; }
         public int OverEnergize { get; set; }
         public PowerType PowerType { get; set; }
         public PowerType AlternatePowerType { get; set; }

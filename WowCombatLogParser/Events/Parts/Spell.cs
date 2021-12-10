@@ -3,7 +3,7 @@ using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Events.Parts
 {
-    [DebuggerDisplay("{Name} ({Id})")]
+    [DebuggerDisplay("{Id} {Name} {School}")]
     public class Spell : IEventSection
     {
         public int Id { get; set; }

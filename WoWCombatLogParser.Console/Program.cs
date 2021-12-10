@@ -11,8 +11,7 @@ namespace WoWCombatLogParser
         private static string debugFile = @"C:\Users\Sean\source\repos\WoWCombatLogParser\WoWCombatLogParser.Tests\TestLogs\WoWCombatLog.txt";
         static void Main(string[] args)
         {
-            var events = ParseCombatLog(debugFile).ToList();
-            var spellDamage = events.OfType<CombatLogEvent<Spell, Damage>>().ToList();
+            var segments = ParseCombatLogSegments(debugFile).Take(2).ToList();
 
             Console.WriteLine("Parsing complete, press any key to close");
             Console.ReadKey();
