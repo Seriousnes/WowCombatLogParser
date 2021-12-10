@@ -26,6 +26,11 @@ namespace WoWCombatLogParser.Utilities
         public static void Forget(this Task task)
         {
         }
+
+        public static bool In<T>(this T obj, params T[] objects)
+        {
+            return objects.Contains(obj);
+        }
         #endregion
 
         #region IEventSection

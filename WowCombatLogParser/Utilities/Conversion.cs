@@ -11,6 +11,7 @@ namespace WoWCombatLogParser.Utilities
         {
             { typeof(WowGuid), value => new WowGuid(value) },
             { typeof(DateTime), value => DateTime.ParseExact(value, "M/d HH:mm:ss.fff", CultureInfo.InvariantCulture) },
+            { typeof(decimal), value => decimal.Parse(value, CultureInfo.InvariantCulture) },
             { typeof(long), value => ConvertToInt(value) },
             { typeof(bool), value => value == "-1" },
             { typeof(string), value => value.Replace("\"", "") }

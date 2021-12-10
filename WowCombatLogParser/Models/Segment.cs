@@ -30,12 +30,14 @@ namespace WoWCombatLogParser.Models
         private void ParseParallel()
         {
             ParallelOptions po = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
-            Parallel.ForEach(Events, po, @event => @event.DoParse());
+            Parallel.ForEach(Events, po, @event => @event.Parse());
         }
 
         private void Parse()
         {
-            Events.ForEach(i => i.DoParse());
+            List<Task> tasks = new();
+            Events.ForEach(i => tasks.Add(i.ParseAsync()));
+            Task.WaitAll(tasks.ToArray());
         }
     }
 }

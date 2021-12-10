@@ -19,24 +19,13 @@ namespace WoWCombatLogParser
             ConfigureValidCombatLogEvents();
         }
 
-        public static CombatLogEvent GetCombatLogEvent(IEnumerable<string> line, bool parseNow)
+        public static CombatLogEvent GetCombatLogEvent(IEnumerable<string> line)
         {
             var @event = GetCombatLogEventConstructor(line.ToArray()[EVENT_TYPE]);
             var @params = new List<object>{ line };
             //var result = @event != null ? (CombatLogEvent)Activator.CreateInstance(@event, @params.ToArray()) : null;
             var result = @event != null ? CombatLogActivator.GetActivator<CombatLogEvent>(@event)(@params.ToArray()) : null;
-
-            if (result != null && parseNow)
-            {
-                result.DoParse();
-            }
-
             return result;
-        }
-
-        public static CombatLogEvent GetCombatLogEventNoParse(IEnumerable<string> line)
-        {
-            return GetCombatLogEvent(line, false);
         }
 
         public static Type GetCombatLogEventType(string eventName)
