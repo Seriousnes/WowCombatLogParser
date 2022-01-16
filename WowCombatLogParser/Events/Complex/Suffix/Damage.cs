@@ -5,7 +5,7 @@ namespace WoWCombatLogParser.Events.Complex
 {
     [Suffix("_DAMAGE")]
     [DebuggerDisplay("{RawAmount} {Overkill} {School} {Resisted} {Blocked} {Absorbed} {Critical} {Glancing} {Crushing} {IsOffHand}")]
-    public class Damage : AdvancedLoggingDetailsBase<decimal>, IEventSection
+    public class Damage : AdvancedLoggingDetailsBase<decimal>
     {
         public decimal RawAmount { get; set; }
         public decimal Overkill { get; set; }

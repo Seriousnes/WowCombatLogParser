@@ -1,4 +1,6 @@
-﻿namespace WoWCombatLogParser.Models
+﻿using System;
+
+namespace WoWCombatLogParser.Models
 {
     public enum FieldId
     {
@@ -120,5 +122,97 @@
         Fury,
         Pain,
         NumPowerTypes
+    }
+    
+    [Flags]
+    public enum AffiliationFlag : uint
+    {
+        Undefined = 0,
+        Mine = 0x00000001,
+        Party = 0x00000002,
+        Raid = 0x00000004,
+        Outsider = 0x00000008,
+        Mask = 0x0000000f,
+    }
+
+    [Flags]
+    public enum ReactionFlag : uint
+    {
+        Undefined = 0,
+        Friendly = 0x00000010,
+        Neutral = 0x00000020,
+        Hostile = 0x00000040,
+        Mask = 0x000000f0,
+    }
+
+    [Flags]
+    public enum OwnershipFlag : uint
+    {
+        Undefined = 0,
+        Player = 0x00000100,
+        Npc = 0x00000200,
+        Mask = 0x00000300,
+    }
+
+    [Flags]
+    public enum UnitTypeFlag : uint
+    {
+        Undefined = 0,
+        Player = 0x00000400,
+        Npc = 0x00000800,
+        Pet = 0x00001000,
+        Guardian = 0x00002000,
+        Object = 0x00004000,
+        Mask = 0x0000fc00,
+    }
+
+    [Flags]
+    public enum SpecialFlag : uint
+    {
+        Undefined = 0,
+        Target = 0x00010000,
+        Focus = 0x00020000,
+        Maintank = 0x00040000,
+        Mainassist = 0x00080000,
+        None = 0x80000000,
+        Mask = 0xffff0000,
+    }
+
+    [Flags]
+    public enum RaidFlag : uint
+    {
+        Star = 0x1,
+        Circle = 0x2,
+        Diamond = 0x4,
+        Triangle = 0x8,
+        Moon = 0x10,
+        Square = 0x20,
+        Cross = 0x40,
+        Skull = 0x80,
+        RaidTargetMask = 0xff
+    }
+
+    public enum Soulbind
+    { 
+        Niya = 1,
+        Dreamweaver,
+        GeneralDraven,
+        PlagueDeviserMarileth,
+        Emeni,
+        Korayn,
+        Pelagos,
+        NadjiaTheMistblade,
+        TheotarTheMadDuke,
+        BonesmithHeirmir,
+        Kleia,
+        ForgelitePrimeMikanikos
+    }
+
+    public enum Covenant
+    {
+        Kyrian = 1,
+        Venthyr,
+        NightFae,
+        Necrolord
     }
 }

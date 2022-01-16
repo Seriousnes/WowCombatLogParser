@@ -3,6 +3,7 @@ using WoWCombatLogParser.Models;
 using Xunit;
 using Xunit.Abstractions;
 using static WoWCombatLogParser.CombatLogParser;
+using FluentAssertions;
 
 namespace WoWCombatLogParser.Tests
 {
@@ -25,17 +26,13 @@ namespace WoWCombatLogParser.Tests
         }
 
         [Theory]
-        [InlineData(@"TestLogs/WoWCombatLog-112821_193218.txt")]
-        public void TestLargeCombatLog(string filename)
+        //[InlineData(@"TestLogs/WoWCombatLog-112821_193218.txt")]
+        [InlineData(@"TestLogs/SingleFightCombatLog.txt")]
+        public void TestCombatLogs(string filename)
         {
-            var encountersInFile = ParseCombatLogSegments(filename);
+            var encountersInFile = ParseCombatLogSegments(filename).ToList();
             Assert.True(encountersInFile.Any());
-
-            //var bigEncounter = encountersInFile.Skip(1).Take(1).SingleOrDefault();
-            //output.WriteLine($"Events: {bigEncounter.Count}");
-            encountersInFile
-                .ToList()
-                .ForEach(e => output.WriteLine($"Events: {e.Count}"));
+            encountersInFile.ForEach(e => output.WriteLine($"Events: {e.Count}"));
         }
 
         [Theory]
@@ -50,6 +47,20 @@ namespace WoWCombatLogParser.Tests
             }
 
             Assert.True(expected == calculated);
+        }
+
+        [Theory]
+        [InlineData(0x1148, UnitTypeFlag.Pet, ReactionFlag.Hostile, OwnershipFlag.Player, AffiliationFlag.Outsider)]
+        [InlineData(0x1248, UnitTypeFlag.Pet, ReactionFlag.Hostile, OwnershipFlag.Npc, AffiliationFlag.Outsider)]
+        [InlineData(0x0548, UnitTypeFlag.Player, ReactionFlag.Hostile, OwnershipFlag.Player, AffiliationFlag.Outsider)]
+        public void TestUnitFlags(uint flags, UnitTypeFlag type, ReactionFlag reaction, OwnershipFlag controller, AffiliationFlag affiliation)
+        {
+            var unitFlags = new UnitFlag(flags);
+
+            unitFlags.UnitType.Should().Be(type);
+            unitFlags.Reaction.Should().Be(reaction);
+            unitFlags.Ownership.Should().Be(controller);
+            unitFlags.Affiliation.Should().Be(affiliation);
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using WoWCombatLogParser.Models;
 
-namespace WoWCombatLogParser.Utilities
+namespace WoWCombatLogParser.Utility
 {
     public static class Conversion
     {
@@ -16,7 +16,8 @@ namespace WoWCombatLogParser.Utilities
             { typeof(decimal), value => decimal.Parse(value, CultureInfo.InvariantCulture) },
             { typeof(long), value => ConvertToInt(value) },
             { typeof(bool), value => value == "-1" },
-            { typeof(string), value => value.Replace("\"", "") }
+            { typeof(string), value => value.Replace("\"", "") },
+            { typeof(UnitFlag), value => new UnitFlag(Convert.ToUInt32(value, 16)) },
         };
 
         public static object GetValue(object value, Type type)

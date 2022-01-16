@@ -10,10 +10,10 @@ namespace WoWCombatLogParser.Events.Complex
 {
     [Suffix("_HEAL_ABSORBED")]
     [DebuggerDisplay("{ExtraUnit} {ExtraSpell} {ExtraAmount}")]
-    public class HealingAbsorbed : IEventSection
+    public class HealingAbsorbed : Part
     {
         public Unit ExtraUnit { get; set; } = new();
-        public Parts.Spell ExtraSpell { get; set; } = new();
+        public Ability ExtraSpell { get; set; } = new();
         public int ExtraAmount { get; set; }
     }
 }

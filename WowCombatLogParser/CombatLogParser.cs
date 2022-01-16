@@ -6,16 +6,16 @@ using System.Text.RegularExpressions;
 using WoWCombatLogParser.Models;
 using CsvHelper.Configuration;
 using System;
-using WoWCombatLogParser.Events.Simple;
-using WoWCombatLogParser.Utilities;
+using WoWCombatLogParser.Events.Special;
+using WoWCombatLogParser.Utility;
 using Microsoft.VisualBasic.FileIO;
+using System.Linq;
 
 namespace WoWCombatLogParser
 {
     public class CombatLogParser
-    {        
-        private static Regex preParser = new Regex(@"\s\s", RegexOptions.Compiled);
-        private static List<Type> _encounterEndEvents = new()
+    {     
+        private static readonly List<Type> _encounterEndEvents = new()
         {
             typeof(CombatLogEvent<EncounterEnd>),
             typeof(CombatLogEvent<ZoneChange>),
@@ -26,7 +26,7 @@ namespace WoWCombatLogParser
         {
             foreach (var line in ReadCombatLog(fileName))
             {
-                var combatLogEvent = EventGenerator.GetCombatLogEvent(PreProcess(line));
+                var combatLogEvent = EventGenerator.GetCombatLogEvent(GetConstructorParams(line));
                 if (combatLogEvent != null)
                 {
                     yield return combatLogEvent;
@@ -45,6 +45,7 @@ namespace WoWCombatLogParser
                     if (_encounterEndEvents.Contains(@event.GetType()))
                     {
                         var segment = new Encounter();
+                        //segment.ParseSegmentAsync(events).Wait();
                         segment.ParseSegment(events);
                         events = null;
                         yield return segment;                        
@@ -71,15 +72,11 @@ namespace WoWCombatLogParser
             }
         }
 
-        private static IList<object> PreProcess(string line)
+        private static IList<string> GetConstructorParams(string line)
         {
             using var s = new StringReader(line);
             using var r = new TextFieldParser(s) { Delimiters = new[] { ",", "  " }, HasFieldsEnclosedInQuotes = true };
-            
-            var fields = new List<object>();
-            fields.AddRange(r.ReadFields());
-
-            return fields;
+            return r.ReadFields().ToList();
         }
     }
 }

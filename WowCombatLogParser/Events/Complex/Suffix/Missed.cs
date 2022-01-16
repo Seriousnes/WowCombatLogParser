@@ -9,7 +9,7 @@ namespace WoWCombatLogParser.Events.Complex
 {
     [Suffix("_MISSED")]
     [DebuggerDisplay("{MissType} {IsOffHand} {AmountMissed} {Critical}")]
-    public class Missed : IEventSection
+    public class Missed : Part
     {
         public MissType MissType { get; set; }
         public bool IsOffHand { get; set; }

@@ -8,10 +8,6 @@ using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Events
 {
-    public interface IEventSection
-    {
-    }
-
     public interface ICombatLogEvent
     {
         bool IsComplex { get; }
@@ -19,7 +15,7 @@ namespace WoWCombatLogParser.Events
     }
 
     [DebuggerDisplay("{Timestamp} {Event}")]
-    public class EventBase : IEventSection
+    public class EventBase : Part
     {
         public DateTime Timestamp { get; set; }
         public string Event { get; set; }

@@ -5,7 +5,7 @@ namespace WoWCombatLogParser.Events.Complex
 {
     [Suffix("_ENERGIZE")]
     [DebuggerDisplay("{OverEnergize} {PowerType} {AlternatePowerType}")]
-    public class Energize : AdvancedLoggingDetailsBase<decimal>, IEventSection
+    public class Energize : AdvancedLoggingDetailsBase<decimal>
     {
         public decimal OverEnergize { get; set; }
         public PowerType PowerType { get; set; }

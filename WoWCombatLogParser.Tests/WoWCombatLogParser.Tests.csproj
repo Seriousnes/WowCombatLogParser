@@ -7,11 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="TestLogs\SingleFightCombatLog.txt" />
     <None Remove="TestLogs\WoWCombatLog-112821_193218.txt" />
     <None Remove="TestLogs\WoWCombatLog.txt" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="TestLogs\SingleFightCombatLog.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestLogs\WoWCombatLog-112821_193218.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -21,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="6.3.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">

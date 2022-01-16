@@ -3,7 +3,7 @@
 namespace WoWCombatLogParser.Events.Parts
 {
     [DebuggerDisplay("{InfoGuid} {OwnerGuid} {UnitInfo} {Location}")]
-    public class AdvancedLoggingDetails : IEventSection
+    public class AdvancedLoggingDetails : Part
     {
         public WowGuid InfoGuid { get; set; }
         public WowGuid OwnerGuid { get; set; }
@@ -13,14 +13,14 @@ namespace WoWCombatLogParser.Events.Parts
     }
 
     [DebuggerDisplay("{AdvancedLoggingDetails} {Amount}")]
-    public class AdvancedLoggingDetailsBase<T>: IEventSection
+    public class AdvancedLoggingDetailsBase<T>: Part
     {
         public AdvancedLoggingDetails AdvancedLoggingDetails { get; set; } = new();
         public T Amount { get; set; }
     }
 
     [DebuggerDisplay("{CurrentHP} {MaxHP} {AttackPower} {SpellPower} {Armor} {Absorb} {Power}")]
-    public class UnitInfo : IEventSection
+    public class UnitInfo : Part
     {
         public int CurrentHP { get; set; }
         public int MaxHP { get; set; }
@@ -32,7 +32,7 @@ namespace WoWCombatLogParser.Events.Parts
     }
 
     [DebuggerDisplay("{PowerType} {CurrentPower} {MaxPower} {PowerCost}")]
-    public class Power : IEventSection
+    public class Power : Part
     {
         public PowerType PowerType { get; set; }
         public decimal CurrentPower { get; set; }
@@ -41,7 +41,7 @@ namespace WoWCombatLogParser.Events.Parts
     }
 
     [DebuggerDisplay("{X} {Y} {MapId} {Facing} {Level}")]
-    public class Location : IEventSection
+    public class Location : Part
     {
         public decimal X { get; set; }
         public decimal Y { get; set; }

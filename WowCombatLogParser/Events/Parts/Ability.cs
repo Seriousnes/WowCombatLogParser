@@ -4,7 +4,7 @@ using WoWCombatLogParser.Models;
 namespace WoWCombatLogParser.Events.Parts
 {
     [DebuggerDisplay("{Id} {Name} {School}")]
-    public class Spell : IEventSection
+    public class Ability : Part
     {
         public int Id { get; set; }
         public string Name { get; set; }

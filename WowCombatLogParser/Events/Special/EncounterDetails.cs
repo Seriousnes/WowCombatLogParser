@@ -6,12 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Models;
 
-namespace WoWCombatLogParser.Events.Simple
+namespace WoWCombatLogParser.Events.Special
 {
     
     [DebuggerDisplay("Encounter \"{Name}\" ({Id}) starting")]
     [Affix("ENCOUNTER_START")]
-    public class EncounterStart : IEventSection
+    public class EncounterStart : Part
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -22,7 +22,7 @@ namespace WoWCombatLogParser.Events.Simple
 
     [DebuggerDisplay("Encounter \"{Name}\" ({Id}) ended")]
     [Affix("ENCOUNTER_END")]
-    public class EncounterEnd : IEventSection
+    public class EncounterEnd : Part
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -34,7 +34,7 @@ namespace WoWCombatLogParser.Events.Simple
 
     [DebuggerDisplay("Loaded into map \"{Name}\" ({Id})")]
     [Affix("MAP_CHANGE")]
-    public class MapChange : IEventSection
+    public class MapChange : Part
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -42,7 +42,7 @@ namespace WoWCombatLogParser.Events.Simple
 
     [DebuggerDisplay("Loaded into zone \"{Name}\" ({Id})")]
     [Affix("ZONE_CHANGE")]
-    public class ZoneChange : IEventSection
+    public class ZoneChange : Part
     {
         public int Id { get; set; }
         public string Name { get; set; }

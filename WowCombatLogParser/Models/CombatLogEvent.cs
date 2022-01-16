@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Events;
-using static WoWCombatLogParser.Utilities.Extensions;
+using static WoWCombatLogParser.Utility.Extensions;
 
 namespace WoWCombatLogParser.Models
 {
-    public abstract class CombatLogEvent : IEventSection, ICombatLogEvent
+    public abstract class CombatLogEvent : Part, ICombatLogEvent
     {
-        private IEnumerable<object> _line;
+        private IEnumerable<string> _line;
         private static int _count = 0;
 
         public CombatLogEvent()
@@ -17,7 +17,7 @@ namespace WoWCombatLogParser.Models
             Id = ++_count;
         }
 
-        public CombatLogEvent(IEnumerable<object> line) : this()
+        public CombatLogEvent(IEnumerable<string> line) : this()
         {
             _line = line;
         }       
@@ -47,32 +47,30 @@ namespace WoWCombatLogParser.Models
 
     [DebuggerDisplay("{BaseEvent} {Event}")]
     public class CombatLogEvent<TEvent> : CombatLogEvent, ICombatLogEvent
-        where TEvent : IEventSection, new()
+        where TEvent : Part, new()
     {
-        public CombatLogEvent(IEnumerable<object> line) : base(line)
+        public CombatLogEvent(IEnumerable<string> line) : base(line)
         {
             BaseEvent = new EventBase();            
         }
 
         public TEvent Event { get; } = new();
-
         public override bool IsComplex => false;
         public override bool IsOfType(Type type) => Event.GetType() == type || Event.GetType().IsSubclassOf(type);
     }
 
     [DebuggerDisplay("{BaseEvent} {Prefix} {Suffix}")]
     public class CombatLogEvent<TPrefix, TSuffix> : CombatLogEvent, ICombatLogEvent
-        where TPrefix : IEventSection, new()
-        where TSuffix : IEventSection, new()
+        where TPrefix : Part, new()
+        where TSuffix : Part, new()
     {
-        public CombatLogEvent(IEnumerable<object> line) : base(line)
+        public CombatLogEvent(IEnumerable<string> line) : base(line)
         {
             BaseEvent = new ComplexEventBase();            
         }
 
         public TPrefix Prefix { get; } = new();
         public TSuffix Suffix { get; } = new();
-
         public override bool IsComplex => true;
         public override bool IsOfType(Type type) =>
             Prefix.GetType() == type || Prefix.GetType().IsSubclassOf(type) ||

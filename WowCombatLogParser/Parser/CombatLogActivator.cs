@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WoWCombatLogParser.Models
+namespace WoWCombatLogParser.Utility
 {
     public delegate T ObjectActivator<T>(params object[] args);
 
