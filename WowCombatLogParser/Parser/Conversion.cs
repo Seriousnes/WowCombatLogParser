@@ -20,9 +20,9 @@ namespace WoWCombatLogParser.Utility
             { typeof(UnitFlag), value => new UnitFlag(Convert.ToUInt32(value, 16)) },
         };
 
-        public static object GetValue(object value, Type type)
+        public static object GetValue(string value, Type type)
         {
-            if (value.GetType() == typeof(string) && (string)value == "nil") return default;
+            if (value.In("", "nil")) return default;
 
             if (_convertableTypes.ContainsKey(type))
             {

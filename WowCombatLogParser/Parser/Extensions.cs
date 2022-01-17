@@ -11,7 +11,6 @@ namespace WoWCombatLogParser.Utility
 {
     public static class Extensions
     {
-        #region Helpers
         public static bool MoveBy<T>(this IEnumerator<T> enumerator, int steps = 0)
         {
             var moveResult = true;
@@ -31,58 +30,15 @@ namespace WoWCombatLogParser.Utility
         {
             return objects.Contains(obj);
         }
-        #endregion
 
-        #region IEventSection
-        public static void Parse(this Part @event, IEnumerator<string> data)
-        {            
-            @event.ParseEventProperties(data, EventGenerator.GetClassMap(@event.GetType()));
-        }
-
-        public static void ParseEventProperties(this Part @event, IEnumerator<string> data, IList<PropertyInfo> properties)
-        {
-            foreach (var property in properties)
-            {
-                try
-                {
-                    var columnsToSkip = property.GetCustomAttribute<OffsetAttribute>()?.Value ?? 0;
-                    if (typeof(Part).IsAssignableFrom(property.PropertyType))
-                    {
-                        var prop = (Part)property.GetValue(@event);
-                        if (data.MoveBy(columnsToSkip - 1))
-                        {
-                            prop.Parse(data);
-                        }
-                    }
-                    else
-                    {
-                        if (!property.CanWrite) continue;
-                        if (data.MoveBy(columnsToSkip))
-                        {
-                            property.SetValue(@event, Conversion.GetValue(data.Current, property.PropertyType));
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    throw new CombatLogParseException(property.Name, property.PropertyType, data.Current);
-                }
-                
-            }
-        }
-        #endregion
-
-        #region Type
         public static List<PropertyInfo> GetTypePropertyInfo(this Type type)
         {
             return type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(i => i.GetCustomAttribute<NonDataAttribute>() == null)
+                .Where(i => i.GetCustomAttribute<NonDataAttribute>() == null && (i.PropertyType.IsSubclassOf(typeof(Part)) || i.CanWrite))                
                 .OrderBy(i => i.DeclaringType == type)
                 .ToList(); ;
         }
-        #endregion
 
-        #region Enums
         public static string GetDescription(this Enum element)
         {
             var type = element.GetType();
@@ -111,6 +67,5 @@ namespace WoWCombatLogParser.Utility
 
             throw new ArgumentException($"{value} isn't a member of {type.Name}");
         }
-        #endregion
     }
 }

@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace WoWCombatLogParser.Utility
 {
-    public delegate T ObjectActivator<T>(params object[] args);
+    public delegate object ObjectActivator(params object[] args);
 
     public static class CombatLogActivator
     {
-        public static ObjectActivator<T> GetActivator<T>(ConstructorInfo ctor)
+        public static ObjectActivator GetActivator<T>(ConstructorInfo ctor)
         {
             Type type = ctor.DeclaringType;
             ParameterInfo[] paramsInfo = ctor.GetParameters();
@@ -32,8 +32,8 @@ namespace WoWCombatLogParser.Utility
                 .ToArray();
 
             NewExpression newExp = Expression.New(ctor, argsExp);
-            LambdaExpression lambda = Expression.Lambda(typeof(ObjectActivator<T>), newExp, param);
-            return (ObjectActivator<T>)lambda.Compile();
+            LambdaExpression lambda = Expression.Lambda(typeof(ObjectActivator), newExp, param);
+            return (ObjectActivator)lambda.Compile();
         }
     }
 }

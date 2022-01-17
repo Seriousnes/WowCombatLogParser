@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using WoWCombatLogParser.Events.Parts;
@@ -11,11 +12,7 @@ namespace WoWCombatLogParser.Events.Special
     [Affix("COMBATANT_INFO")]
     [DebuggerDisplay("{PlayerGuid} {Faction} {Strength} {Agility} {Stamina} {Intelligence} {Dodge} {Parry} {Block} {CritMelee} {CritRanged} {CritSpell} {Speed} {Lifesteel} {HasteMelee} {HasteRanged} {HasteSpell} {Avoidance} {Mastery} {VersatilityDamageDone} {VersatilityHealingDone} {VersatilityDamageTaken} {Armor} {CurrentSpecID} ")]
     public class CombatantInfo : Part
-    {        
-        public CombatantInfo()
-        {
-        }        
-
+    {
         public WowGuid PlayerGuid { get; set; }
         public Faction Faction { get; set; }
         public int Strength { get; set; }
@@ -40,34 +37,41 @@ namespace WoWCombatLogParser.Events.Special
         public int VersatilityDamageTaken { get; set; }
         public int Armor { get; set; }
         public int CurrentSpecID { get; set; }
-        public Talents Talents { get; set; } = new();        
-    }
+        public PartList<Talent> ClassTalents { get; set; } = new();
+        public PartList<Talent> PvPTalents { get; set; } = new();
+        public Powers Powers { get; set; } = new();
+    }    
 
-    public class Talents : Part
+    [DebuggerDisplay("{TalentId}")]
+    public class Talent : ComplexPart
     {
-        private static readonly Regex _expr = new(@"\(?(\d+)\)?", RegexOptions.Compiled);
-        public int[] PvETalents { get; set; } = new int[6];
-        public int[] PvPTalents { get; set; } = new int[4];
-
-        protected override void Parse(IEnumerator<string> data)
-        {
-            for (int i = 0; i < 6; i++)
-            {
-                data.MoveNext();
-                PvETalents[i] = Convert.ToInt32(_expr.Replace(data.Current, "$1"));
-            }
-
-            for (int i = 0; i < 4; i++)
-            {
-                data.MoveNext();
-                PvPTalents[i] = Convert.ToInt32(_expr.Replace(data.Current, "$1"));
-            }
-        }
+        public int TalentId { get; set; }
     }
 
-    public class Powers : Part
+    public class Powers : ComplexPart
     {
         public Soulbind Soulbind { get; set; }
         public Covenant Covenant { get; set; }
+        public PartList<AnimaPower> AnimaPowers { get; set; } = new();
+        public PartList<SoulbindTrait> SoulbindTraits { get; set;} = new();
+        public PartList<Conduit> Conduits { get; set; } = new();
+    }    
+
+    public class AnimaPower : ComplexPart
+    {
+        public int Id { get; set; }
+        public int MawPowerId { get; set; }
+        public int Count { get; set; }
+    }
+
+    public class SoulbindTrait : ComplexPart
+    {
+        public int Id { get; set; }
+    }
+
+    public class Conduit : ComplexPart
+    {
+        public int Id { get; set; }
+        public int ItemLevel { get; set; }        
     }
 }
