@@ -37,8 +37,8 @@ namespace WoWCombatLogParser.Events.Special
         public int VersatilityDamageTaken { get; set; }
         public int Armor { get; set; }
         public int CurrentSpecID { get; set; }
-        public PartList<Talent> ClassTalents { get; set; } = new(")");
-        public PartList<Talent> PvPTalents { get; set; } = new(")");
+        public PartList<Talent> ClassTalents { get; set; } = new();
+        public PartList<Talent> PvPTalents { get; set; } = new();
         public Powers Powers { get; set; } = new();
     }    
 
@@ -52,11 +52,12 @@ namespace WoWCombatLogParser.Events.Special
     {
         public Soulbind Soulbind { get; set; }
         public Covenant Covenant { get; set; }
-        public PartList<AnimaPower> AnimaPowers { get; set; } = new("]", ")]");
-        public PartList<SoulbindTrait> SoulbindTraits { get; set;} = new("]", ")]");
-        public PartList<Conduit> Conduits { get; set; } = new("]]", ")]]");
+        public NestedPartList<AnimaPower> AnimaPowers { get; set; } = new();
+        public NestedPartList<SoulbindTrait> SoulbindTraits { get; set;} = new();
+        public NestedPartList<Conduit> Conduits { get; set; } = new();
     }    
 
+    [DebuggerDisplay("Id: {Id}, MawPowerId: {MawPowerId}, Stacks: {Count}")]
     public class AnimaPower : Part
     {
         public int Id { get; set; }
@@ -64,11 +65,13 @@ namespace WoWCombatLogParser.Events.Special
         public int Count { get; set; }
     }
 
+    [DebuggerDisplay("Id: {Id}")]
     public class SoulbindTrait : Part
     {
         public int Id { get; set; }
     }
 
+    [DebuggerDisplay("Id: {Id}, Ilvl: {ItemLevel}")]
     public class Conduit : Part
     {
         public int Id { get; set; }

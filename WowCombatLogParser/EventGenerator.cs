@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using WoWCombatLogParser.IO;
 using WoWCombatLogParser.Events;
 using WoWCombatLogParser.Models;
 using WoWCombatLogParser.Utility;
@@ -19,9 +20,9 @@ namespace WoWCombatLogParser
             SetupCombatLogEvents();
         }
 
-        public static CombatLogEvent GetCombatLogEvent(IList<string> line)
+        public static CombatLogEvent GetCombatLogEvent(IList<IField> line)
         {
-            var ctor = _ctors.Where(c => c.Key == line[(int)FieldId.EventType]).Select(c => c.Value).SingleOrDefault();
+            var ctor = _ctors.Where(c => c.Key == line[(int)FieldId.EventType].AsString()).Select(c => c.Value).SingleOrDefault();
             if (ctor == null) return null;
             return (CombatLogEvent)ctor(line);
         }

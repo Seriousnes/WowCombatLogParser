@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using WoWCombatLogParser.IO;
 using WoWCombatLogParser.Events;
-using static WoWCombatLogParser.Utility.Extensions;
 
 namespace WoWCombatLogParser.Models
 {
     public abstract class CombatLogEvent : Part, ICombatLogEvent
     {
-        private IEnumerable<string> _line;
+        private IEnumerable<IField> _line;
         private static int _count = 0;
 
         public CombatLogEvent()
@@ -17,7 +16,7 @@ namespace WoWCombatLogParser.Models
             Id = ++_count;
         }
 
-        public CombatLogEvent(IEnumerable<string> line, bool parseImmediate = false) : this()
+        public CombatLogEvent(IEnumerable<IField> line, bool parseImmediate = false) : this()
         {
             _line = line;
             if (parseImmediate)
@@ -43,7 +42,7 @@ namespace WoWCombatLogParser.Models
                 this.Parse(data);                
             }
             data.Dispose();
-            _line = Enumerable.Empty<string>();
+            _line = null;
         }
 
         public Task ParseAsync()
@@ -56,7 +55,7 @@ namespace WoWCombatLogParser.Models
     public class CombatLogEvent<TEvent> : CombatLogEvent, ICombatLogEvent
         where TEvent : Part, new()
     {
-        public CombatLogEvent(IEnumerable<string> line) : base(line)
+        public CombatLogEvent(IEnumerable<IField> line) : base(line)
         {
             BaseEvent = new EventBase();            
         }
@@ -71,7 +70,7 @@ namespace WoWCombatLogParser.Models
         where TPrefix : Part, new()
         where TSuffix : Part, new()
     {
-        public CombatLogEvent(IEnumerable<string> line) : base(line)
+        public CombatLogEvent(IEnumerable<IField> line) : base(line)
         {
             BaseEvent = new ComplexEventBase();            
         }

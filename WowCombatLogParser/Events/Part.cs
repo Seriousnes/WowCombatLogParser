@@ -1,49 +1,67 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using WoWCombatLogParser.Models;
+using WoWCombatLogParser.IO;
 using WoWCombatLogParser.Utility;
 
 namespace WoWCombatLogParser.Events
 {
     public abstract class Part : IEnumerable<PropertyInfo>
     {
-        public virtual bool Parse(IEnumerator<string> data)
+        public virtual bool Parse(IEnumerator<IField> data)
         {               
             foreach (var property in this)
             {
-                if (!ParseProperty(property, data)) return false;
+                if (!ParseProperty(property, data)) return false;                                
             }
             return true;
         }
 
-        protected virtual bool ParseProperty(PropertyInfo property, IEnumerator<string> data)
+        protected virtual bool ParseProperty(PropertyInfo property, IEnumerator<IField> data)
         {
             bool parseResult;
             if (property.PropertyType.IsSubclassOf(typeof(Part)))
             {
-                var prop = (Part)property.GetValue(this);
-                parseResult = prop.Parse(data);
+                //return ((Part)property.GetValue(this)).Parse(data);
+
+                var enumeratorResult = data.GetEnumeratorForProperty();
+                parseResult = enumeratorResult.Success ? ((Part)property.GetValue(this)).Parse(enumeratorResult.Enumerator) : false;
+
+                if (enumeratorResult.Dispose)
+                    enumeratorResult.Enumerator.Dispose();
+
+                parseResult = parseResult && !enumeratorResult.EndOfParent;
             }
-            else if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(PartList<>))
+            else if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition().In(typeof(PartList<>), typeof(NestedPartList<>)))
             {
                 parseResult = (bool)property.PropertyType.GetMethod("Parse").Invoke(property.GetValue(this), new[] { data });
+
+                //var enumeratorResult = data.GetEnumeratorForProperty();
+                //parseResult = enumeratorResult.Success ? (bool)property.PropertyType.GetMethod("Parse").Invoke(property.GetValue(this), new[] { enumeratorResult.Enumerator }) : true;
+
+                //if (enumeratorResult.Dispose) 
+                //    enumeratorResult.Enumerator.Dispose();
+
+                //parseResult = parseResult && !enumeratorResult.EndOfParent;
             }
             else
             {
                 parseResult = SetPropertyValue(property, data);
+                //var enumeratorResult = GetEnumeratorForProperty(data);
+                //parseResult = enumeratorResult.Success ? SetPropertyValue(property, enumeratorResult.Enumerator) : true;
+
+                //if (enumeratorResult.Dispose)
+                //    enumeratorResult.Enumerator.Dispose();
+
+                //parseResult = parseResult && !enumeratorResult.EndOfParent;
             }
             return parseResult;
         }
 
-        protected virtual bool SetPropertyValue(PropertyInfo property, IEnumerator<string> data)
+        protected virtual bool SetPropertyValue(PropertyInfo property, IEnumerator<IField> data)
         {
-            property.SetValue(this, Conversion.GetValue(data.Current, property.PropertyType));
+            property.SetValue(this, Conversion.GetValue(data.Current.AsString(), property.PropertyType));
             return data.MoveNext();
         }
 
@@ -60,31 +78,78 @@ namespace WoWCombatLogParser.Events
 
     public class PartList<T> : List<T> where T : Part
     {
-        private string[] endOn;
-
-        public PartList(params string[] endOn)
+        public virtual bool Parse(IEnumerator<IField> data)
         {
-            this.endOn = endOn;
-        }
+            var enumeratorResult = data.GetEnumeratorForProperty();
 
-        public virtual bool Parse(IEnumerator<string> data)
-        {
-            if (!data.Current.In("()", "[]"))
+            if (enumeratorResult.Success)
             {
+                bool notDone;
                 do
                 {
                     T item = EventGenerator.NewPart<T>();
-                    if (item.Parse(data))
+                    notDone = item.Parse(enumeratorResult.Enumerator);
+                    Add(item);
+                } while (notDone);
+            }
+
+            if (enumeratorResult.Dispose)
+                enumeratorResult.Enumerator.Dispose();
+            
+            return true;
+        }
+    }
+
+    public class NestedPartList<T> : PartList<T> where T : Part
+    {
+        public override bool Parse(IEnumerator<IField> data)
+        {
+            var outerEnumerator = data.GetEnumeratorForProperty();
+            if (outerEnumerator.Success)
+            {
+                bool notDone = false;
+                do
+                {
+                    var innerEnumerator = outerEnumerator.Enumerator.GetEnumeratorForProperty();
+                    if (innerEnumerator.Success)
                     {
+                        T item = EventGenerator.NewPart<T>();
+                        notDone = item.Parse(innerEnumerator.Enumerator);
                         Add(item);
                     }
-                } while (!endOn.Any(x => data.Current.EndsWith(x)));
-                return true;
+
+                    notDone = !innerEnumerator.EndOfParent || notDone;
+
+                    if (innerEnumerator.Dispose && innerEnumerator.Enumerator != outerEnumerator.Enumerator)
+                        innerEnumerator.Enumerator.Dispose();
+
+                } while (notDone);
             }
-            else
-            {
-                return data.MoveNext();
-            }
+
+            return true;
+
+            //bool notDone;
+            //do
+            //{
+            //    var enumeratorResult = data.GetEnumeratorForProperty();
+
+            //    if (enumeratorResult.Success)
+            //    {
+            //        T item = EventGenerator.NewPart<T>();
+            //        notDone = item.Parse(enumeratorResult.Enumerator);
+            //        Add(item);
+            //    }
+            //    else
+            //    {
+            //        notDone = false;
+            //    }
+
+            //    if (enumeratorResult.Dispose)
+            //        enumeratorResult.Enumerator.Dispose();
+
+            //} while (notDone);
+
+            //return true;
         }
     }
 

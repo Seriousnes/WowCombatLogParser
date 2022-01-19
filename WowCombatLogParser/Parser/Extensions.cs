@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
+using WoWCombatLogParser.IO;
 using WoWCombatLogParser.Events;
 using WoWCombatLogParser.Models;
 
@@ -77,6 +77,17 @@ namespace WoWCombatLogParser.Utility
                 chars.Add(line[currentIndex + i]);
             }
             return new string(chars.ToArray());
+        }
+
+        public static (bool Success, IEnumerator<IField> Enumerator, bool EndOfParent, bool Dispose) GetEnumeratorForProperty(this IEnumerator<IField> data)
+        {
+            if (data.Current is GroupField groupData)
+            {
+                var enumerator = groupData.Children.GetEnumerator();
+                return (enumerator.MoveNext(), enumerator, !data.MoveNext(), true);
+            }
+
+            return (true, data, false, false);
         }
     }
 }

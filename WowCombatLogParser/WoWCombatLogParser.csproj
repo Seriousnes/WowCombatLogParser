@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="TextFieldReader" Version="1.0.1" />
+    <ProjectReference Include="..\WoWCombatLogParser.IO\WoWCombatLogParser.IO.csproj" />
   </ItemGroup>
 
 </Project>

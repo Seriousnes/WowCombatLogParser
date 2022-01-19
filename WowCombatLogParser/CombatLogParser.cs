@@ -1,15 +1,13 @@
-﻿using CsvHelper;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using WoWCombatLogParser.Models;
-using CsvHelper.Configuration;
 using System;
 using WoWCombatLogParser.Events.Special;
 using WoWCombatLogParser.Utility;
-using Microsoft.VisualBasic.FileIO;
 using System.Linq;
+using WoWCombatLogParser.IO;
 
 namespace WoWCombatLogParser
 {
@@ -45,8 +43,7 @@ namespace WoWCombatLogParser
                     if (_encounterEndEvents.Contains(@event.GetType()))
                     {
                         var segment = new Encounter();
-                        //segment.ParseSegmentAsync(events).Wait();
-                        segment.ParseSegment(events);
+                        segment.ParseSegmentAsync(events).Wait();
                         events = null;
                         yield return segment;                        
                     }
@@ -62,11 +59,11 @@ namespace WoWCombatLogParser
             }
         }
 
-        public static IList<string> GetConstructorParams(string line)
+        public static IList<IField> GetConstructorParams(string line)
         {
-            using var s = new StringReader(line);
-            using var r = new TextFieldParser(s) { Delimiters = new[] { ",", "  " }, HasFieldsEnclosedInQuotes = true };
-            return r.ReadFields().ToList();
+            using var s = new StringReader(line.Replace("  ", ","));
+            using var r = new TextFieldReader(s) { Delimiters = new[] { ',' }, HasFieldsEnclosedInQuotes = true };
+            return r.ReadFields();
         }
 
         private static IEnumerable<string> ReadCombatLog(string fileName)
