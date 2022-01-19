@@ -40,12 +40,22 @@ namespace WoWCombatLogParser.Events.Special
         public PartList<Talent> ClassTalents { get; set; } = new();
         public PartList<Talent> PvPTalents { get; set; } = new();
         public Powers Powers { get; set; } = new();
+        public NestedPartList<EquippedItem> EquippedItems { get; set; } = new();
+        public PartList<InterestingAura> InterestingAuras { get; set; } = new();
+        public PvPStats PvPStats { get; set; } = new();
     }    
 
     [DebuggerDisplay("{TalentId}")]
     public class Talent : Part
     {
         public int TalentId { get; set; }
+    }
+
+    [DebuggerDisplay("{Id}")]
+    public abstract class IdPart : Part
+    {
+        public int Id { get; set; }
+
     }
 
     public class Powers : Part
@@ -57,7 +67,7 @@ namespace WoWCombatLogParser.Events.Special
         public NestedPartList<Conduit> Conduits { get; set; } = new();
     }    
 
-    [DebuggerDisplay("Id: {Id}, MawPowerId: {MawPowerId}, Stacks: {Count}")]
+    [DebuggerDisplay("{Id} @ {Count} (Maw Power ID: {MawPowerId})")]
     public class AnimaPower : Part
     {
         public int Id { get; set; }
@@ -65,16 +75,53 @@ namespace WoWCombatLogParser.Events.Special
         public int Count { get; set; }
     }
 
-    [DebuggerDisplay("Id: {Id}")]
-    public class SoulbindTrait : Part
-    {
-        public int Id { get; set; }
+    public class SoulbindTrait : IdPart
+    {        
     }
 
-    [DebuggerDisplay("Id: {Id}, Ilvl: {ItemLevel}")]
-    public class Conduit : Part
+    [DebuggerDisplay("{Id} (Ilvl: {ItemLevel})")]
+    public class Conduit : IdPart
     {
-        public int Id { get; set; }
         public int ItemLevel { get; set; }        
+    }
+
+    public class EquippedItem : Part
+    {
+        public int ItemId { get; set; }
+        public int ItemLevel { get; set; }
+        public ItemEnchants Enchantments { get; set; } = new();
+        public PartList<BonusId> BonusIds { get; set; } = new();
+        public PartList<Gem> Gems { get; set; } = new();
+
+    }
+
+    [DebuggerDisplay("({PermanentEnchantId}) ({TempEnchantId}) ({OnUseSpellEnchantId})")]
+    public class ItemEnchants : Part
+    {
+        public int PermanentEnchantId { get; set; }
+        public int TempEnchantId { get; set; }
+        public int OnUseSpellEnchantId { get; set; }
+    }
+    
+    public class BonusId : IdPart
+    {    
+    }
+
+    public class Gem : IdPart
+    {
+    }
+
+    public class InterestingAura : Part
+    {
+        public WowGuid PlayerId { get; set; }
+        public int AuraId { get; set; }
+    }
+
+    public class PvPStats : Part
+    {
+        public int HonorLevel { get; set; }
+        public int Season { get; set; }
+        public int Rating { get; set; }
+        public int Tier { get; set; }
     }
 }
