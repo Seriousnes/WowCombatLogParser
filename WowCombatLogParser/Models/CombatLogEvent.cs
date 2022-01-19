@@ -17,9 +17,13 @@ namespace WoWCombatLogParser.Models
             Id = ++_count;
         }
 
-        public CombatLogEvent(IEnumerable<string> line) : this()
+        public CombatLogEvent(IEnumerable<string> line, bool parseImmediate = false) : this()
         {
             _line = line;
+            if (parseImmediate)
+            {
+                Parse();
+            }
         }       
 
         [NonData]
@@ -34,7 +38,10 @@ namespace WoWCombatLogParser.Models
             if (HasBeenParsed) return;
             HasBeenParsed = true;
             var data = _line.GetEnumerator();
-            this.Parse(data);
+            if (data.MoveNext())
+            {
+                this.Parse(data);                
+            }
             data.Dispose();
             _line = Enumerable.Empty<string>();
         }

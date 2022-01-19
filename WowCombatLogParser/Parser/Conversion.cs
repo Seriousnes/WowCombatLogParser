@@ -9,6 +9,7 @@ namespace WoWCombatLogParser.Utility
     public static class Conversion
     {
         private static readonly Regex isNumber = new Regex(@"^([0-9]+|0x[0-9a-f]+)$", RegexOptions.Compiled);
+        private static readonly Regex cleanValue = new Regex(@"[\(\[]?(.*?)[\)\]]?", RegexOptions.Compiled);
         private static readonly Dictionary<Type, Func<string, object>> _convertableTypes = new()
         {
             { typeof(WowGuid), value => new WowGuid(value) },
@@ -22,6 +23,7 @@ namespace WoWCombatLogParser.Utility
 
         public static object GetValue(string value, Type type)
         {
+            value = cleanValue.Replace(value, "$1");
             if (value.In("", "nil")) return default;
 
             if (_convertableTypes.ContainsKey(type))

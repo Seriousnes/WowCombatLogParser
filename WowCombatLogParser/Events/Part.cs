@@ -36,15 +36,15 @@ namespace WoWCombatLogParser.Events
             }
             else
             {
-                parseResult = data.MoveNext() && SetPropertyValue(property, data.Current);
+                parseResult = SetPropertyValue(property, data);
             }
             return parseResult;
         }
 
-        protected virtual bool SetPropertyValue(PropertyInfo property, string value)
+        protected virtual bool SetPropertyValue(PropertyInfo property, IEnumerator<string> data)
         {
-            property.SetValue(this, Conversion.GetValue(value, property.PropertyType));
-            return true;
+            property.SetValue(this, Conversion.GetValue(data.Current, property.PropertyType));
+            return data.MoveNext();
         }
 
         public IEnumerator<PropertyInfo> GetEnumerator()
@@ -56,37 +56,41 @@ namespace WoWCombatLogParser.Events
         {
             return GetEnumerator();
         }
-    }
+    }        
 
-    public abstract class ComplexPart : Part
+    public class PartList<T> : List<T> where T : Part
     {
-        private static readonly Regex _r = new Regex(@"[\(\[]?(.*?)[\)\]]?", RegexOptions.Compiled);
-        protected override bool SetPropertyValue(PropertyInfo property, string value)
+        private string[] endOn;
+
+        public PartList(params string[] endOn)
         {
-            var result = base.SetPropertyValue(property, _r.Replace(value, "$1"));
-            return result || value.Last().In(']', ')');
+            this.endOn = endOn;
         }
-    }
 
-    public class PartList<T> : List<T> where T : ComplexPart
-    {
         public virtual bool Parse(IEnumerator<string> data)
         {
-            do
+            if (!data.Current.In("()", "[]"))
             {
-                T item = EventGenerator.NewPart<T>();
-                if (item.Parse(data))
+                do
                 {
-                    Add(item);
-                }
-            } while (!data.Current.Last().In(']', ')'));
-            return true;
+                    T item = EventGenerator.NewPart<T>();
+                    if (item.Parse(data))
+                    {
+                        Add(item);
+                    }
+                } while (!endOn.Any(x => data.Current.EndsWith(x)));
+                return true;
+            }
+            else
+            {
+                return data.MoveNext();
+            }
         }
     }
 
     public class PartEnumerator : IEnumerator<PropertyInfo>, IDisposable
     {
-        private ClassMap classMap;
+        private readonly ClassMap classMap;
         private int position = -1;
 
         public PartEnumerator(Part part)

@@ -62,6 +62,13 @@ namespace WoWCombatLogParser
             }
         }
 
+        public static IList<string> GetConstructorParams(string line)
+        {
+            using var s = new StringReader(line);
+            using var r = new TextFieldParser(s) { Delimiters = new[] { ",", "  " }, HasFieldsEnclosedInQuotes = true };
+            return r.ReadFields().ToList();
+        }
+
         private static IEnumerable<string> ReadCombatLog(string fileName)
         {
             using var sr = new StreamReader(fileName);
@@ -70,13 +77,6 @@ namespace WoWCombatLogParser
             {
                 yield return line;
             }
-        }
-
-        private static IList<string> GetConstructorParams(string line)
-        {
-            using var s = new StringReader(line);
-            using var r = new TextFieldParser(s) { Delimiters = new[] { ",", "  " }, HasFieldsEnclosedInQuotes = true };
-            return r.ReadFields().ToList();
-        }
+        }                    
     }
 }

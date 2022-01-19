@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Events;
 using WoWCombatLogParser.Models;
@@ -66,6 +67,16 @@ namespace WoWCombatLogParser.Utility
             }
 
             throw new ArgumentException($"{value} isn't a member of {type.Name}");
+        }
+
+        public static string Peek(this string line, int currentIndex, int count)
+        {
+            var chars = new List<char>();
+            for (int i = 1; i <= count; i++)
+            {
+                chars.Add(line[currentIndex + i]);
+            }
+            return new string(chars.ToArray());
         }
     }
 }
