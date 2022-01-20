@@ -20,18 +20,6 @@ namespace WoWCombatLogParser
             typeof(CombatLogEvent<MapChange>)
         };
 
-        public static IEnumerable<CombatLogEvent> ParseCombatLog(string fileName)
-        {
-            foreach (var line in ReadCombatLog(fileName))
-            {
-                var combatLogEvent = EventGenerator.GetCombatLogEvent(GetConstructorParams(line));
-                if (combatLogEvent != null)
-                {
-                    yield return combatLogEvent;
-                }
-            }
-        }
-
         public static IEnumerable<Encounter> ParseCombatLogSegments(string fileName)
         {
             List<CombatLogEvent> events = null;
@@ -55,6 +43,18 @@ namespace WoWCombatLogParser
                         events = new();
                         events.Add(@event);
                     }
+                }
+            }
+        }
+
+        private static IEnumerable<CombatLogEvent> ParseCombatLog(string fileName)
+        {
+            foreach (var line in ReadCombatLog(fileName))
+            {
+                var combatLogEvent = EventGenerator.GetCombatLogEvent(GetConstructorParams(line));
+                if (combatLogEvent != null)
+                {
+                    yield return combatLogEvent;
                 }
             }
         }

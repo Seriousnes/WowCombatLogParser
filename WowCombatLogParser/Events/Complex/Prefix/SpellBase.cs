@@ -3,7 +3,7 @@
 namespace WoWCombatLogParser.Events.Complex
 {
     [DebuggerDisplay("{Spell}")]
-    public class SpellBase : Part
+    public class SpellBase : EventSection
     {
         public Ability Spell { get; } = new();
     }

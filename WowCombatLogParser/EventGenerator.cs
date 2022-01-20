@@ -74,10 +74,10 @@ namespace WoWCombatLogParser
         {
             _classMap = Assembly.GetExecutingAssembly()
                 .GetTypes()
-                .Where(i => i.IsSubclassOf(typeof(Part)) && !i.IsAbstract && !i.IsGenericType)
+                .Where(i => i.IsSubclassOf(typeof(EventSection)) && !i.IsAbstract && !i.IsGenericType)
                 .ToDictionary(key => key, value => new ClassMap 
                 { 
-                    Constructor = CombatLogActivator.GetActivator<Part>(value.GetConstructors().First()), 
+                    Constructor = CombatLogActivator.GetActivator<EventSection>(value.GetConstructors().First()), 
                     Properties = value.GetTypePropertyInfo().ToArray() 
                 });
         }

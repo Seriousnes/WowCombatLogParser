@@ -15,8 +15,65 @@ namespace WoWCombatLogParser.Models
         Hostile
     }
 
+    public enum InstanceType
+    {
+        Party,
+        Raid,
+        Scenario,
+        PvP,
+        None
+    }
+
     public enum Difficulty
     {
+        Normal = 1,
+        Heroic,
+        Player10,
+        Player25,
+        Player10Heroic,
+        Player25Heroic,
+        LookingForRaid_Legacy,
+        MythicKeystone,
+        Player40,
+        HeroicScenario = 11,
+        NormalScenario,
+        NormalRaid = 14,
+        HeroicRaid,
+        MythicRaid,
+        LookingForRaid,
+        Event_Raid,
+        Event_Party,
+        EventScenario_Scenario,
+        MythicDungeon = 23,
+        Timewalking,
+        WorldPvPScenario,
+        PvEvPScenario = 29,
+        EventScenario,
+        WorldPvPScenario1 = 32,
+        TimewalkingRaid,
+        PvP,
+        Normal_Scenario = 38,
+        Heroic_Scenario,
+        Mythic_Scenario,
+        PvP_Scenario = 45,
+        Normal_Scenario_Warfronts = 147,
+        Heroic_Scenario_Warfronts = 149,
+        Normal_Party,
+        LFR_Timewalking,
+        VisionsOfNZoth,
+        TeemingIsland,
+        Torghast = 167,
+        PathOfAscension_Courage,
+        PathOfAscension_Loyalty,
+        PathOfAscension_Wisdom,
+        PathOfAscension_Humility,
+        WorldBoss
+    }
+
+    public class DifficultyInfo
+    {
+        public string Name { get; set; }
+        public InstanceType Type { get; set; }
     }
 
     public enum UnitType

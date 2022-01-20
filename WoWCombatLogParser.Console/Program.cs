@@ -8,11 +8,11 @@ namespace WoWCombatLogParser
 {
     class Program
     {
-        private static string debugFile = @"C:\Users\Sean\source\repos\WoWCombatLogParser\WoWCombatLogParser.Tests\TestLogs\WoWCombatLog.txt";
+        private static string debugFile = @"C:\Users\Sean\source\repos\WoWCombatLogParser\WoWCombatLogParser.Tests\TestLogs\SingleFightCombatLog.txt";
         static void Main(string[] args)
         {
-            var segments = ParseCombatLogSegments(debugFile).Take(2).ToList();
-
+            Encounter encounter = ParseCombatLogSegments(debugFile).FirstOrDefault();
+            Console.WriteLine($"Encounter has {encounter.Combatants.Count()} combatants and {encounter.Count()} events");
             Console.WriteLine("Parsing complete, press any key to close");
             Console.ReadKey();
         }

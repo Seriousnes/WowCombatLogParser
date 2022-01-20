@@ -35,48 +35,9 @@ namespace WoWCombatLogParser.Utility
         public static List<PropertyInfo> GetTypePropertyInfo(this Type type)
         {
             return type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(i => i.GetCustomAttribute<NonDataAttribute>() == null && (i.PropertyType.IsSubclassOf(typeof(Part)) || i.CanWrite))                
+                .Where(i => i.GetCustomAttribute<NonDataAttribute>() == null && (i.PropertyType.IsSubclassOf(typeof(EventSection)) || i.CanWrite))                
                 .OrderBy(i => i.DeclaringType == type)
                 .ToList(); ;
-        }
-
-        public static string GetDescription(this Enum element)
-        {
-            var type = element.GetType();
-            var memberInfo = type.GetMember(element.ToString());
-
-            if (memberInfo.Length > 0)
-            {
-                var attributes = memberInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
-                if (attributes.Length > 0)
-                {
-                    return ((DescriptionAttribute)attributes[0]).Description;
-                }
-            }
-            return element.ToString();
-        }
-
-        public static object FromDescription(string value, Type type)
-        {
-            foreach (Enum @enum in Enum.GetValues(type))
-            {
-                if (@enum.GetDescription().Equals(value, StringComparison.OrdinalIgnoreCase))
-                {
-                    return @enum;
-                }
-            }
-
-            throw new ArgumentException($"{value} isn't a member of {type.Name}");
-        }
-
-        public static string Peek(this string line, int currentIndex, int count)
-        {
-            var chars = new List<char>();
-            for (int i = 1; i <= count; i++)
-            {
-                chars.Add(line[currentIndex + i]);
-            }
-            return new string(chars.ToArray());
         }
 
         public static (bool Success, IEnumerator<IField> Enumerator, bool EndOfParent, bool Dispose) GetEnumeratorForProperty(this IEnumerator<IField> data)

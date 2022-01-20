@@ -4,7 +4,7 @@ using WoWCombatLogParser.Models;
 namespace WoWCombatLogParser.Events.Special
 {
     [Affix("UNIT_DIED")]
-    public class UnitDied : Part
+    public class UnitDied : EventSection
     {
         public WowGuid RecapId { get; set; }
         public bool UnconsciousOnDeath { get; set; }

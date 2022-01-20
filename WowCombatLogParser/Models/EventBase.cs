@@ -15,7 +15,7 @@ namespace WoWCombatLogParser.Events
     }
 
     [DebuggerDisplay("{Timestamp} {Event}")]
-    public class EventBase : Part
+    public class EventBase : EventSection
     {
         public DateTime Timestamp { get; set; }
         public string Event { get; set; }

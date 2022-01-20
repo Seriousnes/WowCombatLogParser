@@ -6,7 +6,7 @@ using WoWCombatLogParser.Events;
 
 namespace WoWCombatLogParser.Models
 {
-    public abstract class CombatLogEvent : Part, ICombatLogEvent
+    public abstract class CombatLogEvent : EventSection, ICombatLogEvent
     {
         private IEnumerable<IField> _line;
         private static int _count = 0;
@@ -16,7 +16,7 @@ namespace WoWCombatLogParser.Models
             Id = ++_count;
         }
 
-        public CombatLogEvent(IEnumerable<IField> line, bool parseImmediate = false) : this()
+        public CombatLogEvent(IEnumerable<IField> line = null, bool parseImmediate = false) : this()
         {
             _line = line;
             if (parseImmediate)
@@ -36,12 +36,12 @@ namespace WoWCombatLogParser.Models
         {
             if (HasBeenParsed) return;
             HasBeenParsed = true;
-            var data = _line.GetEnumerator();
-            if (data.MoveNext())
+            var data = _line?.GetEnumerator();
+            if (data?.MoveNext() ?? false)
             {
-                this.Parse(data);                
+                Parse(data);                
             }
-            data.Dispose();
+            data?.Dispose();
             _line = null;
         }
 
@@ -53,9 +53,9 @@ namespace WoWCombatLogParser.Models
 
     [DebuggerDisplay("{BaseEvent} {Event}")]
     public class CombatLogEvent<TEvent> : CombatLogEvent, ICombatLogEvent
-        where TEvent : Part, new()
+        where TEvent : EventSection, new()
     {
-        public CombatLogEvent(IEnumerable<IField> line) : base(line)
+        public CombatLogEvent(IEnumerable<IField> line = null) : base(line)
         {
             BaseEvent = new EventBase();            
         }
@@ -67,10 +67,10 @@ namespace WoWCombatLogParser.Models
 
     [DebuggerDisplay("{BaseEvent} {Prefix} {Suffix}")]
     public class CombatLogEvent<TPrefix, TSuffix> : CombatLogEvent, ICombatLogEvent
-        where TPrefix : Part, new()
-        where TSuffix : Part, new()
+        where TPrefix : EventSection, new()
+        where TSuffix : EventSection, new()
     {
-        public CombatLogEvent(IEnumerable<IField> line) : base(line)
+        public CombatLogEvent(IEnumerable<IField> line = null) : base(line)
         {
             BaseEvent = new ComplexEventBase();            
         }

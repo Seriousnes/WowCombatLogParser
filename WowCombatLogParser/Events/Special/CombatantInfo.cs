@@ -11,7 +11,7 @@ namespace WoWCombatLogParser.Events.Special
 {
     [Affix("COMBATANT_INFO")]
     [DebuggerDisplay("{PlayerGuid} {Faction} {Strength} {Agility} {Stamina} {Intelligence} {Dodge} {Parry} {Block} {CritMelee} {CritRanged} {CritSpell} {Speed} {Lifesteel} {HasteMelee} {HasteRanged} {HasteSpell} {Avoidance} {Mastery} {VersatilityDamageDone} {VersatilityHealingDone} {VersatilityDamageTaken} {Armor} {CurrentSpecID} ")]
-    public class CombatantInfo : Part
+    public class CombatantInfo : EventSection
     {
         public WowGuid PlayerGuid { get; set; }
         public Faction Faction { get; set; }
@@ -37,38 +37,38 @@ namespace WoWCombatLogParser.Events.Special
         public int VersatilityDamageTaken { get; set; }
         public int Armor { get; set; }
         public int CurrentSpecID { get; set; }
-        public PartList<Talent> ClassTalents { get; set; } = new();
-        public PartList<Talent> PvPTalents { get; set; } = new();
+        public EventSections<Talent> ClassTalents { get; set; } = new();
+        public EventSections<Talent> PvPTalents { get; set; } = new();
         public Powers Powers { get; set; } = new();
-        public NestedPartList<EquippedItem> EquippedItems { get; set; } = new();
-        public PartList<InterestingAura> InterestingAuras { get; set; } = new();
+        public NestedEventSections<EquippedItem> EquippedItems { get; set; } = new();
+        public EventSections<InterestingAura> InterestingAuras { get; set; } = new();
         public PvPStats PvPStats { get; set; } = new();
     }    
 
     [DebuggerDisplay("{TalentId}")]
-    public class Talent : Part
+    public class Talent : EventSection
     {
         public int TalentId { get; set; }
     }
 
     [DebuggerDisplay("{Id}")]
-    public abstract class IdPart : Part
+    public abstract class IdPart : EventSection
     {
         public int Id { get; set; }
 
     }
 
-    public class Powers : Part
+    public class Powers : EventSection
     {
         public Soulbind Soulbind { get; set; }
         public Covenant Covenant { get; set; }
-        public NestedPartList<AnimaPower> AnimaPowers { get; set; } = new();
-        public NestedPartList<SoulbindTrait> SoulbindTraits { get; set;} = new();
-        public NestedPartList<Conduit> Conduits { get; set; } = new();
+        public NestedEventSections<AnimaPower> AnimaPowers { get; set; } = new();
+        public NestedEventSections<SoulbindTrait> SoulbindTraits { get; set;} = new();
+        public NestedEventSections<Conduit> Conduits { get; set; } = new();
     }    
 
     [DebuggerDisplay("{Id} @ {Count} (Maw Power ID: {MawPowerId})")]
-    public class AnimaPower : Part
+    public class AnimaPower : EventSection
     {
         public int Id { get; set; }
         public int MawPowerId { get; set; }
@@ -85,18 +85,18 @@ namespace WoWCombatLogParser.Events.Special
         public int ItemLevel { get; set; }        
     }
 
-    public class EquippedItem : Part
+    public class EquippedItem : EventSection
     {
         public int ItemId { get; set; }
         public int ItemLevel { get; set; }
         public ItemEnchants Enchantments { get; set; } = new();
-        public PartList<BonusId> BonusIds { get; set; } = new();
-        public PartList<Gem> Gems { get; set; } = new();
+        public EventSections<BonusId> BonusIds { get; set; } = new();
+        public EventSections<Gem> Gems { get; set; } = new();
 
     }
 
     [DebuggerDisplay("({PermanentEnchantId}) ({TempEnchantId}) ({OnUseSpellEnchantId})")]
-    public class ItemEnchants : Part
+    public class ItemEnchants : EventSection
     {
         public int PermanentEnchantId { get; set; }
         public int TempEnchantId { get; set; }
@@ -111,13 +111,13 @@ namespace WoWCombatLogParser.Events.Special
     {
     }
 
-    public class InterestingAura : Part
+    public class InterestingAura : EventSection
     {
         public WowGuid PlayerId { get; set; }
         public int AuraId { get; set; }
     }
 
-    public class PvPStats : Part
+    public class PvPStats : EventSection
     {
         public int HonorLevel { get; set; }
         public int Season { get; set; }

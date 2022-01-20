@@ -18,15 +18,21 @@ namespace WoWCombatLogParser.Tests
         public CombatLogParsingTests(ITestOutputHelper output)
         {
             this.output = output;
-        }
+        }        
         
-        [Theory]
-        [InlineData(@"TestLogs/SingleFightCombatLog.txt")]
-        public void TestCombatLogs(string filename)
+        [Fact]
+        public void Test_SingleEncounter()
         {
-            var encountersInFile = ParseCombatLogSegments(filename).ToList();
-            Assert.True(encountersInFile.Any());
-            encountersInFile.ForEach(e => output.WriteLine($"Events: {e.Count}"));
+            Encounter encounter = ParseCombatLogSegments(@"TestLogs/SingleFightCombatLog.txt").FirstOrDefault();
+            encounter.Combatants.Should().HaveCount(14);
+            encounter.GetEncounterDescription().Should().Be("Fatescribe Roh-Kalo Heroic Wipe (4:31)  7:32 PM");
+        }
+
+        [Fact]
+        public void Test_MultipleEncounters()
+        {
+            var encounters = ParseCombatLogSegments(@"TestLogs/WoWCombatLog-112821_193218.txt").ToList();
+            encounters.Should().HaveCountGreaterThan(1);
         }
 
         [Theory]
@@ -56,23 +62,7 @@ namespace WoWCombatLogParser.Tests
             combatantInfo.EquippedItems.Should().HaveCount(18);
             combatantInfo.InterestingAuras.Should().HaveCount(7);
             Assert.True(combatantInfo.PvPStats is { HonorLevel: 23, Rating: 0, Season: 0, Tier: 0 });
-        }
-
-        [Theory]
-        [InlineData(@"[(186341,239,(),(7188,6652,1485,6646),(187319,255)),(186291,239,(),(7188,6652,7575,1485,6646),()),(172327,225,(),(6995,6718,6648,6649,1522),()),(0,0,(),(),()),(186303,239,(6230,0,0),(7188,6652,1485,6646),(187320,255)),(186301,239,(),(7188,6652,1485,6646),(187318,255)),(186307,239,(),(7188,6652,1485,6646),()),(186343,239,(6211,0,0),(7188,6652,1485,6646),(187065,255)),(178767,252,(),(7622,7359,6652,7574,1566,6646),()),(186308,239,(),(7188,6652,1485,6646),()),(186377,233,(6166,0,0),(7189,40,7575,1472,6646),()),(186375,239,(6166,0,0),(7188,6652,7575,1485,6646),()),(186432,226,(),(7189,6652,1472,6646),()),(186423,239,(),(7188,6652,1485,6646),()),(186374,239,(6204,0,0),(7188,6652,1485,6646),()),(186388,239,(6228,5401,0),(7188,6652,1485,6646),()),(186387,239,(6229,5400,0),(7188,6652,1485,6646),()),(0,0,(),(),())]")]
-        public void Test_EquippedItems(string input)
-        {
-            using var tfr = new TextFieldReader(input) { Delimiters = new[] { ',' }, HasFieldsEnclosedInQuotes = true };
-            var fields = tfr.ReadFields();
-
-            var equippedItems = new NestedPartList<EquippedItem>();
-            using var data = fields.GetEnumerator();
-            if (data.MoveNext())
-            {
-                equippedItems.Parse(data);
-            }
-            equippedItems.Should().HaveCount(18);
-        }        
+        }                
 
         [Theory]
         [InlineData(0x1148, UnitTypeFlag.Pet, ReactionFlag.Hostile, OwnershipFlag.Player, AffiliationFlag.Outsider)]

@@ -8,14 +8,13 @@ namespace WoWCombatLogParser.Utility
 {
     public static class Conversion
     {
-        private static readonly Regex isNumber = new Regex(@"^([0-9]+|0x[0-9a-f]+)$", RegexOptions.Compiled);
-        private static readonly Regex cleanValue = new Regex(@"[\(\[]?(.*?)[\)\]]?", RegexOptions.Compiled);
+        private static readonly Regex isNumber = new(@"^([0-9]+|0x[0-9a-f]+)$", RegexOptions.Compiled);
         private static readonly Dictionary<Type, Func<string, object>> _convertableTypes = new()
         {
             { typeof(WowGuid), value => new WowGuid(value) },
             { typeof(DateTime), value => DateTime.ParseExact(value, "M/d HH:mm:ss.fff", CultureInfo.InvariantCulture) },
             { typeof(decimal), value => decimal.Parse(value, CultureInfo.InvariantCulture) },
-            { typeof(long), value => ConvertToInt(value) },
+            { typeof(int), value => ConvertToInt(value) },
             { typeof(bool), value => value == "-1" },
             { typeof(string), value => value.Replace("\"", "") },
             { typeof(UnitFlag), value => new UnitFlag(Convert.ToUInt32(value, 16)) },
@@ -23,7 +22,6 @@ namespace WoWCombatLogParser.Utility
 
         public static object GetValue(string value, Type type)
         {
-            value = cleanValue.Replace(value, "$1");
             if (value.In("", "nil")) return default;
 
             if (_convertableTypes.ContainsKey(type))
@@ -48,7 +46,7 @@ namespace WoWCombatLogParser.Utility
             }
             else
             {
-                return Extensions.FromDescription(value, type);
+                return EnumExtensions.FromDescription(value, type);
             }                
         }
     }
