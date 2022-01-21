@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using WoWCombatLogParser.Events;
 using WoWCombatLogParser.IO;
 using WoWCombatLogParser.Utility;
 
@@ -70,7 +69,7 @@ namespace WoWCombatLogParser
             var genericType = type.MakeGenericType(typeArguments);
             var activator = CombatLogActivator.GetActivator<CombatLogEvent>(genericType.GetConstructors().First());
             _ctors.Add(name, activator);
-            
+
             // Try to add generic type definition, some predefined types may reuse the same definition
             _classMap.TryAdd(genericType, new ClassMap { Constructor = activator, Properties = genericType.GetTypePropertyInfo().ToArray() });
         }

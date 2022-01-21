@@ -22,7 +22,7 @@ namespace WoWCombatLogParser.Models
         public bool IsPrefix => Affix is PrefixAttribute;
         public bool IsSuffix => Affix is SuffixAttribute;
         public bool HasRestrictedSuffixes => RestrictedSuffixes?.Count() > 0;
-        
+
         public (string name, Type constructorDefinition, Type[] constructorTypeParams) GetSpecialConstructorTypeDefinition()
         {
             if (IsSpecial)

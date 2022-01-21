@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using WoWCombatLogParser.IO;
 
 namespace WoWCombatLogParser.Events
 {
     [Affix("DAMAGE_SPLIT")]
-    public class DamageSplit : CompoundDamageEventBase<Damage> 
+    public class DamageSplit : CompoundDamageEventBase<Damage>
     {
         public DamageSplit(IEnumerable<IField> line = null) : base(line)
         {
@@ -26,5 +25,5 @@ namespace WoWCombatLogParser.Events
         public DamageShieldMissed(IEnumerable<IField> line = null) : base(line)
         {
         }
-    }    
+    }
 }

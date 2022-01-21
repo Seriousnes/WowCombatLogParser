@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace WoWCombatLogParser.Events
+﻿namespace WoWCombatLogParser.Events
 {
     [Affix("COMBATANT_INFO")]
     [DebuggerDisplay("{PlayerGuid} {Faction} {Strength} {Agility} {Stamina} {Intelligence} {Dodge} {Parry} {Block} {CritMelee} {CritRanged} {CritSpell} {Speed} {Lifesteel} {HasteMelee} {HasteRanged} {HasteSpell} {Avoidance} {Mastery} {VersatilityDamageDone} {VersatilityHealingDone} {VersatilityDamageTaken} {Armor} {CurrentSpecID} ")]
@@ -35,7 +33,7 @@ namespace WoWCombatLogParser.Events
         public Powers Powers { get; set; } = new();
         public NestedEventSections<EquippedItem> EquippedItems { get; set; } = new();
         public EventSections<InterestingAura> InterestingAuras { get; set; } = new();
-        public PvPStats PvPStats { get; set; } = new();        
+        public PvPStats PvPStats { get; set; } = new();
     }
 
     [DebuggerDisplay("{TalentId}")]

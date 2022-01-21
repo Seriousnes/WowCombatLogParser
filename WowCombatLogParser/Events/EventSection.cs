@@ -5,7 +5,12 @@ using WoWCombatLogParser.Utility;
 
 namespace WoWCombatLogParser.Events
 {
-    public abstract class EventSection
+    public interface IEventSection
+    {
+        bool Parse(IEnumerator<IField> data);
+    }
+
+    public abstract class EventSection : IEventSection
     {
         public virtual bool Parse(IEnumerator<IField> data)
         {

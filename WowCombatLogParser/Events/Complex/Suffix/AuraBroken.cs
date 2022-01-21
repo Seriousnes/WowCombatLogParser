@@ -11,5 +11,5 @@
     {
         public AuraType AuraType { get; set; }
     }
-    
+
 }

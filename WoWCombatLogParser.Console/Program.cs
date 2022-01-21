@@ -11,7 +11,7 @@ namespace WoWCombatLogParser
         static void Main(string[] args)
         {
             Encounter encounter = ParseCombatLogSegments(debugFile).FirstOrDefault();
-            Console.WriteLine($"Encounter has {encounter.Combatants.Count()} combatants and {encounter.Count()} events");
+            Console.WriteLine($"Encounter has {encounter.Details.Combatants.Count()} combatants and {encounter.Events.Count()} events");
             Console.WriteLine("Parsing complete, press any key to close");
             Console.ReadKey();
         }

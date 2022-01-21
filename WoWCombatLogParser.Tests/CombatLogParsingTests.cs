@@ -21,16 +21,16 @@ namespace WoWCombatLogParser.Tests
 
         private void OutputEncounterSumary(Encounter encounter)
         {
-            output.WriteLine($"Event Summary\n{new string('-', 35)}");
+            output.WriteLine($"Event Summary\n{new string('=', 35)}");
             output.WriteLine(encounter.GetEncounterDescription());
-            output.WriteLine(new string('=', 35));
-            encounter
+            output.WriteLine(new string('-', 35));
+            encounter.Events
                 .GroupBy(x => x.EventName)
                 .OrderBy(x => x.Key)
                 .ToList()
                 .ForEach(x => output.WriteLine($"{x.Key,-25}{x.Count(),10}"));
             output.WriteLine(new string('-', 35));
-            output.WriteLine($"{"Count",-11}{encounter.Count,24}");
+            output.WriteLine($"{"Count",-11}{encounter.Events.Count,24}");
             output.WriteLine($"{new string('=', 35)}\n\n");
         }
 
@@ -44,8 +44,10 @@ namespace WoWCombatLogParser.Tests
         public void Test_SingleEncounter()
         {
             Encounter encounter = ParseCombatLogSegments(@"TestLogs/SingleFightCombatLog.txt").FirstOrDefault();
-            encounter.Combatants.Should().HaveCount(14);            
-            encounter.GetEncounterDescription().Should().Be("Fatescribe Roh-Kalo Heroic Wipe (4:31)  7:32 PM");
+            EncounterDetails details = encounter.Details;
+
+            details.Combatants.Should().HaveCount(14);
+            encounter.GetEncounterDescription().Should().Be("Fatescribe Roh-Kalo Heroic\nWipe (4:31)  7:32 PM");
 
             OutputEncounterSumary(encounter);
         }
@@ -110,13 +112,13 @@ namespace WoWCombatLogParser.Tests
         public void Test_DamageSplit(string input)
         {
             var @event = new DamageSplit(GetConstructorParams(input));
-            @event.Parse();           
+            @event.Parse();
         }
 
         [Theory]
         [InlineData(typeof(CombatLogEvent<SpellPeriodic, Damage>), @"11/28 19:32:36.434  SPELL_PERIODIC_DAMAGE,Creature-0-5047-2450-26923-175730-0000234859,""Fatescribe Roh-Kalo"",0x10a48,0x0,Player-1136-08E79DB6,""Bansky-Gurubashi"",0x512,0x0,353931,""Twist Fate"",0x20,Player-1136-08E79DB6,0000000000000000,50393,54600,2361,327,682,759,17,33,120,0,65.61,-901.65,2001,4.7087,247,4207,7861,-1,32,0,0,1601,nil,nil,nil")]
-        [InlineData(typeof(CombatLogEvent<Swing, Damage>), @"11/28 19:32:28.108  SWING_DAMAGE,Creature-0-5047-2450-26923-175730-0000234859,""Fatescribe Roh-Kalo"",0xa48,0x0,Player-3725-0BEB73E6,""Reekø-Frostmourne"",0x512,0x0,Creature-0-5047-2450-26923-175730-0000234859,0000000000000000,20164560,20164970,0,0,1071,0,3,0,100,0,69.31,-926.81,2001,1.7816,63,31511,41403,-1,1,0,0,0,nil,nil,nil")]
-        [InlineData(typeof(CombatLogEvent<Spell, Damage>), @"11/28 19:32:29.893  SPELL_DAMAGE,Player-3725-09D5AE20,""Esqi -Frostmourne"",0x514,0x0,Creature-0-5047-2450-26923-175730-0000234859,""Fatescribe Roh-Kalo"",0xa48,0x0,8092,""Mind Blast"",0x20,Creature-0-5047-2450-26923-175730-0000234859,0000000000000000,20123688,20164970,0,0,1071,0,3,0,100,0,66.59,-913.53,2001,1.7506,63,3629,3628,-1,32,0,0,0,nil,nil,nil")]
+        [InlineData(typeof(CombatLogEvent<Spell, Damage>), @"11/28 19:46:43.567  SPELL_DAMAGE,Pet-0-5047-2450-26923-165189-0203600F87,""Gruffhorn"",0x1114,0x0,Creature-0-5047-2450-26923-175730-0000234DDC,""Fatescribe Roh-Kalo"",0x10a48,0x0,83381,""Kill Command"",0x1,Creature-0-5047-2450-26923-175730-0000234DDC,0000000000000000,139,20164970,0,0,1071,0,3,7,100,0,100.86,-931.17,2001,2.9855,63,2245,3021,-1,1,0,0,0,nil,nil,nil")]
+        [InlineData(typeof(CombatLogEvent<Spell, Damage>), @"11/28 19:32:46.738  SPELL_DAMAGE,Player-3725-0BF357DA,""Koriz-Frostmourne"",0x514,0x0,Creature-0-5047-2450-26923-175730-0000234859,""Fatescribe Roh-Kalo"",0x10a48,0x0,285452,""Lava Burst"",0x4,Creature-0-5047-2450-26923-175730-0000234859,0000000000000000,18216931,20164970,0,0,1071,0,3,0,100,0,64.06,-904.28,2001,1.9476,63,8215,3816,-1,4,0,0,0,1,nil,nil")]
         public void Test_DamageSuffix(Type eventType, string input)
         {
             var @event = EventGenerator.GetCombatLogEvent(GetConstructorParams(input));

@@ -5,7 +5,16 @@ namespace WoWCombatLogParser.Events
     public interface ICombatLogEvent
     {
         bool IsComplex { get; }
-        bool IsOfType(Type type);
+        bool IsOfType<T>();
+    }
+
+    public interface ICompoundCombatLogEvent : ICombatLogEvent
+    {
+        bool IsOfType<T1, T2>();
+
+        EventBase BaseEvent { get; }
+        IEventSection Prefix { get; }
+        IEventSection Suffix { get; }
     }
 
     [DebuggerDisplay("{Timestamp} {Event}")]

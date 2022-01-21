@@ -1,12 +1,13 @@
 ﻿namespace WoWCombatLogParser.Models
 {
-    [DebuggerDisplay("{InfoGuid} {OwnerGuid} {UnitInfo} {Location}")]
+    [DebuggerDisplay("{InfoGuid} {OwnerGuid} {UnitInfo} {Location} {Level}")]
     public class AdvancedLoggingDetails : EventSection
     {
         public WowGuid InfoGuid { get; set; }
         public WowGuid OwnerGuid { get; set; }
         public UnitInfo UnitInfo { get; set; } = new();
         public Location Location { get; set; } = new();
+        public int Level { get; set; }
 
     }
 
@@ -38,13 +39,12 @@
         public decimal PowerCost { get; set; }
     }
 
-    [DebuggerDisplay("{X} {Y} {MapId} {Facing} {Level}")]
+    [DebuggerDisplay("{X} {Y} {MapId} {Facing}")]
     public class Location : EventSection
     {
         public decimal X { get; set; }
         public decimal Y { get; set; }
         public int MapId { get; set; }
         public decimal Facing { get; set; }
-        public decimal Level { get; set; }
     }
 }

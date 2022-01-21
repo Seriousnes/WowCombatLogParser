@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using WoWCombatLogParser.Events;
 using WoWCombatLogParser.IO;
 
 namespace WoWCombatLogParser
@@ -26,7 +25,7 @@ namespace WoWCombatLogParser
                     if (_encounterEndEvents.Contains(@event.GetType()))
                     {
                         var segment = new Encounter();
-                        segment.ParseSegmentAsync(events).Wait();
+                        segment.ProcessAsync(events).Wait();
                         events = null;
                         yield return segment;
                     }

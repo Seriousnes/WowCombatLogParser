@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using WoWCombatLogParser.Events;
 using WoWCombatLogParser.IO;
 
 namespace WoWCombatLogParser.Models
 {
-    public abstract class CombatLogEvent : EventSection, ICombatLogEvent
+    public abstract class CombatLogEvent : EventSection
     {
         private IEnumerable<IField> _line;
         private static int _count = 0;
@@ -32,7 +29,6 @@ namespace WoWCombatLogParser.Models
         public bool HasBeenParsed { get; private set; } = false;
         public virtual EventBase BaseEvent { get; set; }
         public abstract bool IsComplex { get; }
-        public abstract bool IsOfType(Type type);
         public void Parse()
         {
             if (HasBeenParsed) return;
@@ -51,7 +47,7 @@ namespace WoWCombatLogParser.Models
             return Task.Run(() => Parse());
         }
 
-        public abstract string EventName { get; }
+        public string EventName => BaseEvent.Event;
     }
 
     /// <summary>
@@ -72,10 +68,7 @@ namespace WoWCombatLogParser.Models
 
         public virtual TEvent Event { get; } = new();
         public override bool IsComplex => false;
-
-        public override string EventName => Event.GetType().GetCustomAttribute<AffixAttribute>()?.Name;
-
-        public override bool IsOfType(Type type) => Event.GetType() == type || Event.GetType().IsSubclassOf(type);
+        public bool IsOfType<T>() => typeof(TEvent) == typeof(T) || typeof(TEvent).IsSubclassOf(typeof(T));
     }
 
     /// <summary>
@@ -86,9 +79,9 @@ namespace WoWCombatLogParser.Models
     /// properties are not reintroduced, the order would be mapped as Prefix, Suffix, BaseEvent which is invalid for the parser
     /// </remarks>    
     [DebuggerDisplay("{BaseEvent} {Prefix} {Suffix}")]
-    public class CombatLogEvent<TPrefix, TSuffix> : CombatLogEvent, ICombatLogEvent
-        where TPrefix : EventSection, new()
-        where TSuffix : EventSection, new()
+    public class CombatLogEvent<TPrefix, TSuffix> : CombatLogEvent, ICompoundCombatLogEvent
+        where TPrefix : IEventSection, new()
+        where TSuffix : IEventSection, new()
     {
         public CombatLogEvent(IEnumerable<IField> line = null) : base(line)
         {
@@ -97,12 +90,10 @@ namespace WoWCombatLogParser.Models
 
         public virtual TPrefix Prefix { get; } = new();
         public virtual TSuffix Suffix { get; } = new();
+        IEventSection ICompoundCombatLogEvent.Prefix => Prefix;
+        IEventSection ICompoundCombatLogEvent.Suffix => Suffix;
         public override bool IsComplex => true;
-
-        public override string EventName => $"{Prefix.GetType().GetCustomAttribute<AffixAttribute>().Name}{Suffix.GetType().GetCustomAttribute<AffixAttribute>().Name}";
-
-        public override bool IsOfType(Type type) =>
-            Prefix.GetType() == type || Prefix.GetType().IsSubclassOf(type) ||
-            Suffix.GetType() == type || Suffix.GetType().IsSubclassOf(type);
+        public bool IsOfType<T>() => typeof(TPrefix) == typeof(T) || typeof(TSuffix) == typeof(T);
+        public bool IsOfType<T1, T2>() => typeof(TPrefix) == typeof(T1) && typeof(TSuffix) == typeof(T2);
     }
 }

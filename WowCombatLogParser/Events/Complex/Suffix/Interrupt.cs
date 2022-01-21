@@ -2,6 +2,6 @@
 {
     [Suffix("_INTERRUPT")]
     public class Interrupt : AbilityBase
-    {        
+    {
     }
 }
