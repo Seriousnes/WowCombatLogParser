@@ -1,6 +1,4 @@
-﻿using WoWCombatLogParser.Models;
-
-namespace WoWCombatLogParser.Events.Complex
+﻿namespace WoWCombatLogParser.Events
 {
     [Suffix("_AURA_APPLIED")]
     [DebuggerDisplay("{AuraType} {Amount}")]

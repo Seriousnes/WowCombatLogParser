@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using WoWCombatLogParser.Models;
-
-namespace WoWCombatLogParser.Events.Parts
+﻿namespace WoWCombatLogParser.Models
 {
     [DebuggerDisplay("{Id} {Name} {Flags} {RaidFlags}")]
     public class Unit : EventSection

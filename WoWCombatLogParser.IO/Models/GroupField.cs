@@ -55,10 +55,10 @@ namespace WoWCombatLogParser.IO
         private char openingBracket;
         public IList<IField> Children { get; } = new List<IField>();
 
-        public virtual char OpeningBracket 
-        { 
+        public virtual char OpeningBracket
+        {
             get => openingBracket;
-            set 
+            set
             {
                 openingBracket = value;
                 ClosingBracket = bracketPairs.TryGetValue(value, out char closingBracket) ? closingBracket : throw new ArgumentOutOfRangeException();
@@ -71,7 +71,7 @@ namespace WoWCombatLogParser.IO
         public virtual void AddChild(IField child)
         {
             child.Parent = this;
-            Children.Add(child);            
+            Children.Add(child);
         }
 
         public virtual string AsString()

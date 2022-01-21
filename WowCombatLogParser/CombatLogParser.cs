@@ -1,18 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
-using WoWCombatLogParser.Models;
-using System;
-using WoWCombatLogParser.Events.Special;
-using WoWCombatLogParser.Utility;
-using System.Linq;
+using WoWCombatLogParser.Events;
 using WoWCombatLogParser.IO;
 
 namespace WoWCombatLogParser
 {
     public class CombatLogParser
-    {     
+    {
         private static readonly List<Type> _encounterEndEvents = new()
         {
             typeof(CombatLogEvent<EncounterEnd>),
@@ -33,7 +28,7 @@ namespace WoWCombatLogParser
                         var segment = new Encounter();
                         segment.ParseSegmentAsync(events).Wait();
                         events = null;
-                        yield return segment;                        
+                        yield return segment;
                     }
                 }
                 else
@@ -74,6 +69,6 @@ namespace WoWCombatLogParser
             {
                 yield return line;
             }
-        }                    
+        }
     }
 }

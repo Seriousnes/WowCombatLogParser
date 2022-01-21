@@ -1,9 +1,8 @@
-﻿using WoWCombatLogParser.Models;
-
-namespace WoWCombatLogParser.Events.Complex
+﻿namespace WoWCombatLogParser.Events
 {
     [Prefix("SPELL")]
-    public class Spell : SpellBase
+    [SuffixNotAllowed(typeof(DamageLanded))]
+    public class Spell : AbilityBase
     {
     }
 }

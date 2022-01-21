@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Utility
 {
@@ -15,7 +14,7 @@ namespace WoWCombatLogParser.Utility
             { typeof(DateTime), value => DateTime.ParseExact(value, "M/d HH:mm:ss.fff", CultureInfo.InvariantCulture) },
             { typeof(decimal), value => decimal.Parse(value, CultureInfo.InvariantCulture) },
             { typeof(int), value => ConvertToInt(value) },
-            { typeof(bool), value => value == "-1" },
+            { typeof(bool), value => value != "0" },
             { typeof(string), value => value.Replace("\"", "") },
             { typeof(UnitFlag), value => new UnitFlag(Convert.ToUInt32(value, 16)) },
         };
@@ -47,7 +46,7 @@ namespace WoWCombatLogParser.Utility
             else
             {
                 return EnumExtensions.FromDescription(value, type);
-            }                
+            }
         }
     }
 }

@@ -180,7 +180,7 @@ namespace WoWCombatLogParser.Models
         Pain,
         NumPowerTypes
     }
-    
+
     [Flags]
     public enum AffiliationFlag : uint
     {
@@ -250,7 +250,7 @@ namespace WoWCombatLogParser.Models
     }
 
     public enum Soulbind
-    { 
+    {
         Niya = 1,
         Dreamweaver,
         GeneralDraven,

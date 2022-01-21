@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WoWCombatLogParser.Events.Parts;
-using WoWCombatLogParser.Events.Special;
+using WoWCombatLogParser.Events;
 using WoWCombatLogParser.Utility;
 
 namespace WoWCombatLogParser.Models
@@ -12,13 +11,13 @@ namespace WoWCombatLogParser.Models
     public class Encounter : List<CombatLogEvent>
     {
         public Encounter()
-        {            
+        {
         }
 
         public void ParseSegment(IList<CombatLogEvent> events)
         {
             AddRange(events);
-            Parse(); 
+            Parse();
             Sort(_comparison);
         }
 
@@ -43,17 +42,17 @@ namespace WoWCombatLogParser.Models
         }
 
         private Comparison<CombatLogEvent> _comparison => (c1, c2) => c1.Id.CompareTo(c2.Id);
-        public IEnumerable<CombatantInfo> Combatants => this.OfType<CombatLogEvent<CombatantInfo>>().Select(x => x.Event);               
+        public IEnumerable<CombatantInfo> Combatants => this.OfType<CombatLogEvent<CombatantInfo>>().Select(x => x.Event);
 
         public string GetEncounterDescription()
         {
             var start = this.First() is CombatLogEvent<EncounterStart> first ? first : new CombatLogEvent<EncounterStart>();
             var end = this.Last();
-            
+
             // final event may not be an encounter end event
             var (success, duration) = end is CombatLogEvent<EncounterEnd> encounterEnd ? (encounterEnd.Event.Success, TimeSpan.FromMilliseconds(encounterEnd.Event.FightTime)) : (false, end.BaseEvent.Timestamp - start.BaseEvent.Timestamp);
 
-            return $"{start.Event.Name} {start.Event.DifficultyId.GetDifficultyInfo().Name } {(success ? "Kill" : "Wipe" )} ({duration:m\\:ss})  {start.BaseEvent.Timestamp:h:mm tt}";
+            return $"{start.Event.Name} {start.Event.DifficultyId.GetDifficultyInfo().Name } {(success ? "Kill" : "Wipe")} ({duration:m\\:ss})  {start.BaseEvent.Timestamp:h:mm tt}";
         }
     }
 }

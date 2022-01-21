@@ -1,7 +1,4 @@
-﻿using WoWCombatLogParser.Events.Parts;
-using WoWCombatLogParser.Models;
-
-namespace WoWCombatLogParser.Events.Complex
+﻿namespace WoWCombatLogParser.Events
 {
     [Suffix("_HEAL")]
     [DebuggerDisplay("{Amount} {Overhealing} {Absorbed} {Critical}")]

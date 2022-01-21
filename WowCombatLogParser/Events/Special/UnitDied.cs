@@ -1,7 +1,4 @@
-﻿using WoWCombatLogParser.Events.Parts;
-using WoWCombatLogParser.Models;
-
-namespace WoWCombatLogParser.Events.Special
+﻿namespace WoWCombatLogParser.Events
 {
     [Affix("UNIT_DIED")]
     public class UnitDied : EventSection

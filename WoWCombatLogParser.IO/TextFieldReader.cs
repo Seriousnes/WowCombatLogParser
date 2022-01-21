@@ -63,7 +63,7 @@
                         {
                             field.Range.End = index - 1;
                             field.Parent.Range.End = index;
-                            field = textFieldParent.Parent;                            
+                            field = textFieldParent.Parent;
                         }
                         else
                         {
@@ -80,8 +80,8 @@
                                 if (field is GroupField || field is null)
                                 {
                                     field = AddFieldToResults<TextField>(index, field, content);
-                                }     
-                                
+                                }
+
                                 ((TextField)field).Append(c);
                             }
                         }

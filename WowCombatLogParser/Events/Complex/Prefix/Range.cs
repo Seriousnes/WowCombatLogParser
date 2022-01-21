@@ -1,10 +1,9 @@
-﻿using WoWCombatLogParser.Models;
-
-namespace WoWCombatLogParser.Events.Complex
+﻿namespace WoWCombatLogParser.Events
 {
     [Prefix("RANGE")]
     [SuffixAllowed(typeof(Damage), typeof(Missed))]
-    public class Range : SpellBase
+    [SuffixNotAllowed(typeof(DamageLanded))]
+    public class Range : AbilityBase
     {
     }
 }

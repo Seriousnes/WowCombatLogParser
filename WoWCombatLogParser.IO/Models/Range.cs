@@ -8,7 +8,7 @@ namespace WoWCombatLogParser.IO
         public Range(int start, int end)
         {
             Start = start;
-            End = end;            
+            End = end;
         }
 
         public int Start { get; set; }
@@ -17,7 +17,7 @@ namespace WoWCombatLogParser.IO
         public static readonly Range EmptyRange = new(0, 0);
         public bool IsEmpty() => IsEmpty(this);
         public static bool IsEmpty(Range range) => range.Start == range.End;
-        public bool ContainsPosition(int position) => ContainsPosition(this, position); 
+        public bool ContainsPosition(int position) => ContainsPosition(this, position);
         public static bool ContainsPosition(Range range, int position) => position >= range.Start && position <= range.End;
         public static bool StrictContainsPosition(Range range, int position) => position > range.Start && position < range.End;
         public bool ContainsRange(Range range) => ContainsRange(this, range);
@@ -27,7 +27,7 @@ namespace WoWCombatLogParser.IO
         public Range Plus(Range range) => Plus(this, range);
         public static Range Plus(Range a, Range b) => new Range(Math.Min(a.Start, b.Start), Math.Max(a.End, b.End));
         public Range? Intersect(Range range) => Intersect(this, range);
-        
+
         public static Range? Intersect(Range a, Range b)
         {
             int start = Math.Max(a.Start, b.Start);

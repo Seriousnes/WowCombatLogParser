@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using WoWCombatLogParser.Utility;
 
 namespace WoWCombatLogParser.Models
 {
     [DebuggerDisplay("{DebuggerValue}")]
     public class EventAffixItem
     {
-        private string DebuggerValue => $"{EventType.Name} ({(IsSpecial ? "Special" : IsPrefix ? "Prefix" : "Suffix")})"; 
-        
+        private string DebuggerValue => $"{EventType.Name} ({(IsSpecial ? "Special" : IsPrefix ? "Prefix" : "Suffix")})";
+
         public EventAffixItem(Type type)
         {
             EventType = type;
@@ -24,6 +22,22 @@ namespace WoWCombatLogParser.Models
         public bool IsPrefix => Affix is PrefixAttribute;
         public bool IsSuffix => Affix is SuffixAttribute;
         public bool HasRestrictedSuffixes => RestrictedSuffixes?.Count() > 0;
+        
+        public (string name, Type constructorDefinition, Type[] constructorTypeParams) GetSpecialConstructorTypeDefinition()
+        {
+            if (IsSpecial)
+            {
+                return EventType switch
+                {
+                    var e when e.In(typeof(DamageSplit), typeof(DamageShield)) => (Affix.Name, typeof(CombatLogEvent<,>), new[] { typeof(Spell), typeof(Damage) }),
+                    var e when e == typeof(DamageShieldMissed) => (Affix.Name, typeof(CombatLogEvent<,>), new[] { typeof(Spell), typeof(Missed) }),
+                    _ => (Affix.Name, typeof(CombatLogEvent<>), new[] { EventType })
+                };
+            }
+
+            return (null, null, null);
+        }
+
         public IEnumerable<EventAffixItem> RestrictedSuffixes => EventType
                 .GetCustomAttributes(typeof(SuffixAllowedAttribute))
                 .Cast<SuffixAllowedAttribute>()
@@ -36,7 +50,7 @@ namespace WoWCombatLogParser.Models
                 .GetCustomAttributes(typeof(SuffixNotAllowedAttribute))
                 .Cast<SuffixNotAllowedAttribute>()
                 .SelectMany(i => i.Suffixes)
-                .Any(i => i != type);
+                .Contains(type);
         }
     }
 }

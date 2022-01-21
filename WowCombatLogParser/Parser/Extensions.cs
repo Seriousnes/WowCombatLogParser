@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using WoWCombatLogParser.IO;
 using WoWCombatLogParser.Events;
-using WoWCombatLogParser.Models;
+using WoWCombatLogParser.IO;
 
 namespace WoWCombatLogParser.Utility
 {
@@ -34,10 +32,11 @@ namespace WoWCombatLogParser.Utility
 
         public static List<PropertyInfo> GetTypePropertyInfo(this Type type)
         {
-            return type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(i => i.GetCustomAttribute<NonDataAttribute>() == null && (i.PropertyType.IsSubclassOf(typeof(EventSection)) || i.CanWrite))                
+            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(i => i.GetCustomAttribute<NonDataAttribute>() == null && (i.PropertyType.IsSubclassOf(typeof(EventSection)) || i.CanWrite))
                 .OrderBy(i => i.DeclaringType == type)
-                .ToList(); ;
+                .ToList();
+            return properties;
         }
 
         public static (bool Success, IEnumerator<IField> Enumerator, bool EndOfParent, bool Dispose) GetEnumeratorForProperty(this IEnumerator<IField> data)

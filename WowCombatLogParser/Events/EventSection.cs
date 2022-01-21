@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using WoWCombatLogParser.IO;
 using WoWCombatLogParser.Utility;
@@ -10,10 +8,10 @@ namespace WoWCombatLogParser.Events
     public abstract class EventSection
     {
         public virtual bool Parse(IEnumerator<IField> data)
-        {               
+        {
             foreach (var property in EventGenerator.GetClassMap(this.GetType()).Properties)
             {
-                if (!ParseProperty(property, data)) return false;                                
+                if (!ParseProperty(property, data)) return false;
             }
             return true;
         }
@@ -46,8 +44,8 @@ namespace WoWCombatLogParser.Events
             property.SetValue(this, Conversion.GetValue(data.Current.AsString(), property.PropertyType));
             return data.MoveNext();
         }
-    }   
-    
+    }
+
     public interface IEventSectionList
     {
         bool Parse(IEnumerator<IField> data);
@@ -64,7 +62,7 @@ namespace WoWCombatLogParser.Events
                 bool notDone;
                 do
                 {
-                    T item = EventGenerator.NewPart<T>();
+                    T item = EventGenerator.CreateEventSection<T>();
                     notDone = item.Parse(enumeratorResult.Enumerator);
                     Add(item);
                 } while (notDone);
@@ -72,7 +70,7 @@ namespace WoWCombatLogParser.Events
 
             if (enumeratorResult.Dispose)
                 enumeratorResult.Enumerator.Dispose();
-            
+
             return true;
         }
     }
@@ -90,7 +88,7 @@ namespace WoWCombatLogParser.Events
                     var innerEnumerator = outerEnumerator.Enumerator.GetEnumeratorForProperty();
                     if (innerEnumerator.Success)
                     {
-                        T item = EventGenerator.NewPart<T>();
+                        T item = EventGenerator.CreateEventSection<T>();
                         notDone = item.Parse(innerEnumerator.Enumerator);
                         Add(item);
                     }

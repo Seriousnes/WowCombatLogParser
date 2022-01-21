@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using WoWCombatLogParser.Events.Complex;
 using WoWCombatLogParser.Models;
 using static WoWCombatLogParser.CombatLogParser;
 

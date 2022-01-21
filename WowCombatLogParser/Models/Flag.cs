@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WoWCombatLogParser.Models
+﻿namespace WoWCombatLogParser.Models
 {
     public readonly struct UnitFlag
     {
@@ -20,7 +14,7 @@ namespace WoWCombatLogParser.Models
         public UnitTypeFlag UnitType { get; }
         public OwnershipFlag Ownership { get; }
         public ReactionFlag Reaction { get; }
-        public AffiliationFlag Affiliation { get; }       
+        public AffiliationFlag Affiliation { get; }
         public SpecialFlag Special { get; }
-    }    
+    }
 }

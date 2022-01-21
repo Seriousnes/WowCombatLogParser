@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using WoWCombatLogParser.Events.Parts;
-using WoWCombatLogParser.Models;
-using WoWCombatLogParser.Utility;
 
-namespace WoWCombatLogParser.Events.Special
+namespace WoWCombatLogParser.Events
 {
     [Affix("COMBATANT_INFO")]
     [DebuggerDisplay("{PlayerGuid} {Faction} {Strength} {Agility} {Stamina} {Intelligence} {Dodge} {Parry} {Block} {CritMelee} {CritRanged} {CritSpell} {Speed} {Lifesteel} {HasteMelee} {HasteRanged} {HasteSpell} {Avoidance} {Mastery} {VersatilityDamageDone} {VersatilityHealingDone} {VersatilityDamageTaken} {Armor} {CurrentSpecID} ")]
@@ -42,8 +35,8 @@ namespace WoWCombatLogParser.Events.Special
         public Powers Powers { get; set; } = new();
         public NestedEventSections<EquippedItem> EquippedItems { get; set; } = new();
         public EventSections<InterestingAura> InterestingAuras { get; set; } = new();
-        public PvPStats PvPStats { get; set; } = new();
-    }    
+        public PvPStats PvPStats { get; set; } = new();        
+    }
 
     [DebuggerDisplay("{TalentId}")]
     public class Talent : EventSection
@@ -63,9 +56,9 @@ namespace WoWCombatLogParser.Events.Special
         public Soulbind Soulbind { get; set; }
         public Covenant Covenant { get; set; }
         public NestedEventSections<AnimaPower> AnimaPowers { get; set; } = new();
-        public NestedEventSections<SoulbindTrait> SoulbindTraits { get; set;} = new();
+        public NestedEventSections<SoulbindTrait> SoulbindTraits { get; set; } = new();
         public NestedEventSections<Conduit> Conduits { get; set; } = new();
-    }    
+    }
 
     [DebuggerDisplay("{Id} @ {Count} (Maw Power ID: {MawPowerId})")]
     public class AnimaPower : EventSection
@@ -76,13 +69,13 @@ namespace WoWCombatLogParser.Events.Special
     }
 
     public class SoulbindTrait : IdPart
-    {        
+    {
     }
 
     [DebuggerDisplay("{Id} (Ilvl: {ItemLevel})")]
     public class Conduit : IdPart
     {
-        public int ItemLevel { get; set; }        
+        public int ItemLevel { get; set; }
     }
 
     public class EquippedItem : EventSection
@@ -102,9 +95,9 @@ namespace WoWCombatLogParser.Events.Special
         public int TempEnchantId { get; set; }
         public int OnUseSpellEnchantId { get; set; }
     }
-    
+
     public class BonusId : IdPart
-    {    
+    {
     }
 
     public class Gem : IdPart

@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WoWCombatLogParser.Models;
-
-namespace WoWCombatLogParser.Events.Special
+﻿namespace WoWCombatLogParser.Events
 {
     public abstract class EncounterFragment : EventSection
     {
@@ -21,7 +13,7 @@ namespace WoWCombatLogParser.Events.Special
     [Affix("ENCOUNTER_START")]
     public class EncounterStart : EncounterFragment
     {
-        public int InstanceId { get; set; }        
+        public int InstanceId { get; set; }
     }
 
     [DebuggerDisplay("Encounter \"{Name}\" ({Id}) ended")]

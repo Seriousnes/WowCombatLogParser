@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Utility
 {
@@ -86,5 +81,5 @@ namespace WoWCombatLogParser.Utility
             _ => throw new ArgumentException($"{difficulty} is not a valid enum value for Difficulty", nameof(difficulty))
         };
 
-}
+    }
 }

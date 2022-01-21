@@ -1,6 +1,4 @@
-﻿using WoWCombatLogParser.Models;
-
-namespace WoWCombatLogParser.Events.Parts
+﻿namespace WoWCombatLogParser.Models
 {
     [DebuggerDisplay("{InfoGuid} {OwnerGuid} {UnitInfo} {Location}")]
     public class AdvancedLoggingDetails : EventSection
@@ -9,11 +7,11 @@ namespace WoWCombatLogParser.Events.Parts
         public WowGuid OwnerGuid { get; set; }
         public UnitInfo UnitInfo { get; set; } = new();
         public Location Location { get; set; } = new();
-        
+
     }
 
     [DebuggerDisplay("{AdvancedLoggingDetails} {Amount}")]
-    public class AdvancedLoggingDetailsBase<T>: EventSection
+    public class AdvancedLoggingDetailsBase<T> : EventSection
     {
         public AdvancedLoggingDetails AdvancedLoggingDetails { get; set; } = new();
         public T Amount { get; set; }

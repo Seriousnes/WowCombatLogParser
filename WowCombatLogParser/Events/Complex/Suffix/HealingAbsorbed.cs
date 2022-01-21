@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WoWCombatLogParser.Events.Parts;
-using WoWCombatLogParser.Models;
-
-namespace WoWCombatLogParser.Events.Complex
+﻿namespace WoWCombatLogParser.Events
 {
     [Suffix("_HEAL_ABSORBED")]
     [DebuggerDisplay("{ExtraUnit} {ExtraSpell} {ExtraAmount}")]

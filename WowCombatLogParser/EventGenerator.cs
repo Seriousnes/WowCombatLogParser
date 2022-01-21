@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using WoWCombatLogParser.IO;
 using WoWCombatLogParser.Events;
-using WoWCombatLogParser.Models;
+using WoWCombatLogParser.IO;
 using WoWCombatLogParser.Utility;
 
 namespace WoWCombatLogParser
@@ -27,13 +26,16 @@ namespace WoWCombatLogParser
             return (CombatLogEvent)ctor(line);
         }
 
-        public static T NewPart<T>()
+        public static T CreateEventSection<T>()
         {
             var ctor = _classMap.Where(t => t.Key == typeof(T)).Select(c => c.Value.Constructor).SingleOrDefault();
             if (ctor == null) return default(T);
             return (T)ctor();
         }
+
         public static ClassMap GetClassMap(Type type) => _classMap.TryGetValue(type, out var value) ? value : null;
+
+        public static List<string> GetRegisteredEventHandlers() => _ctors.Select(x => x.Key).OrderBy(x => x).ToList();
 
         private static void SetupCombatLogEvents()
         {
@@ -50,7 +52,8 @@ namespace WoWCombatLogParser
                 {
                     if (p.IsSpecial)
                     {
-                        AddType(p.Affix.Name, typeof(CombatLogEvent<>), p.EventType);
+                        var (name, constructorDefinition, constructorTypeParams) = p.GetSpecialConstructorTypeDefinition();
+                        AddType(name, constructorDefinition, constructorTypeParams);
                     }
                     else
                     {
@@ -67,18 +70,20 @@ namespace WoWCombatLogParser
             var genericType = type.MakeGenericType(typeArguments);
             var activator = CombatLogActivator.GetActivator<CombatLogEvent>(genericType.GetConstructors().First());
             _ctors.Add(name, activator);
-            _classMap.Add(genericType, new ClassMap { Constructor = activator, Properties = genericType.GetTypePropertyInfo().ToArray() });
+            
+            // Try to add generic type definition, some predefined types may reuse the same definition
+            _classMap.TryAdd(genericType, new ClassMap { Constructor = activator, Properties = genericType.GetTypePropertyInfo().ToArray() });
         }
-    
+
         private static void SetupClassMap()
         {
             _classMap = Assembly.GetExecutingAssembly()
                 .GetTypes()
                 .Where(i => i.IsSubclassOf(typeof(EventSection)) && !i.IsAbstract && !i.IsGenericType)
-                .ToDictionary(key => key, value => new ClassMap 
-                { 
-                    Constructor = CombatLogActivator.GetActivator<EventSection>(value.GetConstructors().First()), 
-                    Properties = value.GetTypePropertyInfo().ToArray() 
+                .ToDictionary(key => key, value => new ClassMap
+                {
+                    Constructor = CombatLogActivator.GetActivator<EventSection>(value.GetConstructors().First()),
+                    Properties = value.GetTypePropertyInfo().ToArray()
                 });
         }
     }

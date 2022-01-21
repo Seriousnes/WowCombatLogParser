@@ -1,9 +1,7 @@
-﻿using WoWCombatLogParser.Models;
-
-namespace WoWCombatLogParser.Events.Complex
+﻿namespace WoWCombatLogParser.Events
 {
     [Prefix("SWING")]
-    [SuffixAllowed(typeof(Damage), typeof(Missed))]
+    [SuffixAllowed(typeof(Damage), typeof(DamageLanded), typeof(Missed))]
     public class Swing : EventSection
     {
     }

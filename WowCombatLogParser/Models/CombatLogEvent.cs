@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
-using WoWCombatLogParser.IO;
 using WoWCombatLogParser.Events;
+using WoWCombatLogParser.IO;
 
 namespace WoWCombatLogParser.Models
 {
@@ -23,7 +24,7 @@ namespace WoWCombatLogParser.Models
             {
                 Parse();
             }
-        }       
+        }
 
         [NonData]
         public int Id { get; }
@@ -39,7 +40,7 @@ namespace WoWCombatLogParser.Models
             var data = _line?.GetEnumerator();
             if (data?.MoveNext() ?? false)
             {
-                Parse(data);                
+                Parse(data);
             }
             data?.Dispose();
             _line = null;
@@ -47,24 +48,43 @@ namespace WoWCombatLogParser.Models
 
         public Task ParseAsync()
         {
-            return Task.Run(() => Parse());            
-        }        
+            return Task.Run(() => Parse());
+        }
+
+        public abstract string EventName { get; }
     }
 
+    /// <summary>
+    /// Container for events that have a single Affix component
+    /// </summary>
+    /// <remarks>
+    /// Any class that inherits from this must reintroduced the following properties as "new", in this order: BaseEvent, Event. As the automatic property mapping builds the map in order of inheritance, if these
+    /// properties are not reintroduced, the order would be mapped as Event, BaseEvent which is invalid for the parser
+    /// </remarks>    
     [DebuggerDisplay("{BaseEvent} {Event}")]
     public class CombatLogEvent<TEvent> : CombatLogEvent, ICombatLogEvent
         where TEvent : EventSection, new()
     {
         public CombatLogEvent(IEnumerable<IField> line = null) : base(line)
         {
-            BaseEvent = new EventBase();            
+            BaseEvent = new EventBase();
         }
 
-        public TEvent Event { get; } = new();
+        public virtual TEvent Event { get; } = new();
         public override bool IsComplex => false;
+
+        public override string EventName => Event.GetType().GetCustomAttribute<AffixAttribute>()?.Name;
+
         public override bool IsOfType(Type type) => Event.GetType() == type || Event.GetType().IsSubclassOf(type);
     }
 
+    /// <summary>
+    /// Container for compound events that have both a prefix and suffix
+    /// </summary>
+    /// <remarks>
+    /// Any class that inherits from this must reintroduced the following properties as "new", in this order: BaseEvent, Prefix, Suffix. As the automatic property mapping builds the map in order of inheritance, if these
+    /// properties are not reintroduced, the order would be mapped as Prefix, Suffix, BaseEvent which is invalid for the parser
+    /// </remarks>    
     [DebuggerDisplay("{BaseEvent} {Prefix} {Suffix}")]
     public class CombatLogEvent<TPrefix, TSuffix> : CombatLogEvent, ICombatLogEvent
         where TPrefix : EventSection, new()
@@ -72,12 +92,15 @@ namespace WoWCombatLogParser.Models
     {
         public CombatLogEvent(IEnumerable<IField> line = null) : base(line)
         {
-            BaseEvent = new ComplexEventBase();            
+            BaseEvent = new ComplexEventBase();
         }
 
-        public TPrefix Prefix { get; } = new();
-        public TSuffix Suffix { get; } = new();
+        public virtual TPrefix Prefix { get; } = new();
+        public virtual TSuffix Suffix { get; } = new();
         public override bool IsComplex => true;
+
+        public override string EventName => $"{Prefix.GetType().GetCustomAttribute<AffixAttribute>().Name}{Suffix.GetType().GetCustomAttribute<AffixAttribute>().Name}";
+
         public override bool IsOfType(Type type) =>
             Prefix.GetType() == type || Prefix.GetType().IsSubclassOf(type) ||
             Suffix.GetType() == type || Suffix.GetType().IsSubclassOf(type);
