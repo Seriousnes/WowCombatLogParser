@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -67,12 +66,12 @@ namespace WoWCombatLogParser.Models
 
         private void Process()
         {
-            var actionEvents = events.OfType<IActionCombatLogEvent>();
+            var actionEvents = events.OfType<IAction>();
             // setup combatants
             Combatants.AddRange(events.OfType<CombatantInfo>().Select(x => new CombatantDetails(x)));
             Parallel.ForEach(Combatants, c => c.Name = actionEvents.Select(e => e.Source).FirstOrDefault(c => c.Id == c.Id)?.Name);
             // assign actions
-            Parallel.ForEach(Combatants, c => c.Actions.AddRange(actionEvents.Where(x => x.Source.Id == c.Id).Cast<CombatLogEvent>().OrderBy(x => x.Id)));
+            Parallel.ForEach(Combatants, c => c.Actions.AddRange(actionEvents.Where(x => x.Source.Id == c.Id).OrderBy(x => x.Id)));
         }
     }
 
@@ -94,7 +93,7 @@ namespace WoWCombatLogParser.Models
         public string Name { get; set; }
         public Equipment Equipment { get; }
         public Stats Stats { get; }
-        public List<CombatLogEvent> Actions { get; private set; } = new();
+        public List<IAction> Actions { get; private set; } = new();        
     }
 
     public class Stats

@@ -3,7 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace WoWCombatLogParser.Utility
+namespace WoWCombatLogParser.Common.Utility
 {
     public delegate object ObjectActivator(params object[] args);
 

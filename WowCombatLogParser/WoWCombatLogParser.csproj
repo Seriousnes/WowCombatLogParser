@@ -2,6 +2,9 @@
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
+		<DebugType>portable</DebugType>
+		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 	</PropertyGroup>
 
 	<ItemGroup>

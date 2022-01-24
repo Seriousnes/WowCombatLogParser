@@ -15,10 +15,10 @@ namespace WoWCombatLogParser.Common.Models
     }
 
     [DebuggerDisplay("{AdvancedLoggingDetails} {Amount}")]
-    public class AdvancedLoggingDetailsBase<T> : EventSection
+    public class AdvancedLoggingDetailsBase : EventSection
     {
         public AdvancedLoggingDetails AdvancedLoggingDetails { get; } = new AdvancedLoggingDetails();
-        public T Amount { get; set; }
+        public decimal Amount { get; set; }
     }
 
     [DebuggerDisplay("{CurrentHP} {MaxHP} {AttackPower} {SpellPower} {Armor} {Absorb} {Power}")]

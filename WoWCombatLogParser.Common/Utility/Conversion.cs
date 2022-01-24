@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using WoWCombatLogParser.Common.Models;
 
-namespace WoWCombatLogParser.Utility
+namespace WoWCombatLogParser.Common.Utility
 {
     public static class Conversion
     {

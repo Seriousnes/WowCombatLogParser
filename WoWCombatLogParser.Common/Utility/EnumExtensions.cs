@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using WoWCombatLogParser.Common.Models;
 
-namespace WoWCombatLogParser.Utility
+namespace WoWCombatLogParser.Common.Utility
 {
     public static class EnumExtensions
     {

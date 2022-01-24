@@ -7,7 +7,7 @@ using WoWCombatLogParser.Common.Events;
 using WoWCombatLogParser.Common.Models;
 using WoWCombatLogParser.IO;
 
-namespace WoWCombatLogParser.Utility
+namespace WoWCombatLogParser.Common.Utility
 {
     public static class Extensions
     {
@@ -37,8 +37,6 @@ namespace WoWCombatLogParser.Utility
                 .Where(i => i.GetCustomAttribute<NonDataAttribute>() == null && (i.PropertyType.IsSubclassOf(typeof(EventSection)) || i.CanWrite))
                 .OrderBy(i => i.DeclaringType == type)
                 .ToList();
-            var groupedProperties = properties.GroupBy(x => x.DeclaringType);
-
             return properties;
         }
 

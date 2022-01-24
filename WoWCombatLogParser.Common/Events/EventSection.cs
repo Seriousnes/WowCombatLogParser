@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using WoWCombatLogParser.IO;
-using WoWCombatLogParser.Utility;
+using WoWCombatLogParser.Common.Utility;
 
 namespace WoWCombatLogParser.Common.Events
 {

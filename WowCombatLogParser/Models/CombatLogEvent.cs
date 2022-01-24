@@ -5,21 +5,6 @@ using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser.Models
 {
-    public interface ICombatLogEvent : IEventSection
-    {
-        int Id { get; }
-        DateTime Timestamp { get; set; }
-        string Event { get; }
-        void Parse();
-        Task ParseAsync();
-    }
-
-    public interface IActionCombatLogEvent
-    {
-        Unit Source { get; }
-        Unit Destination { get; }
-    }
-
     public abstract class CombatLogEvent : EventSection, ICombatLogEvent
     {
         private IEnumerable<IField> _line;

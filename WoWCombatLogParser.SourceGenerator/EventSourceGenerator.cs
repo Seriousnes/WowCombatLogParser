@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using WoWCombatLogParser.Common.Models;
 using WoWCombatLogParser.Common.Events;
+using WoWCombatLogParser.Common.Utility;
 
 namespace WoWCombatLogParser.SourceGenerator.Events
 {
@@ -38,9 +39,9 @@ namespace WoWCombatLogParser.SourceGenerator.Events
                             .ToList()
                             .ForEach(suffix =>
                             {
-                                var generatedItem = EventSourceGeneratorExtensions.GenerateEventSource<CompoundEventSection>(
+                                var generatedItem = GenerateSourceText<CompoundEventSection>(
                                         types: new[] { affix.EventType, suffix.EventType },
-                                        inheritsFrom: new[] { "CombatLogEvent", "ICombatLogEvent", "IActionCombatLogEvent" },
+                                        inheritsFrom: new[] { "CombatLogEvent", "ICombatLogEvent", "IAction" },
                                         @namespace: "WoWCombatLogParser.Events",
                                         usings: new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Sections" });
 
@@ -52,15 +53,15 @@ namespace WoWCombatLogParser.SourceGenerator.Events
                         (string name, SourceText source) generatedItem;
                         if (affix.EventType.IsSubclassOf(typeof(PredefinedBase)))
                         {
-                            generatedItem = EventSourceGeneratorExtensions.GenerateEventSource<CompoundEventSection>(
+                            generatedItem = GenerateSourceText<CompoundEventSection>(
                                         types: new[] { affix.EventType },
-                                        inheritsFrom: new[] { "CombatLogEvent", "ICombatLogEvent", "IActionCombatLogEvent" },
+                                        inheritsFrom: new[] { "CombatLogEvent", "ICombatLogEvent", "IAction" },
                                         @namespace: "WoWCombatLogParser.Events",
                                         usings: new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Sections" });
                         }
                         else
                         {
-                            generatedItem = EventSourceGeneratorExtensions.GenerateEventSource<EventSection>(
+                            generatedItem = GenerateSourceText<EventSection>(
                                 types: new[] { affix.EventType },
                                 inheritsFrom: new[] { "CombatLogEvent", "ICombatLogEvent" },
                                 @namespace: "WoWCombatLogParser.Events",
@@ -75,7 +76,7 @@ namespace WoWCombatLogParser.SourceGenerator.Events
                 .ToList()
                 .ForEach(s =>
                 {
-                    var generatedItem = EventSourceGeneratorExtensions.GenerateEventSource(new[] { s }, new[] { "EventSection" }, null, "WoWCombatLogParser.Sections", new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Events" }, false);
+                    var generatedItem = GenerateSourceText(new[] { s }, new[] { "EventSection" }, null, "WoWCombatLogParser.Sections", new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Events" }, false);
                     context.AddSource(generatedItem.name, generatedItem.source);
                 });
         }
@@ -89,56 +90,88 @@ namespace WoWCombatLogParser.SourceGenerator.Events
 //            }
 //#endif
         }
-    }
 
-    public static class EventSourceGeneratorExtensions
-    {
-
-        public static (string name, SourceText source) GenerateEventSource<T>(Type[] types, string[] inheritsFrom, string @namespace, IList<string> usings, bool generateAdditionalConstructor = true)
+        private (string name, SourceText source) GenerateSourceText(IList<Type> types, IList<string> inheritsFrom, IList<PropertyInfo> baseProperties, string @namespace, IList<string> usings, bool generateAdditionalConstructor = true)
         {
-            return GenerateEventSource(types, inheritsFrom, typeof(T).GetTypePropertyInfo(), @namespace, usings, generateAdditionalConstructor);
-        }
-
-        public static (string name, SourceText source) GenerateEventSource(Type[] types, string[] inheritsFrom, List<PropertyInfo> baseProperties, string @namespace, IList<string> usings, bool generateAdditionalConstructor = true)
-        {
-            var sb = new StringBuilder();
             var className = string.Join("", types.Select(x => x.Name));
-            sb.Append($@"using System;
-using WoWCombatLogParser.Common.Models;
-using WoWCombatLogParser.Common.Events;
-{string.Join(Environment.NewLine, usings?.Select(x => $"using {x};"))}
+            return ($"{className}.cs", SourceText.From($@"{GetUsings(usings.ToArray())}
 
 namespace {@namespace}
 {{
-");
+    {GetClassData(className, types, inheritsFrom, baseProperties, generateAdditionalConstructor)}
+}}", Encoding.UTF8));
+        }
+
+        private (string name, SourceText source) GenerateSourceText<T>(Type[] types, string[] inheritsFrom, string @namespace, IList<string> usings, bool generateAdditionalConstructor = true)
+        {
+            return GenerateSourceText(types, inheritsFrom, typeof(T).GetTypePropertyInfo(), @namespace, usings, generateAdditionalConstructor);
+        }
+
+        private string GetInheritance(IList<Type> types, IList<string> predefined)
+        {
+            List<string> inheritance = new List<string>();
+            predefined ??= new List<string>();
+            
+            if (types.Contains(typeof(Spell)))
+                inheritance.Add("ISpell");
+
+            if (types.Contains(typeof(Damage)))
+                inheritance.Add("IDamage");
+
+            if (types.Contains(typeof(Healing)))
+                inheritance.Add("IHealing");
+
+            if (types.Any(x => x.In(typeof(Damage), typeof(Healing))))
+                inheritance.Add("IDamageOrHealing");
+
+            var value = string.Join(", ", predefined.Union(inheritance));
+            return !string.IsNullOrEmpty(value) ? $" : {value}" : "";
+        }
+
+        private string GetUsings(params string[] usings)
+        {
+            return $@"using System;
+using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.Common.Events;
+{string.Join(Environment.NewLine, usings?.Select(x => $"using {x};"))}";
+        }
+
+        private string GetAffix(IList<Type> types)
+        {
             var affix = string.Join("", types.Where(x => x.GetCustomAttribute<AffixAttribute>() != null).Select(x => x.GetCustomAttribute<AffixAttribute>().Name));
             if (!string.IsNullOrEmpty(affix))
-            {
-                sb.AppendLine($"\t[Affix(\"{string.Join("", types.Select(x => x.GetCustomAttribute<AffixAttribute>().Name))}\")]");
-            }
+                return $"[Affix(\"{string.Join("", types.Select(x => x.GetCustomAttribute<AffixAttribute>().Name))}\")]";
+            return "";
+        }
 
-            sb.AppendLine($"\tpublic class {className}{(inheritsFrom?.Length > 0 ? $" : {string.Join(", ", inheritsFrom)}" : "")} \r\n\t{{");
-
-            sb.AppendLine($@"
+        private string GetClassData(string className, IList<Type> types, IList<string> inheritsFrom, IList<PropertyInfo> baseProperties, bool generateAdditionalConstructor)
+        {
+            return $@"{GetAffix(types)}
+    public class {className}{GetInheritance(types, inheritsFrom)}
+    {{
         public {className}() : base()
         {{
         }}
-");
+{GetAdditionalConstructor(className, generateAdditionalConstructor)}        
 
-            if (generateAdditionalConstructor)
-            {
-                sb.AppendLine($@"
-        public {className}(IList<IField> line) : base(line, false)
+{(baseProperties?.Count > 0 ? string.Join(Environment.NewLine, baseProperties.ToList().Select(x => x.GetProperty(2))) : "")}
+{GetProperties(types)}
+    }}
+";
+        }
+
+        private string GetAdditionalConstructor(string className, bool generate)
+        {
+            return generate ? $@"
+        public {className}(IList<IField> line) : base(line, false) 
         {{
-        }}
-");
-            }
+        }}" : "";
+        }
 
-            // inherited properties first
-            baseProperties?.ForEach(x => sb.AppendLine(x.GetProperty(2)));
-
-            // if this type inherits from Predefined, replace types with the predefined types
-            if (types.Length == 1 && types[0].IsSubclassOf(typeof(PredefinedBase)))
+        private string GetProperties(IList<Type> types)
+        {
+            var sb = new StringBuilder();
+            if (types.Count == 1 && types[0].IsSubclassOf(typeof(PredefinedBase)))
             {
                 types = types[0].BaseType.GenericTypeArguments;
             }
@@ -151,20 +184,12 @@ namespace {@namespace}
                 }
             }
 
-            sb.Append("\t}\r\n}");
-
-            return ($"{className}.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
+            return sb.ToString();
         }
+    }
 
-        public static List<PropertyInfo> GetTypePropertyInfo(this Type type)
-        {
-            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(i => i.GetCustomAttribute<NonDataAttribute>() == null && (i.PropertyType.IsSubclassOf(typeof(EventSection)) || i.CanWrite))
-                .OrderBy(i => i.DeclaringType == type)
-                .ToList();
-            return properties;
-        }
-
+    public static class EventSourceGeneratorExtensions
+    {        
         public static string GetProperty(this PropertyInfo property, int indentation = 0)
         {
             string propertyType;
@@ -178,7 +203,7 @@ namespace {@namespace}
                 propertyType = property.PropertyType.Name;
             }
 
-            var value = $"{new string('\t', indentation)}public {propertyType} {property.Name}";
+            var value = $"{new string(' ', 4 * indentation)}public {propertyType} {property.Name}";
             if (property.CanRead || property.CanWrite)
             {
                 value += $" {{{(property.CanRead ? " get;" : "")}{(property.CanWrite ? " set;" : "")} }}";
