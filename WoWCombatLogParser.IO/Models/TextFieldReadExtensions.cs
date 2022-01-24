@@ -1,4 +1,6 @@
-﻿namespace WoWCombatLogParser.IO
+﻿using System.Linq;
+
+namespace WoWCombatLogParser.IO
 {
     internal static class TextFieldReadExtensions
     {

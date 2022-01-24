@@ -1,4 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 namespace WoWCombatLogParser.IO
 {
@@ -45,7 +48,7 @@ namespace WoWCombatLogParser.IO
     [DebuggerDisplay("{AsString()}")]
     public class GroupField : IField
     {
-        private static readonly Dictionary<char, char> bracketPairs = new()
+        private static readonly Dictionary<char, char> bracketPairs = new Dictionary<char, char>()
         {
             { '(', ')' },
             { '[', ']' },
@@ -76,7 +79,7 @@ namespace WoWCombatLogParser.IO
 
         public virtual string AsString()
         {
-            return Children.Count > 0 ? $"{OpeningBracket}{string.Join(',', Children.Select(x => x.AsString()).ToArray())}{ClosingBracket}" : "";
+            return Children.Count > 0 ? $"{OpeningBracket}{string.Join(",", Children.Select(x => x.AsString()).ToArray())}{ClosingBracket}" : "";
         }
     }
 }

@@ -1,12 +1,16 @@
-﻿namespace WoWCombatLogParser.IO
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace WoWCombatLogParser.IO
 {
     public class TextFieldReader : IDisposable
     {
-        private static readonly HashSet<char> openingBrackets = new() { '(', '[', '{' };
+        private static readonly HashSet<char> openingBrackets = new HashSet<char>() { '(', '[', '{' };
         private readonly StringReader sr;
 
         public char[] Delimiters { get; set; }
-        public bool HasFieldsEnclosedInQuotes { get; init; }
+        public bool HasFieldsEnclosedInQuotes { get; set; }
 
         public TextFieldReader(StringReader reader)
         {
@@ -20,7 +24,7 @@
         public IList<IField> ReadFields()
         {
             var content = new List<IField>();
-            IField? field = null;
+            IField field = null;
             int character;
             int index = 0;
             while ((character = sr.Read()) != -1)
@@ -69,7 +73,7 @@
                         {
                             if (c.In(Delimiters))
                             {
-                                if (field is not null && field is not GroupField)
+                                if (field != null && !(field is GroupField))
                                 {
                                     field.Range.End = index - 1;
                                     field = field.Parent;
@@ -94,9 +98,9 @@
             return content;
         }
 
-        private T AddFieldToResults<T>(int startIndex, IField? parent, IList<IField> results) where T : IField, new()
+        private T AddFieldToResults<T>(int startIndex, IField parent, IList<IField> results) where T : IField, new()
         {
-            T field = new();
+            T field = new T();
             field.Range = new Range(startIndex, 0);
 
             if (parent is GroupField bracketField)

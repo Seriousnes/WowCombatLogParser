@@ -3,29 +3,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using WoWCombatLogParser.Common.Models;
 using WoWCombatLogParser.Utility;
+using WoWCombatLogParser.Sections;
 
 namespace WoWCombatLogParser.Models
 {
     [DebuggerDisplay("{GetEncounterDescription()}")]
     public class Encounter
     {
-        private static Comparison<CombatLogEvent> _comparison => (c1, c2) => c1.Id.CompareTo(c2.Id);
+        private static Comparison<ICombatLogEvent> _comparison => (c1, c2) => c1.Id.CompareTo(c2.Id);
         private EncounterDetails details;
-        private readonly List<CombatLogEvent> events = new List<CombatLogEvent>();
+        private readonly List<ICombatLogEvent> events = new List<ICombatLogEvent>();
 
         public Encounter()
         {
         }
 
-        public void Process(IList<CombatLogEvent> events)
+        public void Process(IList<ICombatLogEvent> events)
         {
             this.events.AddRange(events);
             this.events.ForEach(@event => @event.Parse());
             this.events.Sort(_comparison);
         }
 
-        public async Task ProcessAsync(IList<CombatLogEvent> events)
+        public async Task ProcessAsync(IList<ICombatLogEvent> events)
         {
             this.events.AddRange(events);
             await Parallel.ForEachAsync(this.events, async (@event, _) =>
@@ -35,27 +37,27 @@ namespace WoWCombatLogParser.Models
             this.events.Sort(_comparison);
         }
 
-        public List<CombatLogEvent> Events => events;
+        public List<ICombatLogEvent> Events => events;
         public EncounterDetails Details => details is null ? details = new(events) : details;      
 
         public string GetEncounterDescription()
         {
-            var start = events.First() is CombatLogEvent<EncounterStart> first ? first : new CombatLogEvent<EncounterStart>();
+            var start = events.First() is EncounterStart first ? first : new EncounterStart();
             var end = events.Last();
 
-            // final event may not be an encounter end event
-            var (success, duration) = end is CombatLogEvent<EncounterEnd> encounterEnd ? (encounterEnd.Event.Success, TimeSpan.FromMilliseconds(encounterEnd.Event.FightTime)) : (false, end.BaseEvent.Timestamp - start.BaseEvent.Timestamp);
+            //final event may not be an encounter end event
+           var (success, duration) = end is EncounterEnd encounterEnd ? (encounterEnd.Success, TimeSpan.FromMilliseconds(encounterEnd.FightTime)) : (false, end.Timestamp - start.Timestamp);
 
-            return $"{start.Event.Name} {start.Event.DifficultyId.GetDifficultyInfo().Name }\n{(success ? "Kill" : "Wipe")} ({duration:m\\:ss})  {start.BaseEvent.Timestamp:h:mm tt}";
+            return $"{start.Name } {start.DifficultyId.GetDifficultyInfo().Name }\n{(success ? "Kill" : "Wipe")} ({duration:m\\:ss})  {start.Timestamp:h:mm tt}";
         }
     }
 
 
     public class EncounterDetails
     {
-        private List<CombatLogEvent> events;
+        private List<ICombatLogEvent> events;
 
-        public EncounterDetails(List<CombatLogEvent> events)
+        public EncounterDetails(List<ICombatLogEvent> events)
         {
             this.events = events;
             Process();
@@ -65,13 +67,12 @@ namespace WoWCombatLogParser.Models
 
         private void Process()
         {
-            var actionEvents = events.OfType<ICompoundCombatLogEvent>().ToList();
-
+            var actionEvents = events.OfType<IActionCombatLogEvent>();
             // setup combatants
-            Combatants.AddRange(events.OfType<CombatLogEvent<CombatantInfo>>().Select(x => new CombatantDetails(x.Event)));
-            Parallel.ForEach(Combatants, c => c.Name = actionEvents.Select(e => ((ComplexEventBase)e.BaseEvent).Source).FirstOrDefault(c => c.Id == c.Id)?.Name);
+            Combatants.AddRange(events.OfType<CombatantInfo>().Select(x => new CombatantDetails(x)));
+            Parallel.ForEach(Combatants, c => c.Name = actionEvents.Select(e => e.Source).FirstOrDefault(c => c.Id == c.Id)?.Name);
             // assign actions
-            Parallel.ForEach(Combatants, c => c.Actions.AddRange(actionEvents.Where(x => ((ComplexEventBase)x.BaseEvent).Source.Id == c.Id).Cast<CombatLogEvent>().OrderBy(x => x.Id)));
+            Parallel.ForEach(Combatants, c => c.Actions.AddRange(actionEvents.Where(x => x.Source.Id == c.Id).Cast<CombatLogEvent>().OrderBy(x => x.Id)));
         }
     }
 
@@ -176,7 +177,7 @@ namespace WoWCombatLogParser.Models
         public EquippedItem MainHand => getEquippedItem();
         public EquippedItem OffHand => getEquippedItem();
         public EquippedItem Tabard => getEquippedItem();
-        
+
         private EquippedItem getEquippedItem([CallerMemberName] string name = "")
         {
             if (slotMap.TryGetValue(name.ToLower(), out int index))
@@ -187,6 +188,6 @@ namespace WoWCombatLogParser.Models
             }
 
             throw new ArgumentException($"{name} is an invalid equipment slot");
-        }            
+        }
     }
 }

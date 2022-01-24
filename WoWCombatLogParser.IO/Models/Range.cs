@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
 namespace WoWCombatLogParser.IO
 {
@@ -14,7 +15,7 @@ namespace WoWCombatLogParser.IO
         public int Start { get; set; }
         public int End { get; set; }
 
-        public static readonly Range EmptyRange = new(0, 0);
+        public static readonly Range EmptyRange = new Range(0, 0);
         public bool IsEmpty() => IsEmpty(this);
         public static bool IsEmpty(Range range) => range.Start == range.End;
         public bool ContainsPosition(int position) => ContainsPosition(this, position);
@@ -26,9 +27,9 @@ namespace WoWCombatLogParser.IO
         public static bool StrictContainsRange(Range range, Range otherRange) => range.Start < otherRange.Start && range.End > otherRange.End;
         public Range Plus(Range range) => Plus(this, range);
         public static Range Plus(Range a, Range b) => new Range(Math.Min(a.Start, b.Start), Math.Max(a.End, b.End));
-        public Range? Intersect(Range range) => Intersect(this, range);
+        public Range Intersect(Range range) => Intersect(this, range);
 
-        public static Range? Intersect(Range a, Range b)
+        public static Range Intersect(Range a, Range b)
         {
             int start = Math.Max(a.Start, b.Start);
             int end = Math.Min(a.Start, b.End);
@@ -51,9 +52,9 @@ namespace WoWCombatLogParser.IO
             return true;
         }
 
-        public static int CompareRangesUsingStarts(Range? a, Range? b)
+        public static int CompareRangesUsingStarts(Range a, Range b)
         {
-            if (a is not null && b is not null)
+            if (a != null && b != null)
             {
                 if (a.Start == b.Start)
                 {
@@ -62,7 +63,7 @@ namespace WoWCombatLogParser.IO
                 return a.Start - b.Start;
             }
 
-            return (a is not null ? 1 : 0) - (b is not null ? 1 : 0);
+            return (a != null ? 1 : 0) - (b != null ? 1 : 0);
         }
     }
 }
