@@ -83,11 +83,11 @@ namespace WoWCombatLogParser.Tests
         [InlineData(@"11/28 19:54:13.422  SPELL_DISPEL,Player-3725-0AF257AE,""Naxa - Frostmourne"",0x514,0x0,Player-3725-06B15901,""Svothgos - Frostmourne"",0x514,0x0,4987,""Cleanse"",0x2,357298,""Frozen Binds"",16,DEBUFF")]
         public void Test_SpellDispel(string input)
         {
-            var @event = new SpellDispel(parser.GetConstructorParams(input));
-
-            Unit unit = @event.Source;
-
+            var @event = new SpellDispel(parser.GetConstructorParams(input));            
             @event.Parse();
+            @event.Source.Name.Should().Be("Naxa - Frostmourne");
+            @event.Spell.Name.Should().Be("Cleanse");
+            @event.ExtraSpell.Id.Should().Be(357298);
         }
 
         [Theory]
@@ -118,8 +118,8 @@ namespace WoWCombatLogParser.Tests
         [InlineData(@"11/28 19:40:57.094  DAMAGE_SPLIT,Player-3725-0669E64A,""Formid - Frostmourne"",0x514,0x0,Player-3725-09FE7744,""Khalous - Frostmourne"",0x40514,0x0,6940,""Blessing of Sacrifice"",0x2,Player-3725-09FE7744,0000000000000000,67569,86120,2586,472,5346,0,0,9741,10000,0,76.88,-900.65,2001,0.0607,246,1302,0,-1,32,0,0,0,nil,nil,nil")]
         public void Test_DamageSplit(string input)
         {
-            //var @event = new DamageSplit(GetConstructorParams(input));
-            //@event.Parse();
+            var @event = new DamageSplit(parser.GetConstructorParams(input));
+            @event.Parse();
         }
 
         [Theory]

@@ -18,7 +18,7 @@ namespace WoWCombatLogParser.SourceGenerator.Events
         {
             var sections = Assembly.GetExecutingAssembly()
                 .GetTypes()
-                .Where(x => x.IsSubclassOf(typeof(EventSection)) && !x.IsAbstract && !x.IsGenericType);
+                .Where(x => x.IsSubclassOf(typeof(EventSection)) && !x.IsAbstract/* && !x.IsGenericType*/);
 
             var events = Assembly.GetExecutingAssembly()
                 .GetTypes()
@@ -39,21 +39,33 @@ namespace WoWCombatLogParser.SourceGenerator.Events
                             .ForEach(suffix =>
                             {
                                 var generatedItem = EventSourceGeneratorExtensions.GenerateEventSource<CompoundEventSection>(
-                                    types: new[] { affix.EventType, suffix.EventType },
-                                    inheritsFrom: new[] { "CombatLogEvent", "ICombatLogEvent", "IActionCombatLogEvent" },
-                                    @namespace: "WoWCombatLogParser.Events",
-                                    usings: new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Sections" });
+                                        types: new[] { affix.EventType, suffix.EventType },
+                                        inheritsFrom: new[] { "CombatLogEvent", "ICombatLogEvent", "IActionCombatLogEvent" },
+                                        @namespace: "WoWCombatLogParser.Events",
+                                        usings: new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Sections" });
 
                                 context.AddSource(generatedItem.name, generatedItem.source);
                             });
                     }
                     else
                     {
-                        var generatedItem = EventSourceGeneratorExtensions.GenerateEventSource<EventSection>(
-                            types: new[] { affix.EventType },
-                            inheritsFrom: new[] { "CombatLogEvent", "ICombatLogEvent" },
-                            @namespace: "WoWCombatLogParser.Events", 
-                            usings: new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Sections" });
+                        (string name, SourceText source) generatedItem;
+                        if (affix.EventType.IsSubclassOf(typeof(PredefinedBase)))
+                        {
+                            generatedItem = EventSourceGeneratorExtensions.GenerateEventSource<CompoundEventSection>(
+                                        types: new[] { affix.EventType },
+                                        inheritsFrom: new[] { "CombatLogEvent", "ICombatLogEvent", "IActionCombatLogEvent" },
+                                        @namespace: "WoWCombatLogParser.Events",
+                                        usings: new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Sections" });
+                        }
+                        else
+                        {
+                            generatedItem = EventSourceGeneratorExtensions.GenerateEventSource<EventSection>(
+                                types: new[] { affix.EventType },
+                                inheritsFrom: new[] { "CombatLogEvent", "ICombatLogEvent" },
+                                @namespace: "WoWCombatLogParser.Events",
+                                usings: new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Sections" });
+                        }
 
                         context.AddSource(generatedItem.name, generatedItem.source);
                     }
@@ -120,9 +132,17 @@ namespace {@namespace}
         {{
         }}
 ");
-            }            
+            }
 
+            // inherited properties first
             baseProperties?.ForEach(x => sb.AppendLine(x.GetProperty(2)));
+
+            // if this type inherits from Predefined, replace types with the predefined types
+            if (types.Length == 1 && types[0].IsSubclassOf(typeof(PredefinedBase)))
+            {
+                types = types[0].BaseType.GenericTypeArguments;
+            }
+
             foreach (var type in types)
             {
                 foreach (var prop in type.GetTypePropertyInfo())
