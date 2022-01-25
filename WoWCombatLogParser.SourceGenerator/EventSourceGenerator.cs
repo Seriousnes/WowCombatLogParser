@@ -124,6 +124,9 @@ namespace {@namespace}
             if (types.Any(x => x.In(typeof(Damage), typeof(Healing))))
                 inheritance.Add("IDamageOrHealing");
 
+            if (types.Any(x => x.In(typeof(EncounterEnd), typeof(ChallengeModeEnd), typeof(ArenaMatchEnd))))
+                inheritance.Add("IEncounterEnd");
+
             var value = string.Join(", ", predefined.Union(inheritance));
             return !string.IsNullOrEmpty(value) ? $" : {value}" : "";
         }

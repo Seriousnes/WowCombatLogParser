@@ -24,7 +24,7 @@ namespace WoWCombatLogParser.Common.Events
     public class EncounterEnd : EncounterFragment
     {
         public bool Success { get; set; }
-        public int FightTime { get; set; }
+        public int Duration { get; set; }
     }
 
 

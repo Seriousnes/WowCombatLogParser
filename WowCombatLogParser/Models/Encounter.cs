@@ -11,6 +11,13 @@ namespace WoWCombatLogParser.Models
     [DebuggerDisplay("{GetEncounterDescription()}")]
     public class Encounter
     {
+        private static Dictionary<Type, EncounterType> encounterTypeMap = new()
+        {
+            { typeof(EncounterStart), EncounterType.DungeonOrRaid },
+            { typeof(ChallengeModeStart), EncounterType.ChallengeMode },
+            { typeof(ArenaMatchStart), EncounterType.PvP },
+        };
+
         private static Comparison<ICombatLogEvent> _comparison => (c1, c2) => c1.Id.CompareTo(c2.Id);
         private EncounterDetails details;
         private readonly List<ICombatLogEvent> events = new List<ICombatLogEvent>();
@@ -36,18 +43,25 @@ namespace WoWCombatLogParser.Models
             this.events.Sort(_comparison);
         }
 
+        public EncounterType? Type => encounterTypeMap.TryGetValue(events.First().GetType(), out var value) ? value : null;
         public List<ICombatLogEvent> Events => events;
         public EncounterDetails Details => details is null ? details = new(events) : details;      
 
         public string GetEncounterDescription()
         {
-            var start = events.First() is EncounterStart first ? first : new EncounterStart();
+            var start = events.First();
             var end = events.Last();
 
-            //final event may not be an encounter end event
-           var (success, duration) = end is EncounterEnd encounterEnd ? (encounterEnd.Success, TimeSpan.FromMilliseconds(encounterEnd.FightTime)) : (false, end.Timestamp - start.Timestamp);
+            //final event may not be an end event
+            var (success, duration) = this.Type switch
+            {
+                EncounterType.DungeonOrRaid => end is EncounterEnd encounterEnd ? (encounterEnd.Success, TimeSpan.FromMilliseconds(encounterEnd.Duration)) : (false, end.Timestamp - start.Timestamp),
+                EncounterType.ChallengeMode => end is ChallengeModeEnd encounterEnd ? (encounterEnd.Success, TimeSpan.FromMilliseconds(encounterEnd.Duration)) : (false, end.Timestamp - start.Timestamp),
+                EncounterType.PvP => end is ArenaMatchEnd encounterEnd ? (((ArenaMatchStart)start).TeamId == encounterEnd.WinningTeam, TimeSpan.FromMilliseconds(encounterEnd.Duration)) : (false, end.Timestamp - start.Timestamp),
+                _ => (false, TimeSpan.FromMilliseconds(0))
+            };
 
-            return $"{start.Name } {start.DifficultyId.GetDifficultyInfo().Name }\n{(success ? "Kill" : "Wipe")} ({duration:m\\:ss})  {start.Timestamp:h:mm tt}";
+            return ""; // $"{start.Name } {start.DifficultyId.GetDifficultyInfo().Name }\n{(success ? "Kill" : "Wipe")} ({duration:m\\:ss})  {start.Timestamp:h:mm tt}";
         }
     }
 

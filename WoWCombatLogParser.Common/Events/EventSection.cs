@@ -2,6 +2,7 @@
 using System.Reflection;
 using WoWCombatLogParser.IO;
 using WoWCombatLogParser.Common.Utility;
+using System.Diagnostics;
 
 namespace WoWCombatLogParser.Common.Events
 {
@@ -108,5 +109,11 @@ namespace WoWCombatLogParser.Common.Events
 
             return true;
         }
+    }
+
+    [DebuggerDisplay("{Id}")]
+    public abstract class IdPart : EventSection
+    {
+        public int Id { get; set; }
     }
 }

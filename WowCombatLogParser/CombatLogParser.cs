@@ -14,11 +14,17 @@ namespace WoWCombatLogParser
 
     public class CombatLogParser : ICombatLogParser
     {
-        private static readonly List<Type> _encounterEndEvents = new()
+        private static readonly List<Type> types = new()
         {
-            typeof(EncounterEnd),
             typeof(ZoneChange),
             typeof(MapChange)
+        };
+
+        private static readonly Dictionary<Type, Type> _encounterEndEvents = new()
+        {
+            { typeof(EncounterStart), typeof(EncounterEnd) },
+            { typeof(ArenaMatchStart), typeof(ArenaMatchEnd) },
+            { typeof(ChallengeModeStart), typeof(ChallengeModeEnd) }
         };
 
         public bool Async { get; set; } = false;
@@ -31,7 +37,7 @@ namespace WoWCombatLogParser
                 if (events != null)
                 {
                     events.Add(@event);
-                    if (_encounterEndEvents.Contains(@event.GetType()))
+                    if (_encounterEndEvents.ContainsKey(@event.GetType()))
                     {
                         var segment = new Encounter();
                         if (Async)

@@ -43,13 +43,7 @@ namespace WoWCombatLogParser.Common.Events
     public class Talent : EventSection
     {
         public int TalentId { get; set; }
-    }
-
-    [DebuggerDisplay("{Id}")]
-    public abstract class IdPart : EventSection
-    {
-        public int Id { get; set; }
-    }
+    }    
 
     public class Powers : EventSection
     {

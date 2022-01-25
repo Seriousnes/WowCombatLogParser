@@ -8,6 +8,13 @@ namespace WoWCombatLogParser.Common.Models
         EventType
     }
 
+    public enum EncounterType
+    {
+        DungeonOrRaid,
+        ChallengeMode,
+        PvP
+    }
+
     public enum Reaction
     {
         Neutral,
@@ -271,5 +278,11 @@ namespace WoWCombatLogParser.Common.Models
         Venthyr,
         NightFae,
         Necrolord
+    }
+
+    public enum MatchType
+    {
+        Skirmish,
+        Rated
     }
 }

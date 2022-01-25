@@ -52,4 +52,9 @@ namespace WoWCombatLogParser.Models
         bool Crushing { get; }
         bool IsOffHand { get; }
     }
+
+    public interface IEncounterEnd
+    {
+        int Duration { get; }
+    }
  }
