@@ -110,24 +110,12 @@ namespace {@namespace}
         private string GetInheritance(IList<Type> types, IList<string> predefined)
         {            
             predefined ??= new List<string>();
-            List<string> inheritance = types.SelectMany(x => x.GetInterfaces().Select(i => i.Name)).Distinct().ToList();
+            List<string> inheritance = new List<string>();
 
-            //if (types.Contains(typeof(Spell)))
-            //    inheritance.Add("ISpell");
+            inheritance.AddRange(types.SelectMany(x => x.GetInterfaces().Select(i => i.Name)));            
+            inheritance.AddRange(types.Where(x => x.BaseType?.IsGenericType ?? false).SelectMany(x => x.BaseType?.GetGenericArguments().SelectMany(g => g.GetInterfaces())?.Select(i => i.Name)));
 
-            //if (types.Contains(typeof(Damage)))
-            //    inheritance.Add("IDamage");
-
-            //if (types.Contains(typeof(Healing)))
-            //    inheritance.Add("IHealing");
-
-            //if (types.Any(x => x.In(typeof(Damage), typeof(Healing))))
-            //    inheritance.Add("IDamageOrHealing");
-
-            //if (types.Any(x => x.In(typeof(EncounterEnd), typeof(ChallengeModeEnd), typeof(ArenaMatchEnd))))
-            //    inheritance.Add("IEncounterEnd");
-
-            var value = string.Join(", ", predefined.Union(inheritance));
+            var value = string.Join(", ", predefined.Union(inheritance.Distinct()));
             return !string.IsNullOrEmpty(value) ? $" : {value}" : "";
         }
 
@@ -159,8 +147,7 @@ using WoWCombatLogParser.Common.Events;
 
 {(baseProperties?.Count > 0 ? string.Join(Environment.NewLine, baseProperties.ToList().Select(x => x.GetProperty(2))) : "")}
 {GetProperties(types)}
-    }}
-";
+    }}";
         }
 
         private string GetAdditionalConstructor(string className, bool generate)
