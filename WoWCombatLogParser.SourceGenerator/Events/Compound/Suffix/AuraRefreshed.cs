@@ -4,8 +4,8 @@ using WoWCombatLogParser.Common.Models;
 namespace WoWCombatLogParser.Common.Events
 {
     [Suffix("_AURA_REFRESH")]
-    public class AuraRefreshed : EventSection
+    public class AuraRefreshed : EventSection, IAura
     {
-        public AuraType Type { get; set; }
+        public AuraType AuraType { get; set; }
     }
 }

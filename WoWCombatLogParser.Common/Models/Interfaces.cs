@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Events;
-using WoWCombatLogParser.Common.Models;
 
-namespace WoWCombatLogParser.Models
+namespace WoWCombatLogParser.Common.Models
 {
     public interface ICombatLogEvent : IEventSection
     {
@@ -17,18 +16,18 @@ namespace WoWCombatLogParser.Models
     /// <summary>
     /// CombatLogEvents with a source and destination
     /// </summary>
-    public interface IAction : ICombatLogEvent
+    public interface IAction
     {
         Unit Source { get; }
         Unit Destination { get; }
     }
 
-    public interface ISpell : ICombatLogEvent
+    public interface IAbility
     {
         Ability Spell { get; }
     }
 
-    public interface IDamageOrHealing : ICombatLogEvent
+    public interface IDamageOrHealing
     {
         public decimal Amount { get; }
     }
@@ -43,7 +42,6 @@ namespace WoWCombatLogParser.Models
     public interface IDamage : IDamageOrHealing
     {
         decimal UnmitigatedAmount { get; }
-        bool IsOverkill { get; }
         SpellSchool School { get; }
         decimal Resisted { get; }
         decimal Blocked { get; }
@@ -57,4 +55,38 @@ namespace WoWCombatLogParser.Models
     {
         int Duration { get; }
     }
- }
+
+    public interface IEncounterSuccess
+    {
+        bool Success { get; }
+    }
+
+    public interface IAura
+    {
+        AuraType AuraType { get; }
+    }
+
+    public interface IDrain
+    {
+        PowerType PowerType { get; set; }
+        decimal ExtraAmount { get; set; }
+    }
+
+    public interface IAdvancedDetails
+    {
+        WowGuid InfoGuid { get; }
+        WowGuid OwnerGuid { get; }
+        UnitInfo UnitInfo { get; }
+        Location Location { get; }
+        int Level { get; }
+    }
+
+    public interface IAdvancedLoggingDetails
+    {
+        AdvancedLoggingDetails AdvancedLoggingDetails { get; }
+    }
+
+    public interface ICast
+    {
+    }
+}

@@ -16,7 +16,7 @@ namespace WoWCombatLogParser.Common.Events
     }
 
     [Affix("CHALLENGE_MODE_END")]
-    public class ChallengeModeEnd : EventSection
+    public class ChallengeModeEnd : EventSection, IEncounterEnd, IEncounterSuccess
     {
         public int InstanceId { get; set; }
         public bool Success { get; set; }

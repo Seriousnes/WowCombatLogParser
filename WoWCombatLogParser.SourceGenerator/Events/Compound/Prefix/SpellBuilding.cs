@@ -5,7 +5,7 @@ namespace WoWCombatLogParser.Common.Events
 {
     [Prefix("SPELL_BUILDING")]
     [SuffixAllowed(typeof(Damage), typeof(Healing))]
-    public class SpellBuilding : PrefixAbilityBase
+    public class SpellBuilding : PrefixAbilityBase, IAbility
     {
     }
 }

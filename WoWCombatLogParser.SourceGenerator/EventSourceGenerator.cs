@@ -108,24 +108,24 @@ namespace {@namespace}
         }
 
         private string GetInheritance(IList<Type> types, IList<string> predefined)
-        {
-            List<string> inheritance = new List<string>();
+        {            
             predefined ??= new List<string>();
-            
-            if (types.Contains(typeof(Spell)))
-                inheritance.Add("ISpell");
+            List<string> inheritance = types.SelectMany(x => x.GetInterfaces().Select(i => i.Name)).Distinct().ToList();
 
-            if (types.Contains(typeof(Damage)))
-                inheritance.Add("IDamage");
+            //if (types.Contains(typeof(Spell)))
+            //    inheritance.Add("ISpell");
 
-            if (types.Contains(typeof(Healing)))
-                inheritance.Add("IHealing");
+            //if (types.Contains(typeof(Damage)))
+            //    inheritance.Add("IDamage");
 
-            if (types.Any(x => x.In(typeof(Damage), typeof(Healing))))
-                inheritance.Add("IDamageOrHealing");
+            //if (types.Contains(typeof(Healing)))
+            //    inheritance.Add("IHealing");
 
-            if (types.Any(x => x.In(typeof(EncounterEnd), typeof(ChallengeModeEnd), typeof(ArenaMatchEnd))))
-                inheritance.Add("IEncounterEnd");
+            //if (types.Any(x => x.In(typeof(Damage), typeof(Healing))))
+            //    inheritance.Add("IDamageOrHealing");
+
+            //if (types.Any(x => x.In(typeof(EncounterEnd), typeof(ChallengeModeEnd), typeof(ArenaMatchEnd))))
+            //    inheritance.Add("IEncounterEnd");
 
             var value = string.Join(", ", predefined.Union(inheritance));
             return !string.IsNullOrEmpty(value) ? $" : {value}" : "";

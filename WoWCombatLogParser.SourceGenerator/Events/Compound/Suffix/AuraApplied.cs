@@ -5,7 +5,7 @@ namespace WoWCombatLogParser.Common.Events
 {
     [Suffix("_AURA_APPLIED")]
     [DebuggerDisplay("{AuraType} {Amount}")]
-    public class AuraApplied : EventSection
+    public class AuraApplied : EventSection, IAura
     {
         public AuraType AuraType { get; set; }
         public decimal Amount { get; set; }

@@ -5,7 +5,7 @@ namespace WoWCombatLogParser.Common.Events
 {
     [Suffix("_DAMAGE")]
     [DebuggerDisplay("{Amount} {UnmitigatedAmount} {IsOverkill} {School} {Resisted} {Blocked} {Absorbed} {Critical} {Crushing} {IsOffHand}")]
-    public class Damage : AdvancedLoggingDetailsBase
+    public class Damage : AdvancedLoggingDetailsBase, IDamage, IAdvancedLoggingDetails
     {
         public decimal UnmitigatedAmount { get; set; }
         public bool IsOverkill { get; set; }
@@ -24,7 +24,7 @@ namespace WoWCombatLogParser.Common.Events
     /// </remarks>
     [Suffix("_DAMAGE_LANDED")]
     [DebuggerDisplay("{Amount} {UnmitigatedAmount} {IsOverkill} {School} {Resisted} {Blocked} {Absorbed} {Critical} {Crushing} {IsOffHand}")]
-    public class DamageLanded : AdvancedLoggingDetailsBase
+    public class DamageLanded : AdvancedLoggingDetailsBase, IDamage, IDamageOrHealing, IAdvancedLoggingDetails
     {
         public decimal UnmitigatedAmount { get; set; }
         public decimal IsOverkill { get; set; }

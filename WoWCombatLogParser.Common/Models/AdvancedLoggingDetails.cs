@@ -4,7 +4,7 @@ using WoWCombatLogParser.Common.Events;
 namespace WoWCombatLogParser.Common.Models
 {
     [DebuggerDisplay("{InfoGuid} {OwnerGuid} {UnitInfo} {Location} {Level}")]
-    public class AdvancedLoggingDetails : EventSection
+    public class AdvancedLoggingDetails : EventSection, IAdvancedDetails
     {
         public WowGuid InfoGuid { get; set; }
         public WowGuid OwnerGuid { get; set; }

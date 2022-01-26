@@ -5,7 +5,7 @@ namespace WoWCombatLogParser.Common.Events
 {
     [Suffix("_DRAIN")]
     [DebuggerDisplay("{OverEnergize} {PowerType} {AlternatePowerType}")]
-    public class Drain : AdvancedLoggingDetailsBase
+    public class Drain : AdvancedLoggingDetailsBase, IDrain 
     {
         public PowerType PowerType { get; set; }
         public decimal ExtraAmount { get; set; }
@@ -14,7 +14,7 @@ namespace WoWCombatLogParser.Common.Events
 
     [Suffix("_LEECH")]
     [DebuggerDisplay("{OverEnergize} {PowerType} {AlternatePowerType}")]
-    public class Leech : AdvancedLoggingDetailsBase
+    public class Leech : AdvancedLoggingDetailsBase, IDrain
     {
         public PowerType PowerType { get; set; }
         public decimal ExtraAmount { get; set; }

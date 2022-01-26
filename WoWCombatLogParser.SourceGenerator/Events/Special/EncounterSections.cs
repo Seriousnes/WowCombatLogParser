@@ -21,7 +21,7 @@ namespace WoWCombatLogParser.Common.Events
 
     [DebuggerDisplay("Encounter \"{Name}\" ({Id}) ended")]
     [Affix("ENCOUNTER_END")]
-    public class EncounterEnd : EncounterFragment
+    public class EncounterEnd : EncounterFragment, IEncounterEnd, IEncounterSuccess
     {
         public bool Success { get; set; }
         public int Duration { get; set; }

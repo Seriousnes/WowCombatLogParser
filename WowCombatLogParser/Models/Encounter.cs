@@ -85,7 +85,7 @@ namespace WoWCombatLogParser.Models
             Combatants.AddRange(events.OfType<CombatantInfo>().Select(x => new CombatantDetails(x)));
             Parallel.ForEach(Combatants, c => c.Name = actionEvents.Select(e => e.Source).FirstOrDefault(c => c.Id == c.Id)?.Name);
             // assign actions
-            Parallel.ForEach(Combatants, c => c.Actions.AddRange(actionEvents.Where(x => x.Source.Id == c.Id).OrderBy(x => x.Id)));
+            Parallel.ForEach(Combatants, c => c.Actions.AddRange(actionEvents.Where(x => x.Source.Id == c.Id).OrderBy(x => ((ICombatLogEvent)x).Id)));
         }
     }
 

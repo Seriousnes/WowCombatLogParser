@@ -5,7 +5,7 @@ namespace WoWCombatLogParser.Common.Events
 {
     [Suffix("_HEAL")]
     [DebuggerDisplay("{Amount} {Overhealing} {Absorbed} {Critical}")]
-    public class Healing : AdvancedLoggingDetailsBase
+    public class Healing : AdvancedLoggingDetailsBase, IHealing, IDamageOrHealing, IAdvancedLoggingDetails
     {
         public int Overhealing { get; set; }
         public int Absorbed { get; set; }

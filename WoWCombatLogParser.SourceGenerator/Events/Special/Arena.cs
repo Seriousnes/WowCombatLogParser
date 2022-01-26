@@ -15,7 +15,7 @@ namespace WoWCombatLogParser.Common.Events
     }
 
     [Affix("ARENA_MATCH_END")]
-    public class ArenaMatchEnd : EventSection
+    public class ArenaMatchEnd : EventSection, IEncounterEnd
     {
         public int WinningTeam { get; set; }
         public int Duration { get; set; }
