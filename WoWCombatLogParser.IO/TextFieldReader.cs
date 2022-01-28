@@ -2,26 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace WoWCombatLogParser.IO
+namespace WoWCombatLogParser
 {
-    public class TextFieldReader : IDisposable
+    public static class TextFieldReader
     {
         private static readonly HashSet<char> openingBrackets = new HashSet<char>() { '(', '[', '{' };
-        private readonly StringReader sr;
 
-        public char[] Delimiters { get; set; }
-        public bool HasFieldsEnclosedInQuotes { get; set; }
-
-        public TextFieldReader(StringReader reader)
-        {
-            this.sr = reader;
-        }
-
-        public TextFieldReader(string line) : this(new StringReader(line))
-        {
-        }
-
-        public IList<IField> ReadFields()
+        private static IList<IField> ReadFields(StringReader sr, TextFieldReaderOptions options)
         {
             var content = new List<IField>();
             IField field = null;
@@ -34,7 +21,7 @@ namespace WoWCombatLogParser.IO
                 if (field is QuotedTextField quotedField)
                 {
                     int next;
-                    if (c == '"' && ((next = sr.Peek()) == -1 || ((char)next).In(Delimiters)))
+                    if (c == '"' && ((next = sr.Peek()) == -1 || ((char)next).In(options.Delimiters)))
                     {
                         quotedField.Range.End = index - 1;
                         field = quotedField.Parent;
@@ -46,7 +33,7 @@ namespace WoWCombatLogParser.IO
                 }
                 else
                 {
-                    if (c == '"' && HasFieldsEnclosedInQuotes)
+                    if (c == '"' && options.HasFieldsEnclosedInQuotes)
                     {
                         field = AddFieldToResults<QuotedTextField>(index + 1, field, content);
                     }
@@ -71,7 +58,7 @@ namespace WoWCombatLogParser.IO
                         }
                         else
                         {
-                            if (c.In(Delimiters))
+                            if (c.In(options.Delimiters))
                             {
                                 if (field != null && !(field is GroupField))
                                 {
@@ -98,11 +85,17 @@ namespace WoWCombatLogParser.IO
             return content;
         }
 
-        private T AddFieldToResults<T>(int startIndex, IField parent, IList<IField> results) where T : IField, new()
+        public static IList<IField> ReadFields(string line, TextFieldReaderOptions options)
         {
-            T field = new T();
-            field.Range = new Range(startIndex, 0);
+            options ??= new TextFieldReaderOptions { Delimiters = new[] { ',' }, HasFieldsEnclosedInQuotes = false };
+            using var sr = new StringReader(line.Replace("  ", ","));
+            var result = ReadFields(sr, options);
+            return result;
+        }
 
+        private static T AddFieldToResults<T>(int startIndex, IField parent, IList<IField> results) where T : IField, new()
+        {
+            T field = new T { Range = new Range(startIndex, 0) };
             if (parent is GroupField bracketField)
             {
                 bracketField.AddChild(field);
@@ -114,10 +107,11 @@ namespace WoWCombatLogParser.IO
 
             return field;
         }
+    }
 
-        public void Dispose()
-        {
-            sr.Dispose();
-        }
+    public class TextFieldReaderOptions
+    {
+        public char[] Delimiters { get; set; }
+        public bool HasFieldsEnclosedInQuotes { get; set; }
     }
 }

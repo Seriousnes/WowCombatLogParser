@@ -6,7 +6,7 @@ using WoWCombatLogParser.Common.Models;
 namespace WoWCombatLogParser.Common.Events
 {
     [Affix("ARENA_MATCH_START")]
-    public class ArenaMatchStart : EventSection
+    public class ArenaMatchStart : EventSection, IFightStart
     {
         public int InstanceId { get; set; }
         public object UnknownProperty1 { get; set; }
@@ -15,7 +15,7 @@ namespace WoWCombatLogParser.Common.Events
     }
 
     [Affix("ARENA_MATCH_END")]
-    public class ArenaMatchEnd : EventSection, IEncounterEnd
+    public class ArenaMatchEnd : EventSection, IFightEnd
     {
         public int WinningTeam { get; set; }
         public int Duration { get; set; }

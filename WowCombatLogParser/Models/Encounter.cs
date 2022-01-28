@@ -3,7 +3,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Models;
-using WoWCombatLogParser.Utility;
 using WoWCombatLogParser.Sections;
 
 namespace WoWCombatLogParser.Models

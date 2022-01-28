@@ -14,14 +14,14 @@ namespace WoWCombatLogParser.Common.Events
 
     [DebuggerDisplay("Encounter \"{Name}\" ({Id}) starting")]
     [Affix("ENCOUNTER_START")]
-    public class EncounterStart : EncounterFragment
+    public class EncounterStart : EncounterFragment, IFightStart
     {
         public int InstanceId { get; set; }
     }
 
     [DebuggerDisplay("Encounter \"{Name}\" ({Id}) ended")]
     [Affix("ENCOUNTER_END")]
-    public class EncounterEnd : EncounterFragment, IEncounterEnd, IEncounterSuccess
+    public class EncounterEnd : EncounterFragment, IFightEnd, IFightEndSuccess
     {
         public bool Success { get; set; }
         public int Duration { get; set; }

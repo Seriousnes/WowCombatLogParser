@@ -21,20 +21,17 @@ namespace WoWCombatLogParser.Models
 
         public CombatLogEvent(IList<IField> line = null, bool parseImmediate = false) : this()
         {
-            _line = line;
-            if (parseImmediate)
-            {
-                Parse();
-            }
+            _line = line;            
         }
 
         public DateTime Timestamp { get; set; }
         public string Event { get; set; }
 
         [NonData]
-        public int Id { get; }
+        public int Id { get; init; }
         [NonData]
         public bool HasBeenParsed { get; private set; } = false;        
+        
         public void Parse()
         {
             if (HasBeenParsed) return;
@@ -48,9 +45,10 @@ namespace WoWCombatLogParser.Models
             _line = null;
         }
 
-        public Task ParseAsync()
+        public async Task<ICombatLogEvent> ParseAsync()
         {
-            return Task.Run(() => Parse());
+            await Task.Run(() => Parse());
+            return this;
         }
     }
 }

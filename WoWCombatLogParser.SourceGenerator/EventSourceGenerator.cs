@@ -15,6 +15,12 @@ namespace WoWCombatLogParser.SourceGenerator.Events
     [Generator]
     public class EventSourceGenerator : ISourceGenerator
     {
+        private static Dictionary<Type, IList<string>> defaultInheritance = new Dictionary<Type, IList<string>>
+        {
+            { typeof(CompoundEventSection), new[] { "CombatLogEvent", "ICombatLogEvent", "IAction" }},
+            { typeof(EventSection), new[] { "CombatLogEvent", "ICombatLogEvent" }}
+        };
+
         public void Execute(GeneratorExecutionContext context)
         {
             var sections = Assembly.GetExecutingAssembly()
@@ -41,7 +47,6 @@ namespace WoWCombatLogParser.SourceGenerator.Events
                             {
                                 var generatedItem = GenerateSourceText<CompoundEventSection>(
                                         types: new[] { affix.EventType, suffix.EventType },
-                                        inheritsFrom: new[] { "CombatLogEvent", "ICombatLogEvent", "IAction" },
                                         @namespace: "WoWCombatLogParser.Events",
                                         usings: new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Sections" });
 
@@ -55,7 +60,6 @@ namespace WoWCombatLogParser.SourceGenerator.Events
                         {
                             generatedItem = GenerateSourceText<CompoundEventSection>(
                                         types: new[] { affix.EventType },
-                                        inheritsFrom: new[] { "CombatLogEvent", "ICombatLogEvent", "IAction" },
                                         @namespace: "WoWCombatLogParser.Events",
                                         usings: new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Sections" });
                         }
@@ -63,7 +67,6 @@ namespace WoWCombatLogParser.SourceGenerator.Events
                         {
                             generatedItem = GenerateSourceText<EventSection>(
                                 types: new[] { affix.EventType },
-                                inheritsFrom: new[] { "CombatLogEvent", "ICombatLogEvent" },
                                 @namespace: "WoWCombatLogParser.Events",
                                 usings: new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Sections" });
                         }
@@ -76,7 +79,7 @@ namespace WoWCombatLogParser.SourceGenerator.Events
                 .ToList()
                 .ForEach(s =>
                 {
-                    var generatedItem = GenerateSourceText(new[] { s }, new[] { "EventSection" }, null, "WoWCombatLogParser.Sections", new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Events" }, false);
+                    var generatedItem = GenerateSourceText(new[] { s }, null, "WoWCombatLogParser.Sections", new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Events" }, new[] { "EventSection" }, false);
                     context.AddSource(generatedItem.name, generatedItem.source);
                 });
         }
@@ -91,8 +94,10 @@ namespace WoWCombatLogParser.SourceGenerator.Events
 //#endif
         }
 
-        private (string name, SourceText source) GenerateSourceText(IList<Type> types, IList<string> inheritsFrom, IList<PropertyInfo> baseProperties, string @namespace, IList<string> usings, bool generateAdditionalConstructor = true)
+        private (string name, SourceText source) GenerateSourceText(IList<Type> types, IList<PropertyInfo> baseProperties, string @namespace, IList<string> usings, IList<string> inheritsFrom = null, bool generateAdditionalConstructor = true)
         {
+            if (inheritsFrom == null)
+                inheritsFrom = defaultInheritance.TryGetValue(null, out var values) ? values : new List<string>();
             var className = string.Join("", types.Select(x => x.Name));
             return ($"{className}.cs", SourceText.From($@"{GetUsings(usings.ToArray())}
 
@@ -102,14 +107,15 @@ namespace {@namespace}
 }}", Encoding.UTF8));
         }
 
-        private (string name, SourceText source) GenerateSourceText<T>(Type[] types, string[] inheritsFrom, string @namespace, IList<string> usings, bool generateAdditionalConstructor = true)
+        private (string name, SourceText source) GenerateSourceText<T>(Type[] types, string @namespace, IList<string> usings, bool generateAdditionalConstructor = true) where T : EventSection
         {
-            return GenerateSourceText(types, inheritsFrom, typeof(T).GetTypePropertyInfo(), @namespace, usings, generateAdditionalConstructor);
+            return GenerateSourceText(types, typeof(T).GetTypePropertyInfo(), @namespace, usings, defaultInheritance.TryGetValue(typeof(T), out var inheritsFrom) ? inheritsFrom : null, generateAdditionalConstructor);
         }
 
         private string GetInheritance(IList<Type> types, IList<string> predefined)
-        {            
-            predefined ??= new List<string>();
+        {        
+            if (predefined == null)
+                predefined = new List<string>();
             List<string> inheritance = new List<string>();
 
             inheritance.AddRange(types.SelectMany(x => x.GetInterfaces().Select(i => i.Name)));            

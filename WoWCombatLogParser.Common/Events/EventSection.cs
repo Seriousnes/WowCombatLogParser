@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
-using WoWCombatLogParser.IO;
 using WoWCombatLogParser.Common.Utility;
 using System.Diagnostics;
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using WoWCombatLogParser.Common.Models;
-using WoWCombatLogParser.IO;
 using WoWCombatLogParser.Common.Utility;
 
 namespace WoWCombatLogParser.Common.Events

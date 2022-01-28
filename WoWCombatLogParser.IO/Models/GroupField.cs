@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace WoWCombatLogParser.IO
+namespace WoWCombatLogParser
 {
     public interface IField
     {

@@ -6,7 +6,7 @@ using WoWCombatLogParser.Common.Models;
 namespace WoWCombatLogParser.Common.Events
 {
     [Affix("CHALLENGE_MODE_START")]
-    public class ChallengeModeStart : EventSection
+    public class ChallengeModeStart : EventSection, IFightStart
     {
         public string ZoneName { get; set; }
         public int InstanceId { get; set; }
@@ -16,7 +16,7 @@ namespace WoWCombatLogParser.Common.Events
     }
 
     [Affix("CHALLENGE_MODE_END")]
-    public class ChallengeModeEnd : EventSection, IEncounterEnd, IEncounterSuccess
+    public class ChallengeModeEnd : EventSection, IFightEnd, IFightEndSuccess
     {
         public int InstanceId { get; set; }
         public bool Success { get; set; }

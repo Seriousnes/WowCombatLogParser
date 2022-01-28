@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Events;
 using WoWCombatLogParser.Common.Models;
-using WoWCombatLogParser.IO;
 
 namespace WoWCombatLogParser.Common.Utility
 {

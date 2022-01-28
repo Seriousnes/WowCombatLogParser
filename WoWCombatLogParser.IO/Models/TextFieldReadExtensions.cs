@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace WoWCombatLogParser.IO
+namespace WoWCombatLogParser
 {
     internal static class TextFieldReadExtensions
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace WoWCombatLogParser.IO
+namespace WoWCombatLogParser
 {
     [DebuggerDisplay("{Start} - {End}")]
     public class Range

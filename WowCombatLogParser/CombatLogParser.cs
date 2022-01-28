@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.IO;
-using WoWCombatLogParser.Common.Events;
+using System.Linq;
+using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser
@@ -8,7 +10,7 @@ namespace WoWCombatLogParser
     public interface ICombatLogParser
     {
         IEnumerable<Encounter> ParseCombatLogSegments(string fileName);
-        IList<IField> GetConstructorParams(string line);
+        Task<List<Encounter>> ParseCombatLogSegmentsAsync(string fileName);
     }
 
     public class CombatLogParser : ICombatLogParser
@@ -26,8 +28,6 @@ namespace WoWCombatLogParser
             { typeof(ChallengeModeStart), typeof(ChallengeModeEnd) }
         };
 
-        public bool Async { get; set; } = false;
-
         public IEnumerable<Encounter> ParseCombatLogSegments(string fileName)
         {
             List<ICombatLogEvent> events = null;
@@ -39,15 +39,7 @@ namespace WoWCombatLogParser
                     if (_encounterEndEvents.ContainsKey(@event.GetType()))
                     {
                         var segment = new Encounter();
-                        if (Async)
-                        {
-                            segment.ProcessAsync(events).Wait();
-                        }
-                        else
-                        {
-                            segment.Process(events);
-                        }
-                        
+                        segment.ProcessAsync(events).Wait();                        
                         events = null;
                         yield return segment;
                     }
@@ -63,26 +55,52 @@ namespace WoWCombatLogParser
             }
         }
 
-        public IList<IField> GetConstructorParams(string line)
+        public async Task<List<Encounter>> ParseCombatLogSegmentsAsync(string fileName)
         {
-            using var s = new StringReader(line.Replace("  ", ","));
-            using var r = new TextFieldReader(s) { Delimiters = new[] { ',' }, HasFieldsEnclosedInQuotes = true };
-            return r.ReadFields();
+            var events = await ParseCombatLogAsync(fileName);
+            var results = new List<Encounter>();
+
+            Encounter currentEncounter = null;
+            foreach (var @event in events)
+            {
+                if (@event is IFightStart)
+                {
+                    currentEncounter = new Encounter();                    
+                    results.Add(currentEncounter);
+                }
+                
+                currentEncounter?.Events.Add(@event);                
+               
+                if (@event is IFightEnd)
+                {
+                    currentEncounter = null;
+                }
+            }            
+
+            return null;
         }
 
-        private IEnumerable<CombatLogEvent> ParseCombatLog(string fileName)
+        private IEnumerable<Models.CombatLogEvent> ParseCombatLog(string fileName)
         {
             foreach (var line in ReadCombatLog(fileName))
             {
-                var combatLogEvent = EventGenerator.GetCombatLogEvent<CombatLogEvent>(GetConstructorParams(line));
+                var combatLogEvent = line.GetCombatLogEvent<Models.CombatLogEvent>();
                 if (combatLogEvent != null)
                 {
+                    combatLogEvent.Parse();
                     yield return combatLogEvent;
                 }
             }
         }
-        
-        private IEnumerable<string> ReadCombatLog(string fileName)
+
+        private async Task<List<Models.CombatLogEvent>> ParseCombatLogAsync(string fileName)
+        {
+            var stack = new ConcurrentBag<Models.CombatLogEvent>();
+            await Parallel.ForEachAsync(ReadCombatLog(fileName), async (line, _) => stack.Add(await Task.Factory.StartNew(() => line.GetCombatLogEvent<Models.CombatLogEvent>())));
+            return stack.ToList().OrderBy(x => x.Id).ToList();
+        }
+
+        private static IEnumerable<string> ReadCombatLog(string fileName)
         {
             using var sr = new StreamReader(fileName);
             string line;

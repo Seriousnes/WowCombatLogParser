@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using WoWCombatLogParser.Common.Events;
-using WoWCombatLogParser.Common.Models;
-using WoWCombatLogParser.IO;
+﻿using WoWCombatLogParser.Common.Events;
 
 namespace WoWCombatLogParser.Utility
 {
     public static class Extensions
     {
+        private static TextFieldReaderOptions options = new() { HasFieldsEnclosedInQuotes = true, Delimiters = new[] { ',' } };
         public static (bool Success, IEnumerator<IField> Enumerator, bool EndOfParent, bool Dispose) GetEnumeratorForProperty(this IEnumerator<IField> data)
         {
             if (data.Current is GroupField groupData)
@@ -20,6 +14,11 @@ namespace WoWCombatLogParser.Utility
             }
 
             return (true, data, false, false);
+        }
+
+        public static T GetCombatLogEvent<T>(this string line) where T : CombatLogEvent
+        {
+            return EventGenerator.GetCombatLogEvent<T>(TextFieldReader.ReadFields(line, options));
         }
     }
 }

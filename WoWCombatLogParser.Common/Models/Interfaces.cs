@@ -10,7 +10,7 @@ namespace WoWCombatLogParser.Common.Models
         DateTime Timestamp { get; }
         string Event { get; }
         void Parse();
-        Task ParseAsync();
+        Task<ICombatLogEvent> ParseAsync();
     }
 
     /// <summary>
@@ -51,12 +51,16 @@ namespace WoWCombatLogParser.Common.Models
         bool IsOffHand { get; }
     }
 
-    public interface IEncounterEnd
+    public interface IFightStart
+    {
+    }
+
+    public interface IFightEnd
     {
         int Duration { get; }
     }
 
-    public interface IEncounterSuccess
+    public interface IFightEndSuccess : IFightEnd
     {
         bool Success { get; }
     }
