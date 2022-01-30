@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWCombatLogParser.Tests", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWCombatLogParser.IO", "WoWCombatLogParser.IO\WoWCombatLogParser.IO.csproj", "{74F02D4B-8783-4796-B824-87F3669E2913}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WoWCombatLogParser.Common", "WoWCombatLogParser.Common\WoWCombatLogParser.Common.csproj", "{68A2A60C-0490-4B31-BBED-9D7D7A5B1359}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWCombatLogParser.Common", "WoWCombatLogParser.Common\WoWCombatLogParser.Common.csproj", "{68A2A60C-0490-4B31-BBED-9D7D7A5B1359}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WoWCombatLogParser.SourceGenerator", "WoWCombatLogParser.SourceGenerator\WoWCombatLogParser.SourceGenerator.csproj", "{F801E147-4371-4D68-88CA-7935D2A7F081}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWCombatLogParser.SourceGenerator", "WoWCombatLogParser.SourceGenerator\WoWCombatLogParser.SourceGenerator.csproj", "{F801E147-4371-4D68-88CA-7935D2A7F081}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WoWCombatLogParser.AutoMapper", "WoWCombatLogParser.AutoMapper\WoWCombatLogParser.AutoMapper.csproj", "{FAD86375-4D75-4597-9F8B-10E5B83BE45F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{F801E147-4371-4D68-88CA-7935D2A7F081}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F801E147-4371-4D68-88CA-7935D2A7F081}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F801E147-4371-4D68-88CA-7935D2A7F081}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAD86375-4D75-4597-9F8B-10E5B83BE45F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAD86375-4D75-4597-9F8B-10E5B83BE45F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAD86375-4D75-4597-9F8B-10E5B83BE45F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAD86375-4D75-4597-9F8B-10E5B83BE45F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

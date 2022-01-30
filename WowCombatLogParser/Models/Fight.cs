@@ -19,19 +19,19 @@ namespace WoWCombatLogParser.Models
             _events.Add(start);
         }
 
-        public TimeSpan Duration => _end is null ? (_events.Last().Timestamp - _start.Timestamp) : TimeSpan.FromMilliseconds(_end.Duration);
         public CombatLogEvent AddEvent(CombatLogEvent @event)
         {
             _events.Add(@event);
             if (_events is TEnd endEvent)
             {
-                _end = endEvent;
-                _events = _events.OrderBy(x => x.Id).ToList();
+                _end = endEvent;                
             }
             return @event;
         }
+        public void Sort() => _events = _events.OrderBy(x => x.Id).ToList();
 
         public virtual FightDescription GetDescription() => new(Name, Duration, _start.Timestamp, Result);
+        public TimeSpan Duration => _end is null ? (_events.Last().Timestamp - _start.Timestamp) : TimeSpan.FromMilliseconds(_end.Duration);
         public abstract string Name { get; }
         public abstract string Result { get; }
     }
