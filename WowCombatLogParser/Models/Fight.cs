@@ -28,7 +28,7 @@ namespace WoWCombatLogParser.Models
         public Fight(TStart start)
         {
             _start = start;
-            _start.ParseAsync().Forget();
+            _start.ParseAsync().Wait();
             _events.Add(start);
         }
 
@@ -38,7 +38,7 @@ namespace WoWCombatLogParser.Models
             if (@event is TEnd endEvent)
             {
                 _end = endEvent;
-                _end.ParseAsync().Forget();
+                _end.ParseAsync().Wait();
             }
             return @event;
         }        

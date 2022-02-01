@@ -61,7 +61,7 @@ namespace WoWCombatLogParser.Tests
             //OutputEncounterSumary(encounter);
         }
 
-        [Fact/*(Skip = "Manual Run Only - Performance test")*/]
+        [Fact]
         public void Test_MultipleEncounters()
         {
             var parser = new CombatLogParser(@"TestLogs/WoWCombatLog-112821_193218.txt");
@@ -69,6 +69,16 @@ namespace WoWCombatLogParser.Tests
             Parallel.ForEachAsync(encounters, async (x, _) => await x.ParseAsync()).Wait();            
             encounters.Should().NotBeNull().And.HaveCountGreaterThan(1);
             encounters.ForEach(e => OutputEncounterSumary(e));
+        }
+
+        [Fact]
+        public void Test_ScanMultipleFightsSelectingSecond()
+        {
+            var parser = new CombatLogParser(@"TestLogs/WoWCombatLog-112821_193218.txt");
+            var encounter = parser.Scan().Skip(1).Take(1).SingleOrDefault();
+            encounter.Should().NotBeNull();
+            encounter.ParseAsync().Wait();
+            OutputEncounterSumary(encounter);
         }
 
         [Theory]

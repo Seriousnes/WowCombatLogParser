@@ -35,7 +35,7 @@ namespace WoWCombatLogParser.Models
         
         public void Parse()
         {
-            if (_data == null)
+            if (_data != null)
             {
                 var data = TextFieldReader.ReadFields(_data, options)?.GetEnumerator();
                 if (data?.MoveNext() ?? false)
