@@ -10,7 +10,8 @@ namespace WoWCombatLogParser.Models
 {
     public abstract class CombatLogEvent : EventSection, ICombatLogEvent
     {
-        private IEnumerable<IField> _line;
+        private readonly static TextFieldReaderOptions options = new() { HasFieldsEnclosedInQuotes = true, Delimiters = new[] { ',' } };
+        private string _data;
         private static int _count = 0;
 
         public CombatLogEvent()
@@ -18,11 +19,11 @@ namespace WoWCombatLogParser.Models
             Id = ++_count;
         }
 
-        public CombatLogEvent(IList<IField> line) : this()
+        public CombatLogEvent(DateTime timestamp, string @event, string data) : this()
         {            
-            Timestamp = DateTime.ParseExact(line[(int)FieldIndex.Timestamp].ToString(), "M/d HH:mm:ss.fff", CultureInfo.InvariantCulture);
-            Event = line[(int)FieldIndex.EventType].ToString();
-            _line = line.Skip(2).ToList();
+            Timestamp = timestamp;
+            Event = @event;
+            _data = data;
         }
 
         [NonData]
@@ -34,13 +35,16 @@ namespace WoWCombatLogParser.Models
         
         public void Parse()
         {
-            var data = _line?.GetEnumerator();
-            if (data?.MoveNext() ?? false)
+            if (_data == null)
             {
-                Parse(data);
+                var data = TextFieldReader.ReadFields(_data, options)?.GetEnumerator();
+                if (data?.MoveNext() ?? false)
+                {
+                    Parse(data);
+                }
+                data?.Dispose();
+                _data = null;
             }
-            data?.Dispose();
-            _line = null;
         }
 
         public async Task<ICombatLogEvent> ParseAsync()

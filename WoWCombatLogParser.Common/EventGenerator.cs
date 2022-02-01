@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using WoWCombatLogParser.Common.Events;
 using WoWCombatLogParser.Common.Models;
 using WoWCombatLogParser.Common.Utility;
@@ -13,6 +15,7 @@ namespace WoWCombatLogParser
         private static readonly Dictionary<string, ObjectActivator> _ctors = new Dictionary<string, ObjectActivator>();
         private static readonly Dictionary<Type, ClassMap> _classMap = new Dictionary<Type, ClassMap>();
         private static readonly Assembly _assembly = Assembly.Load("WoWCombatLogParser");
+        private static readonly Regex _split = new Regex(@"\s\s", RegexOptions.Compiled);
         
         static EventGenerator()
         {
@@ -20,11 +23,12 @@ namespace WoWCombatLogParser
             SetupCombatLogEvents();
         }
 
-        public static T GetCombatLogEvent<T>(IList<IField> line) where T : class
+        public static T GetCombatLogEvent<T>(string line) where T : class
         {
-            var ctor = _ctors.Where(c => c.Key == line[(int)FieldIndex.EventType].ToString()).Select(c => c.Value).SingleOrDefault();
+            var details = GetMinimalEventDetails(ref line);
+            var ctor = _ctors.Where(c => c.Key == details.EventType).Select(c => c.Value).SingleOrDefault();
             if (ctor == null) return null;
-            return (T)ctor(line);
+            return (T)ctor(details.Timestamp, details.EventType, line);
         }
 
         public static T CreateEventSection<T>()
@@ -32,6 +36,16 @@ namespace WoWCombatLogParser
             var ctor = _classMap.Where(t => t.Key == typeof(T)).Select(c => c.Value.Constructor).SingleOrDefault();
             if (ctor == null) return default;
             return (T)ctor();
+        }
+
+        private static (DateTime Timestamp, string EventType) GetMinimalEventDetails(ref string line)
+        {
+            var i = line.IndexOf(',');
+            var substr = line.Substring(0, i++);
+            line = new string(line.Skip(i).ToArray());
+            var resultParts = _split.Split(substr).ToArray();
+            return (DateTime.ParseExact(resultParts[(int)FieldIndex.Timestamp], "M/d HH:mm:ss.fff", CultureInfo.InvariantCulture), resultParts[(int)FieldIndex.EventType]);
+
         }
 
         public static ClassMap GetClassMap(Type type) => _classMap.TryGetValue(type, out var value) ? value : null;
@@ -48,7 +62,7 @@ namespace WoWCombatLogParser
 
         private static void AddType(string name, Type type)
         {
-            var constructor = type.GetConstructor(new[] { typeof(IList<IField>) });            
+            var constructor = type.GetConstructor(new[] { typeof(DateTime), typeof(string), typeof(string) });            
             if (constructor == null)
             {
                 constructor = type.GetConstructors().First();

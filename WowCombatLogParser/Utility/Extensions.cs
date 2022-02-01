@@ -6,8 +6,6 @@ namespace WoWCombatLogParser.Utility
 {
     public static class Extensions
     {
-        private readonly static TextFieldReaderOptions options = new() { HasFieldsEnclosedInQuotes = true, Delimiters = new[] { ',' } };
-
         public static (bool Success, IEnumerator<IField> Enumerator, bool EndOfParent, bool Dispose) GetEnumeratorForProperty(this IEnumerator<IField> data)
         {
             if (data.Current is GroupField groupData)
@@ -21,7 +19,8 @@ namespace WoWCombatLogParser.Utility
 
         public static T GetCombatLogEvent<T>(this string line) where T : CombatLogEvent
         {
-            return EventGenerator.GetCombatLogEvent<T>(TextFieldReader.ReadFields(line, options));
+
+            return EventGenerator.GetCombatLogEvent<T>(line);
         }
 
         public static void Forget(this Task _)
