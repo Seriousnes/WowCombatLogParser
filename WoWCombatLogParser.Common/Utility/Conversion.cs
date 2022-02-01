@@ -36,6 +36,8 @@ namespace WoWCombatLogParser.Common.Utility
             return Convert.ChangeType(value, type);
         }
 
+        public static object GetValue(IField value, Type type) => GetValue(value.ToString(), type);
+
         private static int ConvertToInt(string value) => Convert.ToInt32(value, value.StartsWith("0x") ? 16 : 10);
 
         private static object ConvertToEnum(string value, Type type)

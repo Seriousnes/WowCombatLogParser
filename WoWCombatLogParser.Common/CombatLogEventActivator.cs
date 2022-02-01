@@ -3,11 +3,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace WoWCombatLogParser.Common.Utility
+namespace WoWCombatLogParser
 {
     public delegate object ObjectActivator(params object[] args);
 
-    public static class CombatLogActivator
+    public static class CombatLogEventActivator
     {
         public static ObjectActivator GetActivator<T>(ConstructorInfo ctor)
         {

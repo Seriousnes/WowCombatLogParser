@@ -159,7 +159,7 @@ using WoWCombatLogParser.Common.Events;
         private string GetAdditionalConstructor(string className, bool generate)
         {
             return generate ? $@"
-        public {className}(IList<IField> line) : base(line, false) 
+        public {className}(IList<IField> line) : base(line) 
         {{
         }}" : "";
         }

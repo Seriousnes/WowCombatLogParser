@@ -2,10 +2,10 @@
 
 namespace WoWCombatLogParser.Common.Models
 {
-    public enum FieldId
+    public enum FieldIndex
     {
         Timestamp = 0,
-        EventType
+        EventType = 1
     }
 
     public enum EncounterType

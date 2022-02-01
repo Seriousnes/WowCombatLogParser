@@ -46,7 +46,7 @@ namespace WoWCombatLogParser.Common.Events
 
         protected virtual bool SetPropertyValue(PropertyInfo property, IEnumerator<IField> data)
         {
-            property.SetValue(this, Conversion.GetValue(data.Current.AsString(), property.PropertyType));
+            property.SetValue(this, Conversion.GetValue(data.Current, property.PropertyType));
             return data.MoveNext();
         }
     }

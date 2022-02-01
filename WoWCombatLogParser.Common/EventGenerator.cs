@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using WoWCombatLogParser.Common.Events;
 using WoWCombatLogParser.Common.Models;
 using WoWCombatLogParser.Common.Utility;
 
-namespace WoWCombatLogParser.Common.Events
+namespace WoWCombatLogParser
 {
     public static class EventGenerator
     {
-        private static Dictionary<string, ObjectActivator> _ctors = new Dictionary<string, ObjectActivator>();
-        private static Dictionary<Type, ClassMap> _classMap;
-        private static Assembly _assembly = Assembly.Load("WoWCombatLogParser");
-
+        private static readonly Dictionary<string, ObjectActivator> _ctors = new Dictionary<string, ObjectActivator>();
+        private static readonly Dictionary<Type, ClassMap> _classMap = new Dictionary<Type, ClassMap>();
+        private static readonly Assembly _assembly = Assembly.Load("WoWCombatLogParser");
+        
         static EventGenerator()
         {
             SetupClassMap();
@@ -21,7 +22,7 @@ namespace WoWCombatLogParser.Common.Events
 
         public static T GetCombatLogEvent<T>(IList<IField> line) where T : class
         {
-            var ctor = _ctors.Where(c => c.Key == line[(int)FieldId.EventType].AsString()).Select(c => c.Value).SingleOrDefault();
+            var ctor = _ctors.Where(c => c.Key == line[(int)FieldIndex.EventType].ToString()).Select(c => c.Value).SingleOrDefault();
             if (ctor == null) return null;
             return (T)ctor(line);
         }
@@ -39,12 +40,10 @@ namespace WoWCombatLogParser.Common.Events
 
         private static void SetupCombatLogEvents()
         {
-            /*var events = */GetTypesWhere(i => i.GetCustomAttribute<AffixAttribute>() != null)
+            GetTypesWhere(i => i.GetCustomAttribute<AffixAttribute>() != null)
                 .ToList()
                 .ConvertAll(i => new EventAffixItem(i))
-                .ForEach(p => AddType(p.Affix.Name, p.EventType));
-
-            //events.ToList().ForEach(p => AddType(p.Affix.Name, p.EventType));
+                .ForEach(p => AddType(p.Affix.Name, p.EventType));            
         }
 
         private static void AddType(string name, Type type)
@@ -54,19 +53,21 @@ namespace WoWCombatLogParser.Common.Events
             {
                 constructor = type.GetConstructors().First();
             }
-            var activator = CombatLogActivator.GetActivator<object>(constructor);
+            var activator = CombatLogEventActivator.GetActivator<object>(constructor);
             _ctors.Add(name, activator);
             _classMap.TryAdd(type, new ClassMap { Constructor = activator, Properties = type.GetTypePropertyInfo().ToArray() });
         }
 
         private static void SetupClassMap()
         {
-            _classMap = GetTypesWhere(i => i.GetCustomAttribute<AffixAttribute>() == null && i.IsSubclassOf(typeof(EventSection)) && !i.IsAbstract && !i.IsGenericType)
+            GetTypesWhere(i => i.GetCustomAttribute<AffixAttribute>() == null && i.IsSubclassOf(typeof(EventSection)) && !i.IsAbstract && !i.IsGenericType)
                 .ToDictionary(key => key, value => new ClassMap
                 {
-                    Constructor = CombatLogActivator.GetActivator<EventSection>(value.GetConstructors().First()),
+                    Constructor = CombatLogEventActivator.GetActivator<EventSection>(value.GetConstructors().First()),
                     Properties = value.GetTypePropertyInfo().ToList()
-                });
+                })
+                .ToList()
+                .ForEach(x => _classMap.Add(x.Key, x.Value));
         }
 
         private static IEnumerable<Type> GetTypesWhere(Func<Type, bool> expr)

@@ -9,10 +9,9 @@ namespace WoWCombatLogParser
     {
         IField Parent { get; set; }
         Range Range { get; set; }
-        string AsString();
     }
 
-    [DebuggerDisplay("{AsString()}")]
+    [DebuggerDisplay("{ToString()}")]
     public class TextField : IField
     {
         public virtual string Content { get; set; }
@@ -30,22 +29,27 @@ namespace WoWCombatLogParser
             Append(value.ToString());
         }
 
-        public virtual string AsString()
+        public override string ToString()
         {
             return Content;
         }
-    }
 
-    [DebuggerDisplay("{AsString()}")]
-    public class QuotedTextField : TextField
-    {
-        public override string AsString()
+        public static implicit operator string(TextField field)
         {
-            return $"\"{base.AsString()}\"";
+            return field.ToString();
         }
     }
 
-    [DebuggerDisplay("{AsString()}")]
+    [DebuggerDisplay("{ToString()}")]
+    public class QuotedTextField : TextField
+    {
+        public override string ToString()
+        {
+            return $"\"{base.ToString()}\"";
+        }
+    }
+
+    [DebuggerDisplay("{ToString()}")]
     public class GroupField : IField
     {
         private static readonly Dictionary<char, char> bracketPairs = new Dictionary<char, char>()
@@ -77,9 +81,9 @@ namespace WoWCombatLogParser
             Children.Add(child);
         }
 
-        public virtual string AsString()
+        public override string ToString()
         {
-            return Children.Count > 0 ? $"{OpeningBracket}{string.Join(",", Children.Select(x => x.AsString()).ToArray())}{ClosingBracket}" : "";
+            return Children.Count > 0 ? $"{OpeningBracket}{string.Join(",", Children.Select(x => x.ToString()).ToArray())}{ClosingBracket}" : "";
         }
     }
 }

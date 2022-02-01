@@ -7,107 +7,118 @@ using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser
 {
-    public interface ICombatLogParser
+    public class CombatLogParser
     {
-        IEnumerable<Encounter> ParseCombatLogSegments(string fileName);
-        Task<List<Encounter>> ParseCombatLogSegmentsAsync(string fileName);
-    }
+        private FileSystemWatcher _file;
+        private long _lastUpdated;
+        private string _filename;
 
-    public class CombatLogParser : ICombatLogParser
-    {
-        private static readonly List<Type> types = new()
+        public CombatLogParser()
         {
-            typeof(ZoneChange),
-            typeof(MapChange)
-        };
+        }
 
-        private static readonly Dictionary<Type, Type> _encounterEndEvents = new()
+        public CombatLogParser(string filename)
         {
-            { typeof(EncounterStart), typeof(EncounterEnd) },
-            { typeof(ArenaMatchStart), typeof(ArenaMatchEnd) },
-            { typeof(ChallengeModeStart), typeof(ChallengeModeEnd) }
-        };
+            Filename = filename;
+        }
 
-        public IEnumerable<Encounter> ParseCombatLogSegments(string fileName)
+        public string Filename 
         {
-            List<ICombatLogEvent> events = null;
-            foreach (var @event in ParseCombatLog(fileName))
+            get { return _filename; }
+            set
             {
-                if (events != null)
-                {
-                    events.Add(@event);
-                    if (_encounterEndEvents.ContainsKey(@event.GetType()))
-                    {
-                        var segment = new Encounter();
-                        segment.ProcessAsync(events).Wait();                        
-                        events = null;
-                        yield return segment;
-                    }
-                }
-                else
-                {
-                    if (@event.GetType() == typeof(EncounterStart))
-                    {
-                        events = new();
-                        events.Add(@event);
-                    }
-                }
+                if (_file != null) _file.EnableRaisingEvents = false;
+                _filename = value;
+                if (_file != null) _file.EnableRaisingEvents = false;
             }
         }
 
-        public async Task<List<Encounter>> ParseCombatLogSegmentsAsync(string fileName)
+        public void Watch(params FileSystemEventHandler[] fileChanged)
         {
-            var events = await ParseCombatLogAsync(fileName);
-            var results = new List<Encounter>();
+            if (_file != null)
+                throw new InvalidOperationException($"CombatLogParser is already attached to {_file.Path}. Call Detatch() before attaching to a file.");
 
-            Encounter currentEncounter = null;
-            foreach (var @event in events)
+            _file = new FileSystemWatcher(_filename) { EnableRaisingEvents = false, NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.CreationTime };
+            fileChanged.ToList().ForEach(e =>
             {
-                if (@event is IFightStart)
-                {
-                    currentEncounter = new Encounter();                    
-                    results.Add(currentEncounter);
-                }
-                
-                currentEncounter?.Events.Add(@event);                
-               
-                if (@event is IFightEnd)
-                {
-                    currentEncounter = null;
-                }
-            }            
-
-            return null;
+                _file.Changed += e;
+                _file.Created += e;
+            });
+            _file.EnableRaisingEvents = true;
+            _lastUpdated = DateTime.Now.Ticks;
         }
 
-        private IEnumerable<Models.CombatLogEvent> ParseCombatLog(string fileName)
+        public void Stop()
         {
-            foreach (var line in ReadCombatLog(fileName))
-            {
-                var combatLogEvent = line.GetCombatLogEvent<Models.CombatLogEvent>();
-                if (combatLogEvent != null)
-                {
-                    combatLogEvent.Parse();
-                    yield return combatLogEvent;
-                }
-            }
-        }
+            _file.Dispose();
+            _file = null;
+        }        
 
-        private async Task<List<Models.CombatLogEvent>> ParseCombatLogAsync(string fileName)
+        public IList<IFight> Scan()
         {
-            var stack = new ConcurrentBag<Models.CombatLogEvent>();
-            await Parallel.ForEachAsync(ReadCombatLog(fileName), async (line, _) => stack.Add(await Task.Factory.StartNew(() => line.GetCombatLogEvent<Models.CombatLogEvent>())));
-            return stack.ToList().OrderBy(x => x.Id).ToList();
-        }
-
-        private static IEnumerable<string> ReadCombatLog(string fileName)
-        {
-            using var sr = new StreamReader(fileName);
+            if (string.IsNullOrEmpty(_filename)) 
+                throw new ArgumentNullException("Filename", "Filename must not be null");
+            if (!File.Exists(_filename))
+                return new List<IFight>();
+            
+            var result = new List<IFight>();
+            using var sr = new StreamReader(_filename);
             string line;
+            IFight fight = null;
             while ((line = sr.ReadLine()) != null)
             {
-                yield return line;
+                var @event = line.GetCombatLogEvent<CombatLogEvent>();
+                if (@event != null)
+                {
+                    switch (@event)
+                    {
+                        case IFightEnd end when @event is IFightEnd:
+                            if (fight != null && fight.IsEndEvent(end))
+                                fight = null;
+                            break;
+                        case IFightStart start when @event is IFightStart:
+                            fight = start.GetFight();
+                            if (fight != null)
+                                result.Add(fight);
+                            break;
+                        default:
+                            fight?.AddEvent(@event);
+                            break;
+                    }
+                }                
             }
+            return result;
         }
+
+
+        //private IEnumerable<Models.CombatLogEvent> ParseCombatLog(string fileName)
+        //{
+        //    foreach (var line in ReadCombatLog(fileName))
+        //    {
+        //        var combatLogEvent = line.GetCombatLogEvent<Models.CombatLogEvent>();
+        //        if (combatLogEvent != null)
+        //        {
+        //            combatLogEvent.Parse();
+        //            yield return combatLogEvent;
+        //        }
+        //    }
+        //}
+
+        //private async Task<List<Models.CombatLogEvent>> ParseCombatLogAsync(string fileName)
+        //{
+        //    var stack = new ConcurrentBag<Models.CombatLogEvent>();
+        //    await Parallel.ForEachAsync(ReadCombatLog(fileName), async (line, _) => stack.Add(await Task.Factory.StartNew(() => line.GetCombatLogEvent<Models.CombatLogEvent>())));
+        //    return stack.ToList().OrderBy(x => x.Id).ToList();
+        //}
+
+        //private static IEnumerable<string> ReadCombatLog(string fileName)
+        //{
+        //    using var sr = new StreamReader(fileName);
+        //    string line;
+        //    while ((line = sr.ReadLine()) != null)
+        //    {
+        //        yield return line;
+        //    }
+        //}
     }
 }

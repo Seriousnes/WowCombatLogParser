@@ -1,11 +1,23 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser.Models
 {
+    public interface IFight
+    {
+        FightDescription GetDescription();
+        IList<CombatLogEvent> GetEvents();
+        CombatLogEvent AddEvent(CombatLogEvent @event);
+        (long Start, long End) Range { get; }
+        void Parse();
+        Task ParseAsync();
+        bool IsEndEvent(IFightEnd type);
+    }
+
     [DebuggerDisplay("{GetDescription()}")]
-    public abstract class Fight<TStart, TEnd> 
+    public abstract class Fight<TStart, TEnd> : IFight
         where TStart : CombatLogEvent, IFightStart
         where TEnd : CombatLogEvent, IFightEnd
     {
@@ -16,24 +28,41 @@ namespace WoWCombatLogParser.Models
         public Fight(TStart start)
         {
             _start = start;
+            _start.ParseAsync().Forget();
             _events.Add(start);
         }
 
         public CombatLogEvent AddEvent(CombatLogEvent @event)
         {
             _events.Add(@event);
-            if (_events is TEnd endEvent)
+            if (@event is TEnd endEvent)
             {
-                _end = endEvent;                
+                _end = endEvent;
+                _end.ParseAsync().Forget();
             }
             return @event;
-        }
-        public void Sort() => _events = _events.OrderBy(x => x.Id).ToList();
+        }        
 
+        public void Sort() => _events = _events.OrderBy(x => x.Id).ToList();
+        public IList<CombatLogEvent> GetEvents() => _events;
         public virtual FightDescription GetDescription() => new(Name, Duration, _start.Timestamp, Result);
+
+        public void Parse()
+        {
+            _events.ForEach(e => e.Parse());
+        }
+
+        public async Task ParseAsync()
+        {
+            await Parallel.ForEachAsync(_events, async (e, _) => await e.ParseAsync());
+        }
+
+        public bool IsEndEvent(IFightEnd @event) => typeof(TEnd).IsAssignableFrom(@event.GetType());
+
         public TimeSpan Duration => _end is null ? (_events.Last().Timestamp - _start.Timestamp) : TimeSpan.FromMilliseconds(_end.Duration);
         public abstract string Name { get; }
         public abstract string Result { get; }
+        public (long Start, long End) Range { get; set; }
     }
 
     [DebuggerDisplay("{Description} ({Result}) {Duration} {Time}")]
@@ -51,6 +80,10 @@ namespace WoWCombatLogParser.Models
         public string Duration { get; set; }
         public string Result { get; set; }
         public string Time { get; set; }
+        public override string ToString()
+        {
+            return $"{Description} ({Result}) {Duration} {Time}";
+        }
     }
 
     public class Raid : Fight<EncounterStart, EncounterEnd>
@@ -73,9 +106,9 @@ namespace WoWCombatLogParser.Models
         public override string Result => _end is ChallengeModeEnd endOfFight && endOfFight.Success ? "Timed" : "Not timed";
     }
 
-    public class Arena : Fight<ArenaMatchStart, ArenaMatchEnd>
+    public class ArenaMatch : Fight<ArenaMatchStart, ArenaMatchEnd>
     {
-        public Arena(ArenaMatchStart start) : base(start)
+        public ArenaMatch(ArenaMatchStart start) : base(start)
         {
         }
 

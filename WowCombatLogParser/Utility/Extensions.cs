@@ -1,11 +1,44 @@
 ﻿using System;
-using System.ComponentModel;
+using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser.Utility
 {
-    public static class EnumExtensions
+    public static class Extensions
     {
+        private readonly static TextFieldReaderOptions options = new() { HasFieldsEnclosedInQuotes = true, Delimiters = new[] { ',' } };
+
+        public static (bool Success, IEnumerator<IField> Enumerator, bool EndOfParent, bool Dispose) GetEnumeratorForProperty(this IEnumerator<IField> data)
+        {
+            if (data.Current is GroupField groupData)
+            {
+                var enumerator = groupData.Children.GetEnumerator();
+                return (enumerator.MoveNext(), enumerator, !data.MoveNext(), true);
+            }
+
+            return (true, data, false, false);
+        }
+
+        public static T GetCombatLogEvent<T>(this string line) where T : CombatLogEvent
+        {
+            return EventGenerator.GetCombatLogEvent<T>(TextFieldReader.ReadFields(line, options));
+        }
+
+        public static void Forget(this Task _)
+        {
+        }
+
+        public static IFight GetFight(this IFightStart start)
+        {
+            return start switch
+            {
+                EncounterStart raidStart when start.GetType() == typeof(EncounterStart) => new Raid(raidStart),
+                ArenaMatchStart arenaStart when start.GetType() == typeof(ArenaMatchStart) => new ArenaMatch(arenaStart),
+                ChallengeModeStart challengeStart when start.GetType() == typeof(ChallengeModeStart) => new ChallengeMode(challengeStart),
+                _ => null
+            };
+        }
+
         public static DifficultyInfo GetDifficultyInfo(this Difficulty difficulty) => difficulty switch
         {
             Difficulty.Normal => new DifficultyInfo { Name = "Normal", Type = InstanceType.Party },
@@ -51,6 +84,5 @@ namespace WoWCombatLogParser.Utility
             Difficulty.WorldBoss => new DifficultyInfo { Name = "World Boss", Type = InstanceType.None },
             _ => throw new ArgumentException($"{difficulty} is not a valid enum value for Difficulty", nameof(difficulty))
         };
-
     }
 }

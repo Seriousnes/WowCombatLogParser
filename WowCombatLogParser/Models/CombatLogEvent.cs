@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Events;
 using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.Common.Utility;
 
 namespace WoWCombatLogParser.Models
 {
@@ -15,27 +18,22 @@ namespace WoWCombatLogParser.Models
             Id = ++_count;
         }
 
-        public CombatLogEvent(IList<IField> line) : this(line, false)
-        {
+        public CombatLogEvent(IList<IField> line) : this()
+        {            
+            Timestamp = DateTime.ParseExact(line[(int)FieldIndex.Timestamp].ToString(), "M/d HH:mm:ss.fff", CultureInfo.InvariantCulture);
+            Event = line[(int)FieldIndex.EventType].ToString();
+            _line = line.Skip(2).ToList();
         }
-
-        public CombatLogEvent(IList<IField> line = null, bool parseImmediate = false) : this()
-        {
-            _line = line;            
-        }
-
-        public DateTime Timestamp { get; set; }
-        public string Event { get; set; }
 
         [NonData]
         public int Id { get; init; }
         [NonData]
-        public bool HasBeenParsed { get; private set; } = false;        
+        public DateTime Timestamp { get; init; }
+        [NonData]
+        public string Event { get; init; }
         
         public void Parse()
         {
-            if (HasBeenParsed) return;
-            HasBeenParsed = true;
             var data = _line?.GetEnumerator();
             if (data?.MoveNext() ?? false)
             {
