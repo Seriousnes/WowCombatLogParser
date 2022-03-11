@@ -160,7 +160,8 @@ namespace WoWCombatLogParser.Common.Models
         Spellshadow = Arcane | Shadow,
         Chromatic = Spellshadow | Elemental,
         Magic = Chromatic | Holy,
-        Chaos = Magic | Physical
+        Chaos = Magic | Physical,
+        Cosmic = Divine | Plague
     }
 
     public enum PowerType
