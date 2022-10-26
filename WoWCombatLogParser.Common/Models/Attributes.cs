@@ -67,4 +67,19 @@ namespace WoWCombatLogParser.Common.Models
     public class NonDataAttribute : Attribute
     {
     }
+
+    [AttributeUsage(AttributeTargets.Property)]
+    public class KeyAttribute : Attribute
+    {
+        /// <summary>
+        /// Identifies a property as being a key
+        /// </summary>
+        /// <param name="fields">Number of fields present in the object, inclusive of the key</param>
+        public KeyAttribute(int fields)
+        {
+            Fields = fields;
+        }
+
+        public int Fields { get; set; }
+    }
 }

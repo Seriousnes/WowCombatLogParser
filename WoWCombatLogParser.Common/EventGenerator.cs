@@ -16,7 +16,7 @@ namespace WoWCombatLogParser
         private static readonly Dictionary<Type, ClassMap> _classMap = new Dictionary<Type, ClassMap>();
         private static readonly Assembly _assembly = Assembly.Load("WoWCombatLogParser");
         private static readonly Regex _split = new Regex(@"\s\s", RegexOptions.Compiled);
-        
+
         static EventGenerator()
         {
             SetupClassMap();
@@ -25,10 +25,10 @@ namespace WoWCombatLogParser
 
         public static T GetCombatLogEvent<T>(string line) where T : class
         {
-            var details = GetMinimalEventDetails(ref line);
-            var ctor = _ctors.Where(c => c.Key == details.EventType).Select(c => c.Value).SingleOrDefault();
+            var (timestamp, eventType) = GetMinimalEventDetails(ref line);
+            var ctor = _ctors.Where(c => c.Key == eventType).Select(c => c.Value).SingleOrDefault();
             if (ctor == null) return null;
-            return (T)ctor(details.Timestamp, details.EventType, line);
+            return (T)ctor(timestamp, eventType, line);
         }
 
         public static T CreateEventSection<T>()
@@ -45,7 +45,6 @@ namespace WoWCombatLogParser
             line = new string(line.Skip(i).ToArray());
             var resultParts = _split.Split(substr).ToArray();
             return (DateTime.ParseExact(resultParts[(int)FieldIndex.Timestamp], "M/d HH:mm:ss.fff", CultureInfo.InvariantCulture), resultParts[(int)FieldIndex.EventType]);
-
         }
 
         public static ClassMap GetClassMap(Type type) => _classMap.TryGetValue(type, out var value) ? value : null;
@@ -57,16 +56,12 @@ namespace WoWCombatLogParser
             GetTypesWhere(i => i.GetCustomAttribute<AffixAttribute>() != null)
                 .ToList()
                 .ConvertAll(i => new EventAffixItem(i))
-                .ForEach(p => AddType(p.Affix.Name, p.EventType));            
+                .ForEach(p => AddType(p.Affix.Name, p.EventType));
         }
 
         private static void AddType(string name, Type type)
         {
-            var constructor = type.GetConstructor(new[] { typeof(DateTime), typeof(string), typeof(string) });            
-            if (constructor == null)
-            {
-                constructor = type.GetConstructors().First();
-            }
+            var constructor = type.GetConstructor(new[] { typeof(DateTime), typeof(string), typeof(string) }) ?? type.GetConstructors().First();
             var activator = CombatLogEventActivator.GetActivator<object>(constructor);
             _ctors.Add(name, activator);
             _classMap.TryAdd(type, new ClassMap { Constructor = activator, Properties = type.GetTypePropertyInfo().ToArray() });
@@ -86,11 +81,11 @@ namespace WoWCombatLogParser
 
         private static IEnumerable<Type> GetTypesWhere(Func<Type, bool> expr)
         {
-            foreach(var type in _assembly.GetTypes().Where(expr))
+            foreach (var type in _assembly.GetTypes().Where(expr))
                 yield return type;
             foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(expr))
                 yield return type;
-        }   
+        }
     }
 
     public class ClassMap

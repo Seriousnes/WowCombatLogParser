@@ -10,10 +10,10 @@ namespace WoWCombatLogParser.Common.Utility
 {
     public static class Extensions
     {
-        public static bool MoveBy<T>(this IEnumerator<T> enumerator, int steps = 0)
+        public static bool MoveBy<T>(this IEnumerator<T> enumerator, int steps = 1)
         {
             var moveResult = true;
-            while (moveResult && steps >= 0)
+            while (moveResult && steps > 0)
             {
                 moveResult = enumerator.MoveNext();
                 steps--;

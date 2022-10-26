@@ -32,6 +32,8 @@ namespace WoWCombatLogParser.Models
         public DateTime Timestamp { get; init; }
         [NonData]
         public string Event { get; init; }
+        [NonData]
+        public IFight Encounter { get; set; }
         
         public void Parse()
         {
@@ -40,7 +42,7 @@ namespace WoWCombatLogParser.Models
                 var data = TextFieldReader.ReadFields(_data, options)?.GetEnumerator();
                 if (data?.MoveNext() ?? false)
                 {
-                    Parse(data);
+                    Parse(Encounter?.CommonDataDictionary, data);
                 }
                 data?.Dispose();
                 _data = null;

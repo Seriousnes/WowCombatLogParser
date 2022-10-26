@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "WoWCombatLogParser.Tests": {
+      "commandName": "Project"
+    }
+  }
+}

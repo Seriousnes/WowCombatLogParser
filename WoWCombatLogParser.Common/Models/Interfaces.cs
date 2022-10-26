@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Events;
 
@@ -10,7 +11,7 @@ namespace WoWCombatLogParser.Common.Models
         DateTime Timestamp { get; }
         string Event { get; }
         void Parse();
-        Task<ICombatLogEvent> ParseAsync();
+        Task<ICombatLogEvent> ParseAsync();      
     }
 
     /// <summary>
@@ -18,13 +19,13 @@ namespace WoWCombatLogParser.Common.Models
     /// </summary>
     public interface IAction
     {
-        Unit Source { get; }
-        Unit Destination { get; }
+        Unit Source { get; set; }
+        Unit Destination { get; set; }
     }
 
     public interface IAbility
     {
-        Ability Spell { get; }
+        Ability Spell { get; set; }
     }
 
     public interface IDamageOrHealing
@@ -92,5 +93,10 @@ namespace WoWCombatLogParser.Common.Models
 
     public interface ICast
     {
+    }
+
+    public interface IKey
+    {
+        bool EqualsKey(IKey key);
     }
 }

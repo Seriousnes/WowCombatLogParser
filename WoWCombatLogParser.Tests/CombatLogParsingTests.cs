@@ -1,6 +1,8 @@
 using FluentAssertions;
 using System;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Events;
 using WoWCombatLogParser.Common.Models;
@@ -44,21 +46,18 @@ namespace WoWCombatLogParser.Tests
             EventGenerator.GetRegisteredEventHandlers().ForEach(x => output.WriteLine(x));
         }
 
-        [Fact]
-        public void Test_SingleEncounter()
+        [Theory]
+        [InlineData(@"TestLogs/SingleFightCombatLog.txt", true)]
+        public void Test_SingleEncounter(string fileName, bool isAsync)
         {
-            var parser = new CombatLogParser(@"TestLogs/SingleFightCombatLog.txt");
+            var parser = new CombatLogParser(fileName);
             IFight encounter = parser.Scan().First();
             encounter.Should().NotBeNull().And.BeAssignableTo<Raid>();
-            encounter.ParseAsync().Wait();
+            if (isAsync)
+                encounter.ParseAsync().Wait();
+            else
+                encounter.Parse();
             OutputEncounterSumary(encounter);
-            //Encounter encounter = (await parser.ParseCombatLogSegmentsAsync(@"TestLogs/SingleFightCombatLog.txt")).FirstOrDefault();
-            //EncounterDetails details = encounter.Details;
-
-            //details.Combatants.Should().HaveCount(14);
-            //encounter.GetEncounterDescription().Should().Be("Fatescribe Roh-Kalo Heroic\nWipe (4:31)  7:32 PM");
-
-            //OutputEncounterSumary(encounter);
         }
 
         [Fact]
@@ -101,7 +100,10 @@ namespace WoWCombatLogParser.Tests
         {
             var @event = input.GetCombatLogEvent<SpellDispel>();
             @event.Parse();
-            @event.Source.Name.Should().Be("Naxa - Frostmourne");
+            // unit name testing
+            @event.Source.UnitName.Should().Be("Naxa - Frostmourne");
+            @event.Source.Name.Should().Be("Naxa");
+            @event.Source.Server.Should().Be("Frostmourne");
             @event.Spell.Name.Should().Be("Cleanse");
             @event.ExtraSpell.Id.Should().Be(357298);
         }
@@ -161,6 +163,6 @@ namespace WoWCombatLogParser.Tests
             unitFlags.Reaction.Should().Be(reaction);
             unitFlags.Ownership.Should().Be(controller);
             unitFlags.Affiliation.Should().Be(affiliation);
-        }
+        }        
     }
 }

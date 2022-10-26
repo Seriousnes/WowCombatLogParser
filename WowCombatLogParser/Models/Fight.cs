@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Models;
@@ -14,6 +15,7 @@ namespace WoWCombatLogParser.Models
         void Parse();
         Task ParseAsync();
         bool IsEndEvent(IFightEnd type);
+        FightDataDictionary CommonDataDictionary { get; }
     }
 
     [DebuggerDisplay("{GetDescription()}")]
@@ -35,6 +37,7 @@ namespace WoWCombatLogParser.Models
         public CombatLogEvent AddEvent(CombatLogEvent @event)
         {
             _events.Add(@event);
+            @event.Encounter = this;
             if (@event is TEnd endEvent)
             {
                 _end = endEvent;
@@ -44,9 +47,7 @@ namespace WoWCombatLogParser.Models
         }        
 
         public void Sort() => _events = _events.OrderBy(x => x.Id).ToList();
-        public IList<CombatLogEvent> GetEvents() => _events;
-        public virtual FightDescription GetDescription() => new(Name, Duration, _start.Timestamp, Result);
-
+        
         public void Parse()
         {
             _events.ForEach(e => e.Parse());
@@ -57,12 +58,14 @@ namespace WoWCombatLogParser.Models
             await Parallel.ForEachAsync(_events, async (e, _) => await e.ParseAsync());
         }
 
+        public IList<CombatLogEvent> GetEvents() => _events;
+        public virtual FightDescription GetDescription() => new(Name, Duration, _start.Timestamp, Result);
         public bool IsEndEvent(IFightEnd @event) => typeof(TEnd).IsAssignableFrom(@event.GetType());
-
         public TimeSpan Duration => _end is null ? (_events.Last().Timestamp - _start.Timestamp) : TimeSpan.FromMilliseconds(_end.Duration);
         public abstract string Name { get; }
         public abstract string Result { get; }
         public (long Start, long End) Range { get; set; }
+        public FightDataDictionary CommonDataDictionary { get; } = new();
     }
 
     [DebuggerDisplay("{Description} ({Result}) {Duration} {Time}")]
