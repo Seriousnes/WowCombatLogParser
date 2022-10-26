@@ -2,10 +2,6 @@
 
 ### A World of Warcraft combat log parser.
 
-Focus areas:
-* Parsing speed (current)
-* Memory optimization (next)
-
 #
 ![](https://img.shields.io/badge/Version-Prerelease-critical?style=for-the-badge)
 
