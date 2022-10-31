@@ -13,13 +13,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="TestLogs\SingleFightCombatLog.txt">
+    <Content Include="TestLogs\Retail\SingleFightCombatLog.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="TestLogs\WoWCombatLog-112821_193218.txt">
+    <Content Include="TestLogs\Retail\WoWCombatLog-112821_193218.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="TestLogs\WoWCombatLog.txt">
+    <Content Include="TestLogs\Retail\WoWCombatLog.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -40,6 +40,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WoWCombatLogParser\WoWCombatLogParser.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestLogs\WotlkClassic\Naxxramas.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
