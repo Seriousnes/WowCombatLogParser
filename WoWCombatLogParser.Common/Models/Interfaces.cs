@@ -14,6 +14,16 @@ namespace WoWCombatLogParser.Common.Models
         Task<ICombatLogEvent> ParseAsync();      
     }
 
+    public interface ICombatantInfo
+    {
+        public WowGuid PlayerGuid { get; set; }
+        public Faction Faction { get; set; }
+    }
+
+    public partial interface IFight
+    {
+    }
+
     /// <summary>
     /// CombatLogEvents with a source and destination
     /// </summary>

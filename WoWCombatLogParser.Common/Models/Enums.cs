@@ -286,4 +286,10 @@ namespace WoWCombatLogParser.Common.Models
         Skirmish,
         Rated
     }
+
+    public enum CombatLogVersion
+    {
+        Wotlk = 9,
+        Shadowlands = 19
+    }
 }

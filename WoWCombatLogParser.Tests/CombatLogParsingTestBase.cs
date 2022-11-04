@@ -1,6 +1,7 @@
 using System.Linq;
 using Xunit.Abstractions;
 using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Tests
 {

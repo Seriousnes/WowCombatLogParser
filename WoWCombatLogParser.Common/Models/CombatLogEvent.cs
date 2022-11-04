@@ -3,16 +3,15 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Events;
-using WoWCombatLogParser.Common.Models;
-using WoWCombatLogParser.Common.Utility;
 
-namespace WoWCombatLogParser.Models
+namespace WoWCombatLogParser.Common.Models
 {
-    public abstract class CombatLogEvent : EventSection, ICombatLogEvent
+    public abstract partial class CombatLogEvent : EventSection, ICombatLogEvent
     {
         private readonly static TextFieldReaderOptions options = new() { HasFieldsEnclosedInQuotes = true, Delimiters = new[] { ',' } };
         private string _data;
         private static int _count = 0;
+        protected CombatLogVersion[] CombatLogVersions;
 
         public CombatLogEvent()
         {
@@ -53,6 +52,11 @@ namespace WoWCombatLogParser.Models
         {
             await Task.Run(() => Parse());
             return this;
+        }
+
+        public bool IsApplicableForVersion(CombatLogVersion version)
+        {
+            return CombatLogVersions == null || CombatLogVersions.Length == 0 || CombatLogVersions.Contains(version);
         }
     }
 }

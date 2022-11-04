@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using WoWCombatLogParser.Common.Utility;
-using System.Diagnostics;
 using System;
 using WoWCombatLogParser.Common.Models;
 using System.Linq;
@@ -17,6 +16,7 @@ namespace WoWCombatLogParser.Common.Events
     public abstract class EventSection : IEventSection
     {
         private static readonly Type eventSectionType = typeof(EventSection);
+        
         public virtual bool Parse(FightDataDictionary fightDataDictionary, IEnumerator<IField> data)
         {
             foreach (var property in EventGenerator.GetClassMap(this.GetType()).Properties)
@@ -94,7 +94,7 @@ namespace WoWCombatLogParser.Common.Events
                 }
             }
             return false;
-        }
+        }        
     }
 
     public interface IEventSectionList
@@ -154,11 +154,5 @@ namespace WoWCombatLogParser.Common.Events
 
             return true;
         }
-    }
-
-    [DebuggerDisplay("{Id}")]
-    public abstract class IdPart : EventSection
-    {
-        public int Id { get; set; }
     }
 }
