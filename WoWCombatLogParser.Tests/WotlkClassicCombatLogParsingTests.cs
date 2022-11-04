@@ -1,40 +1,24 @@
 using FluentAssertions;
-using System;
-using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using WoWCombatLogParser.Events;
-using WoWCombatLogParser.Models;
-using WoWCombatLogParser.Events;
-using WoWCombatLogParser.Models;
-using WoWCombatLogParser.Utility;
+using WoWCombatLogParser.Common.Models;
 using Xunit;
 using Xunit.Abstractions;
-using static WoWCombatLogParser.CombatLogParser;
 
 
 namespace WoWCombatLogParser.Tests
 {
     public class WotlkClassicCombatLogParsingTests : CombatLogParsingTestBase
     {
-        public WotlkClassicCombatLogParsingTests(ITestOutputHelper output) : base(output)
-        {
+        public WotlkClassicCombatLogParsingTests(ITestOutputHelper output) : base(output, CombatLogVersion.Wotlk)
+        {            
         }
 
         [Fact]
         public void Test_FullRaidCombatLog()
         {
-            var parser = new CombatLogParser(@"TestLogs/WotlkClassic/Naxxramas.txt");
-            var encounters = parser.Scan().ToList();
-
-            foreach (var encounter in encounters)
-            {
-                encounter.Parse();
-            }
-
-            //Parallel.ForEachAsync(encounters, async (x, _) => await x.ParseAsync()).Wait();
-
+            CombatLogParser.Filename = @"TestLogs/WotlkClassic/Naxxramas.txt";
+            var encounters = CombatLogParser.Scan().ToList();
+            CombatLogParser.ParseAsync(encounters).Wait();
             encounters.Should().NotBeNull().And.HaveCountGreaterThan(1);
             encounters.ForEach(e => OutputEncounterSumary(e));
         }

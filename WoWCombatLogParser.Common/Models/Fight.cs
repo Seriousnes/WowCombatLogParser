@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using WoWCombatLogParser.Common.Events;
 
 namespace WoWCombatLogParser.Common.Models
 {
@@ -13,8 +14,6 @@ namespace WoWCombatLogParser.Common.Models
         IList<CombatLogEvent> GetEvents();
         CombatLogEvent AddEvent(CombatLogEvent @event);
         (long Start, long End) Range { get; }
-        void Parse();
-        Task ParseAsync();
         bool IsEndEvent(IFightEnd type);
         FightDataDictionary CommonDataDictionary { get; }
     }
@@ -26,26 +25,26 @@ namespace WoWCombatLogParser.Common.Models
     {
         protected TStart _start;
         protected TEnd _end;
-        protected List<CombatLogEvent> _events = new();
+        protected List<CombatLogEvent> _events = new();        
 
         public Fight(TStart start)
         {
             _start = start;
-            _start.ParseAsync().Wait();
             _events.Add(start);
         }
 
-        public abstract CombatLogEvent AddEvent(CombatLogEvent @event);
-
-        public void Sort() => _events = _events.OrderBy(x => x.Id).ToList();
-        
-        public void Parse()
+        public CombatLogEvent AddEvent(CombatLogEvent @event)
         {
-            _events.ForEach(e => e.Parse());
+            _events.Add(@event);
+            @event.Encounter = this;
+            if (@event is TEnd endEvent)
+            {
+                _end = endEvent;
+            }
+            return @event;
         }
 
-        public abstract Task ParseAsync();
-
+        public void Sort() => _events = _events.OrderBy(x => x.Id).ToList();
         public IList<CombatLogEvent> GetEvents() => _events;
         public virtual FightDescription GetDescription() => new(Name, Duration, _start.Timestamp, Result);
         public bool IsEndEvent(IFightEnd @event) => typeof(TEnd).IsAssignableFrom(@event.GetType());

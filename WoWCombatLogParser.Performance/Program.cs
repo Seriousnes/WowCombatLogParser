@@ -1,3 +1,6 @@
-﻿var parser = new WoWCombatLogParser.CombatLogParser(@"C:\Users\Sean\source\repos\WoWCombatLogParser\WoWCombatLogParser.Tests\TestLogs\SingleFightCombatLog.txt");
-var encounters = parser.Scan().ToList();
-Parallel.ForEachAsync(encounters, async (x, _) => await x.ParseAsync()).Wait();
+﻿using WoWCombatLogParser;
+
+var context = new ApplicationContext();
+context.CombatLogParser.Filename = @"C:\Users\Sean\source\repos\WoWCombatLogParser\WoWCombatLogParser.Tests\TestLogs\SingleFightCombatLog.txt";
+var encounters = context.CombatLogParser.Scan().ToList();
+await context.CombatLogParser.ParseAsync(encounters);

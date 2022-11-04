@@ -17,12 +17,6 @@ namespace WoWCombatLogParser.Utility
             return (true, data, false, false);
         }
 
-        public static T GetCombatLogEvent<T>(this string line) where T : CombatLogEvent
-        {
-
-            return EventGenerator.GetCombatLogEvent<T>(line);
-        }
-
         public static void Forget(this Task _)
         {
         }

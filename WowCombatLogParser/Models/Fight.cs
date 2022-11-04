@@ -6,34 +6,7 @@ using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser.Models
 {
-    [DebuggerDisplay("{GetDescription()}")]
-    public abstract class MutableFight<TStart, TEnd> : Fight<TStart, TEnd>
-        where TStart : CombatLogEvent, IFightStart
-        where TEnd : CombatLogEvent, IFightEnd
-    {
-        protected MutableFight(TStart start) : base(start)
-        {
-        }
-
-        public override CombatLogEvent AddEvent(CombatLogEvent @event)
-        {
-            _events.Add(@event);
-            @event.Encounter = this;
-            if (@event is TEnd endEvent)
-            {
-                _end = endEvent;
-                _end.ParseAsync().Wait();
-            }
-            return @event;
-        }
-
-        public override async Task ParseAsync()
-        {
-            await Parallel.ForEachAsync(_events, async (e, _) => await e.ParseAsync());
-        }
-    }
-
-    public class Raid : MutableFight<EncounterStart, EncounterEnd>
+    public class Raid : Fight<EncounterStart, EncounterEnd>
     {
         public Raid(EncounterStart start) : base(start)
         {
@@ -43,7 +16,7 @@ namespace WoWCombatLogParser.Models
         public override string Result => _end is EncounterEnd endOfFight && endOfFight.Success ? "Kill" : "Wipe";
     }
 
-    public class ChallengeMode : MutableFight<ChallengeModeStart, ChallengeModeEnd>
+    public class ChallengeMode : Fight<ChallengeModeStart, ChallengeModeEnd>
     {
         public ChallengeMode(ChallengeModeStart start) : base(start)
         {
@@ -53,7 +26,7 @@ namespace WoWCombatLogParser.Models
         public override string Result => _end is ChallengeModeEnd endOfFight && endOfFight.Success ? "Timed" : "Not timed";
     }
 
-    public class ArenaMatch : MutableFight<ArenaMatchStart, ArenaMatchEnd>
+    public class ArenaMatch : Fight<ArenaMatchStart, ArenaMatchEnd>
     {
         public ArenaMatch(ArenaMatchStart start) : base(start)
         {

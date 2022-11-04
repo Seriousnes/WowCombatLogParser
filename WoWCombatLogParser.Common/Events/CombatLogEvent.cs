@@ -1,17 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using WoWCombatLogParser.Common.Events;
+using WoWCombatLogParser.Common.Models;
 
-namespace WoWCombatLogParser.Common.Models
+namespace WoWCombatLogParser.Common.Events
 {
     public abstract partial class CombatLogEvent : EventSection, ICombatLogEvent
     {
         private readonly static TextFieldReaderOptions options = new() { HasFieldsEnclosedInQuotes = true, Delimiters = new[] { ',' } };
         private string _data;
         private static int _count = 0;
-        protected CombatLogVersion[] CombatLogVersions;
 
         public CombatLogEvent()
         {
@@ -33,30 +33,19 @@ namespace WoWCombatLogParser.Common.Models
         public string Event { get; init; }
         [NonData]
         public IFight Encounter { get; set; }
+        [NonData]
+        public IApplicationContext ApplicationContext { get; set; }       
         
-        public void Parse()
+        public IList<IField> GetData(bool reset = true)
         {
+            IList<IField> data = null;
             if (_data != null)
             {
-                var data = TextFieldReader.ReadFields(_data, options)?.GetEnumerator();
-                if (data?.MoveNext() ?? false)
-                {
-                    Parse(Encounter?.CommonDataDictionary, data);
-                }
-                data?.Dispose();
-                _data = null;
+                data = TextFieldReader.ReadFields(_data, options);
+                if (reset) _data = null;
             }
-        }
 
-        public async Task<ICombatLogEvent> ParseAsync()
-        {
-            await Task.Run(() => Parse());
-            return this;
-        }
-
-        public bool IsApplicableForVersion(CombatLogVersion version)
-        {
-            return CombatLogVersions == null || CombatLogVersions.Length == 0 || CombatLogVersions.Contains(version);
+            return data;
         }
     }
 }

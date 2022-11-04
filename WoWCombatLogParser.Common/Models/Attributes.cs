@@ -82,4 +82,15 @@ namespace WoWCombatLogParser.Common.Models
 
         public int Fields { get; set; }
     }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class CombatLogVersionAttribute : Attribute
+    {
+        public CombatLogVersionAttribute(CombatLogVersion combatLogVersion)
+        {
+            Value = combatLogVersion;
+        }
+
+        public CombatLogVersion Value { get; }
+    }
 }

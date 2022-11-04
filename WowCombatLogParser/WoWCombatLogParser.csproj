@@ -14,7 +14,11 @@
 	<ItemGroup>
 		<ProjectReference Include="..\WoWCombatLogParser.Common\WoWCombatLogParser.Common.csproj" />
 		<ProjectReference Include="..\WoWCombatLogParser.IO\WoWCombatLogParser.IO.csproj" />
-		<ProjectReference Include="..\WoWCombatLogParser.SourceGenerator\WoWCombatLogParser.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<ProjectReference Include="..\WoWCombatLogParser.SourceGenerator\WoWCombatLogParser.SourceGenerator.csproj"
+						  OutputItemType="Analyzer"
+						  ReferenceOutputAssembly="false" />
+	</ItemGroup>
 </Project>

@@ -289,6 +289,7 @@ namespace WoWCombatLogParser.Common.Models
 
     public enum CombatLogVersion
     {
+        Any = -1,
         Wotlk = 9,
         Shadowlands = 19
     }

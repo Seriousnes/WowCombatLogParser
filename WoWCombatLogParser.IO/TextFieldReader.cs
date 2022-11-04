@@ -88,7 +88,7 @@ namespace WoWCombatLogParser
         public static IList<IField> ReadFields(string line, TextFieldReaderOptions options)
         {
             options ??= new TextFieldReaderOptions { Delimiters = new[] { ',' }, HasFieldsEnclosedInQuotes = false };
-            using var sr = new StringReader(line.Replace("  ", ","));
+            using var sr = new StringReader(line?.Replace("  ", ","));
             var result = ReadFields(sr, options);
             return result;
         }

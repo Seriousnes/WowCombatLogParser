@@ -7,7 +7,7 @@ namespace WoWCombatLogParser.Tests
 {
     public class CommonCombatLogParsingTests : CombatLogParsingTestBase
     {
-        public CommonCombatLogParsingTests(ITestOutputHelper output) : base(output)
+        public CommonCombatLogParsingTests(ITestOutputHelper output) : base(output, Constants.DefaultCombatLogVersion)
         {
         }
 
@@ -42,7 +42,13 @@ namespace WoWCombatLogParser.Tests
         [Fact]
         public void Test_RegisteredEventHandlers()
         {
-            //EventGenerator.GetRegisteredEventHandlers().ForEach(x => output.WriteLine(x));
+            EventGenerator.GetRegisteredEventHandlers().ForEach(x => output.WriteLine(x));
+        }
+
+        [Fact]
+        public void Test_RegisteredClassMaps()
+        {
+            EventGenerator.GetRegisteredClassMaps().ForEach(x => output.WriteLine(x));
         }
     }
 }

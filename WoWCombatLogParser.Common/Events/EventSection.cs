@@ -10,35 +10,35 @@ namespace WoWCombatLogParser.Common.Events
 {
     public interface IEventSection
     {
-        bool Parse(FightDataDictionary fightDataDictionary, IEnumerator<IField> data);
+        bool Parse(IEventGenerator eventGenerator, FightDataDictionary fightDataDictionary, IEnumerator<IField> data);
     }
 
     public abstract class EventSection : IEventSection
     {
         private static readonly Type eventSectionType = typeof(EventSection);
         
-        public virtual bool Parse(FightDataDictionary fightDataDictionary, IEnumerator<IField> data)
+        public virtual bool Parse(IEventGenerator eventGenerator, FightDataDictionary fightDataDictionary, IEnumerator<IField> data)
         {
-            foreach (var property in EventGenerator.GetClassMap(this.GetType()).Properties)
+            foreach (var property in eventGenerator.GetClassMap(this.GetType()).Properties)
             {
-                if (!ParseProperty(fightDataDictionary, property, data)) return false;
+                if (!ParseProperty(eventGenerator, fightDataDictionary, property, data)) return false;
             }
             return true;
         }
 
-        protected virtual bool ParseProperty(FightDataDictionary fightDataDictionary, PropertyInfo property, IEnumerator<IField> data)
+        protected virtual bool ParseProperty(IEventGenerator eventGenerator, FightDataDictionary fightDataDictionary, PropertyInfo property, IEnumerator<IField> data)
         {
             bool parseResult;
             if (property.PropertyType.IsSubclassOf(eventSectionType))
             {
                 if (typeof(IKey).IsAssignableFrom(property.PropertyType) && fightDataDictionary is not null)
                 {
-                    if (ParseCommonDataProperty(fightDataDictionary, property, data))
+                    if (ParseCommonDataProperty(eventGenerator, fightDataDictionary, property, data))
                         return true;
                 }
 
                 var (Success, Enumerator, EndOfParent, Dispose) = data.GetEnumeratorForProperty();
-                parseResult = Success && ((EventSection)property.GetValue(this)).Parse(fightDataDictionary, Enumerator);
+                parseResult = Success && ((EventSection)property.GetValue(this)).Parse(eventGenerator, fightDataDictionary, Enumerator);
 
                 if (Dispose) Enumerator.Dispose();
 
@@ -46,7 +46,7 @@ namespace WoWCombatLogParser.Common.Events
             }
             else if (typeof(IEventSectionList).IsAssignableFrom(property.PropertyType))
             {
-                parseResult = ((IEventSectionList)property.GetValue(this)).Parse(fightDataDictionary, data);
+                parseResult = ((IEventSectionList)property.GetValue(this)).Parse(eventGenerator, fightDataDictionary, data);
             }
             else
             {
@@ -61,7 +61,7 @@ namespace WoWCombatLogParser.Common.Events
             return data.MoveNext();
         }
 
-        protected virtual bool ParseCommonDataProperty(FightDataDictionary fightDataDictionary, PropertyInfo property, IEnumerator<IField> data)
+        protected virtual bool ParseCommonDataProperty(IEventGenerator eventGenerator, FightDataDictionary fightDataDictionary, PropertyInfo property, IEnumerator<IField> data)
         {
             // get list of current data type
             var _list = fightDataDictionary.TryGetValue(property.PropertyType, out var x) ? x : null;
@@ -72,7 +72,7 @@ namespace WoWCombatLogParser.Common.Events
             }
 
             // if item exists in the list, update reference and skip over defined number of steps
-            var indexProperty = EventGenerator.GetClassMap(property.PropertyType)
+            var indexProperty = eventGenerator.GetClassMap(property.PropertyType)
                 .Properties
                 .Where(x => x.GetCustomAttribute<KeyAttribute>() != null)
                 .SingleOrDefault();
@@ -99,12 +99,12 @@ namespace WoWCombatLogParser.Common.Events
 
     public interface IEventSectionList
     {
-        bool Parse(FightDataDictionary fightDataDictionary, IEnumerator<IField> data);
+        bool Parse(IEventGenerator eventGenerator, FightDataDictionary fightDataDictionary, IEnumerator<IField> data);
     }
 
     public class EventSections<T> : List<T>, IEventSectionList where T : EventSection
     {
-        public virtual bool Parse(FightDataDictionary fightDataDictionary, IEnumerator<IField> data)
+        public virtual bool Parse(IEventGenerator eventGenerator, FightDataDictionary fightDataDictionary, IEnumerator<IField> data)
         {
             var enumeratorResult = data.GetEnumeratorForProperty();
 
@@ -113,8 +113,8 @@ namespace WoWCombatLogParser.Common.Events
                 bool _continue;
                 do
                 {
-                    T item = EventGenerator.CreateEventSection<T>();
-                    _continue = item.Parse(fightDataDictionary, enumeratorResult.Enumerator);
+                    T item = eventGenerator.CreateEventSection<T>();
+                    _continue = item.Parse(eventGenerator, fightDataDictionary, enumeratorResult.Enumerator);
                     Add(item);
                 } while (_continue);
             }
@@ -128,7 +128,7 @@ namespace WoWCombatLogParser.Common.Events
 
     public class NestedEventSections<T> : EventSections<T>, IEventSectionList where T : EventSection
     {
-        public override bool Parse(FightDataDictionary fightDataDictionary, IEnumerator<IField> data)
+        public override bool Parse(IEventGenerator eventGenerator, FightDataDictionary fightDataDictionary, IEnumerator<IField> data)
         {
             var outerEnumerator = data.GetEnumeratorForProperty();
             if (outerEnumerator.Success)
@@ -139,8 +139,8 @@ namespace WoWCombatLogParser.Common.Events
                     var innerEnumerator = outerEnumerator.Enumerator.GetEnumeratorForProperty();
                     if (innerEnumerator.Success)
                     {
-                        T item = EventGenerator.CreateEventSection<T>();
-                        _continue = item.Parse(fightDataDictionary, innerEnumerator.Enumerator);
+                        T item = eventGenerator.CreateEventSection<T>();
+                        _continue = item.Parse(eventGenerator, fightDataDictionary, innerEnumerator.Enumerator);
                         Add(item);
                     }
 

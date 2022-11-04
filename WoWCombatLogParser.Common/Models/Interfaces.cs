@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Events;
+using WoWCombatLogParser.Common.Utility;
 
 namespace WoWCombatLogParser.Common.Models
 {
@@ -10,8 +12,7 @@ namespace WoWCombatLogParser.Common.Models
         int Id { get; }
         DateTime Timestamp { get; }
         string Event { get; }
-        void Parse();
-        Task<ICombatLogEvent> ParseAsync();      
+        IList<IField> GetData(bool reset = true);
     }
 
     public interface ICombatantInfo
@@ -108,5 +109,37 @@ namespace WoWCombatLogParser.Common.Models
     public interface IKey
     {
         bool EqualsKey(IKey key);
+    }
+
+    public partial interface IEventGenerator
+    {
+        IApplicationContext ApplicationContext { get; set; }
+        T CreateEventSection<T>();
+        T GetCombatLogEvent<T>(string line, Action<ICombatLogEvent> afterCreate = null) where T : class, ICombatLogEvent;
+        ClassMap GetClassMap(Type type);
+        void SetCombatLogVersion(string combatLogVersion);
+        List<string> GetRegisteredEventHandlers();
+        List<string> GetRegisteredClassMaps();
+    }
+
+    public interface ICombatLogParser
+    {
+        IApplicationContext ApplicationContext { get; set; }
+        string Filename { get; set; }
+        IEnumerable<IFight> Scan();
+        void Stop();
+        void Watch(params FileSystemEventHandler[] fileChanged);
+        void Parse(IFight encounter);
+        void Parse(ICombatLogEvent combatLogEvent, IFight encounter = null);
+        void Parse(IEnumerable<IFight> encounters);
+        Task ParseAsync(ICombatLogEvent combatLogEvent, IFight encounter = null);
+        Task ParseAsync(IFight encounter);
+        Task ParseAsync(IEnumerable<IFight> encounters);        
+    }
+
+    public interface IApplicationContext
+    {
+        ICombatLogParser CombatLogParser { get; set; }
+        IEventGenerator EventGenerator { get; set; }
     }
 }
