@@ -57,8 +57,15 @@ namespace WoWCombatLogParser.Common.Events
 
         protected virtual bool SetPropertyValue(PropertyInfo property, IEnumerator<IField> data)
         {
-            property.SetValue(this, Conversion.GetValue(data.Current, property.PropertyType));
-            return data.MoveNext();
+            try
+            {
+                property.SetValue(this, Conversion.GetValue(data.Current, property.PropertyType));
+                return data.MoveNext();
+            }
+            catch (Exception e)
+            {
+                throw new WowCombatlogParserPropertyException(property, this, @$"Unable to parse ""{data.Current}"" for {property.Name} in type {GetType().Name}", e);
+            }
         }
 
         protected virtual bool ParseCommonDataProperty(IEventGenerator eventGenerator, FightDataDictionary fightDataDictionary, PropertyInfo property, IEnumerator<IField> data)

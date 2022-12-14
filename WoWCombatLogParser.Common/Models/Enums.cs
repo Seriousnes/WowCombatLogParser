@@ -291,6 +291,7 @@ namespace WoWCombatLogParser.Common.Models
     {
         Any = -1,
         Wotlk = 9,
-        Shadowlands = 19
+        Shadowlands = 19,
+        Dragonflight = 20
     }
 }

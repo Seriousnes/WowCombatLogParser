@@ -141,9 +141,16 @@ using WoWCombatLogParser.Common.Events;
             return "";
         }
 
+        private string GetApplicableCombatLogVersion(IList<Type> types)
+        {
+            var versions = types.SelectMany(x => x.GetCustomAttributes<CombatLogVersionAttribute>()).Select(x => x.Value) ?? new[] { CombatLogVersion.Any };
+            return string.Join(Environment.NewLine, versions.Select(x => $"[CombatLogVersion(CombatLogVersion.{x})]"));
+        }
+
         private string GetClassData(string className, IList<Type> types, IList<string> inheritsFrom, IList<PropertyInfo> baseProperties, bool generateAdditionalConstructor)
         {
             return $@"{GetAffix(types)}
+    {GetApplicableCombatLogVersion(types)}
     public class {className}{GetInheritance(types, inheritsFrom)}
     {{
         public {className}() : base()

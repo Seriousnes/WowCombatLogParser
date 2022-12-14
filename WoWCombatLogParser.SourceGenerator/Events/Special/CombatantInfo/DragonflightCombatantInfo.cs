@@ -6,10 +6,10 @@ using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser.Common.Events
 {
-    [CombatLogVersion(CombatLogVersion.Shadowlands)]
+    [CombatLogVersion(CombatLogVersion.Dragonflight)]
     [Affix("COMBATANT_INFO")]
     [DebuggerDisplay("{PlayerGuid} {Faction} {Strength} {Agility} {Stamina} {Intelligence} {Dodge} {Parry} {Block} {CritMelee} {CritRanged} {CritSpell} {Speed} {Lifesteel} {HasteMelee} {HasteRanged} {HasteSpell} {Avoidance} {Mastery} {VersatilityDamageDone} {VersatilityHealingDone} {VersatilityDamageTaken} {Armor} {CurrentSpecID} ")]
-    public class ShadowlandsCombatantInfo : CombatantInfo, ICombatantInfo
+    public class DragonflightCombatantInfo : CombatantInfo, ICombatantInfo
     {
         public int Strength { get; set; }
         public int Agility { get; set; }
@@ -33,38 +33,19 @@ namespace WoWCombatLogParser.Common.Events
         public int VersatilityDamageTaken { get; set; }
         public int Armor { get; set; }
         public int CurrentSpecID { get; set; }
-        public EventSections<Talent> ClassTalents { get; set; } = new EventSections<Talent>();
-        public EventSections<Talent> PvPTalents { get; set; } = new EventSections<Talent>();
-        public Powers Powers { get; set; } = new Powers();
+        public NestedEventSections<DragonflightTalent> ClassTalents { get; set; } = new NestedEventSections<DragonflightTalent>();
+        //public EventSections<Talent> PvPTalents { get; set; } = new EventSections<Talent>();
+        //public Powers Powers { get; set; } = new Powers();
         public NestedEventSections<EquippedItem> EquippedItems { get; set; } = new NestedEventSections<EquippedItem>();
         public EventSections<InterestingAura> InterestingAuras { get; set; } = new EventSections<InterestingAura>();
         public PvPStats PvPStats { get; set; } = new PvPStats();
     }
 
-    public class Powers : EventSection
-    {
-        public Soulbind Soulbind { get; set; }
-        public Covenant Covenant { get; set; }
-        public NestedEventSections<AnimaPower> AnimaPowers { get; set; } = new NestedEventSections<AnimaPower>();
-        public NestedEventSections<SoulbindTrait> SoulbindTraits { get; set; } = new NestedEventSections<SoulbindTrait>();
-        public NestedEventSections<Conduit> Conduits { get; set; } = new NestedEventSections<Conduit>();
-    }
-
-    [DebuggerDisplay("{Id} @ {Count} (Maw Power ID: {MawPowerId})")]
-    public class AnimaPower : EventSection
+    [DebuggerDisplay("{Id} ({Ranks})")]
+    public class DragonflightTalent : EventSection
     {
         public int Id { get; set; }
-        public int MawPowerId { get; set; }
-        public int Count { get; set; }
-    }
-
-    public class SoulbindTrait : IdPart
-    {
-    }
-
-    [DebuggerDisplay("{Id} (Ilvl: {ItemLevel})")]
-    public class Conduit : IdPart
-    {
-        public int ItemLevel { get; set; }
+        public int Unknown { get; set; }
+        public int Ranks { get; set; }
     }
 }

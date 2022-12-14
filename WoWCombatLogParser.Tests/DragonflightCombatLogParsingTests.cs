@@ -1,0 +1,121 @@
+using FluentAssertions;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using WoWCombatLogParser.Events;
+using WoWCombatLogParser.Models;
+using WoWCombatLogParser.Common.Events;
+using WoWCombatLogParser.Common.Models;
+using Xunit;
+using Xunit.Abstractions;
+using static WoWCombatLogParser.EventGenerator;
+
+namespace WoWCombatLogParser.Tests
+{
+    public class DragonflightCombatLogParsingTests : CombatLogParsingTestBase
+    {
+        public DragonflightCombatLogParsingTests(ITestOutputHelper output) : base(output, CombatLogVersion.Dragonflight)
+        {            
+        }
+
+        [Theory]
+        [InlineData(@"TestLogs/Dragonflight/WoWCombatLog.txt", true)]
+        public void Test_SingleEncounter(string fileName, bool isAsync)
+        {
+            CombatLogParser.Filename = fileName;
+            IFight encounter = CombatLogParser.Scan().First();
+            encounter.Should().NotBeNull().And.BeAssignableTo<Raid>();
+            if (isAsync)
+                CombatLogParser.ParseAsync(encounter).Wait();
+            else
+                CombatLogParser.Parse(encounter);
+            OutputEncounterSumary(encounter);
+        }
+
+        [Fact(Skip = "Used for debugging")]       
+        public void Test_FullRaidCombatLog()
+        {
+            CombatLogParser.Filename = @"TestLogs/Dragonflight/WoWCombatLog.txt";
+            var encounters = CombatLogParser.Scan().ToList();
+            CombatLogParser.ParseAsync(encounters).Wait();
+            encounters.Should().NotBeNull().And.HaveCountGreaterThan(1);
+            encounters.ForEach(e => OutputEncounterSumary(e));
+        }
+
+        [Fact]
+        public void Test_FullRaidCombatLogAsync()
+        {
+            CombatLogParser.Filename = @"TestLogs/Dragonflight/WoWCombatLog.txt";
+            var encounters = CombatLogParser.Scan().ToList();
+            CombatLogParser.ParseAsync(encounters).Wait();
+            encounters.Should().NotBeNull().And.HaveCountGreaterThan(1);
+            encounters.ForEach(e => OutputEncounterSumary(e));
+        }
+
+        [Fact]
+        public void Test_ScanMultipleFightsSelectingSecond()
+        {
+            CombatLogParser.Filename = @"TestLogs/Dragonflight/WoWCombatLog.txt";
+            var encounter = CombatLogParser.Scan().Skip(1).Take(1).SingleOrDefault();
+            encounter.Should().NotBeNull();
+            CombatLogParser.ParseAsync(encounter).Wait();
+            OutputEncounterSumary(encounter);
+        }
+
+        [Theory]
+        [InlineData(@"11/28 19:54:13.422  SPELL_DISPEL,Player-3725-0AF257AE,""Naxa - Frostmourne"",0x514,0x0,Player-3725-06B15901,""Svothgos - Frostmourne"",0x514,0x0,4987,""Cleanse"",0x2,357298,""Frozen Binds"",16,DEBUFF")]
+        public void Test_SpellDispel(string input)
+        {
+            var @event = EventGenerator.GetCombatLogEvent<SpellDispel>(input);
+            CombatLogParser.Parse(@event);
+            // unit name testing
+            @event.Source.UnitName.Should().Be("Naxa - Frostmourne");
+            @event.Source.Name.Should().Be("Naxa");
+            @event.Source.Server.Should().Be("Frostmourne");
+            @event.Spell.Name.Should().Be("Cleanse");
+            @event.ExtraSpell.Id.Should().Be(357298);
+        }
+
+        [Theory]
+        [InlineData(@"11/28 19:36:59.856  ENCOUNTER_END,2431,""Fatescribe Roh - Kalo"",15,14,0,271825", false)]
+        [InlineData(@"11/28 19:46:43.635  ENCOUNTER_END,2431,""Fatescribe Roh-Kalo"",15,14,1,404969", true)]
+        public void Test_EncounterEnd(string input, bool success)
+        {
+            var @event = EventGenerator.GetCombatLogEvent<EncounterEnd>(input);
+            CombatLogParser.Parse(@event);
+            @event.Success.Should().Be(success);
+        }
+
+        [Theory]
+        [InlineData(@"12/14 19:35:08.435  COMBATANT_INFO,Player-3725-09C56D56,1,1012,5699,9982,2312,0,0,0,2051,2051,2051,135,0,2181,2181,2181,189,2414,822,822,822,3563,263,[(81074,101965,1),(81059,101947,1),(81068,101957,1),(81067,101956,1),(81098,101996,2),(81086,101980,2),(81087,101981,2),(81088,101983,1),(80941,101804,1),(80957,101822,2),(80939,101802,1),(80942,101805,1),(80958,101823,1),(80971,101837,2),(80967,101832,1),(81085,101979,1),(81062,101950,1),(81064,101952,1),(80943,101806,2),(81081,101974,2),(80961,101826,2),(81057,101945,1),(80972,101838,1),(80966,101831,1),(81071,101961,1),(80964,101829,2),(80965,101830,1),(80975,101841,1),(81097,101995,1),(80938,101801,1),(80944,101807,1),(80945,101809,2),(80947,101811,1),(80948,101812,1),(80953,101818,1),(80955,101820,1),(80963,101828,1),(80970,101836,1),(80974,101840,1),(81056,101944,1),(81070,101959,1),(81082,101976,1),(81083,101977,1),(81084,101978,2),(81096,101994,1),(81100,101998,1),(81101,101999,2),(81102,102000,1),(81076,101968,1),(81061,101949,1),(81060,101948,1)],(0,289874,193876,204264),[(193777,372,(),(7977,6652,7936,8816,8835,1594,8767),()),(193809,372,(),(7977,6652,7936,8783,1594,8767),()),(192002,359,(),(6652,1481,8766),()),(0,0,(),(),()),(193801,372,(),(7977,6652,8816,1594,8767),()),(193656,359,(),(7976,6652,7937,8814,1581,8766),()),(192001,376,(),(6652,1485,5858,8767),()),(193685,372,(),(7977,6652,8814,1594,8767),()),(193693,372,(),(7977,6652,7936,8815,1594,8767),()),(191999,369,(),(6652,1472,5864,8766),()),(193671,372,(),(7977,42,7935,1594,8767),(192912,415)),(193804,346,(),(7978,7975,6652,7937),()),(193701,382,(),(8963,7977,6652,9144,1604,8767),()),(200563,372,(),(40,1481,5858,8767),()),(193763,376,(),(8961,7977,6652,8822,8819,9144,1598,8767),()),(190513,386,(0,5401,0),(8836,8840,8902),()),(197947,359,(0,5400,0),(6652,1475,5851,8766),()),(140579,40,(),(),())],[Player-3725-09C56D56,371339,Player-3725-09D57DD8,1459,Player-3725-09C56D56,396092,Player-3725-09D597C5,1126,Player-3725-0BFAE2F6,389684,Player-3725-075D8BFE,6673],35,0,0,0")]
+        public async Task Test_CombantInfo(string input)
+        {
+            var combatantInfo = EventGenerator.GetCombatLogEvent<DragonflightCombatantInfo>(input);
+            //await CombatLogParser.ParseAsync(combatantInfo);
+            CombatLogParser.Parse(combatantInfo);
+            combatantInfo.ClassTalents.Should().HaveCount(7);
+            combatantInfo.EquippedItems.Should().HaveCount(18);
+            combatantInfo.InterestingAuras.Should().HaveCount(7);
+            Assert.True(combatantInfo.PvPStats is { HonorLevel: 23, Rating: 0, Season: 0, Tier: 0 });
+        }
+
+        [Theory]
+        [InlineData(@"11/28 19:40:57.094  DAMAGE_SPLIT,Player-3725-0669E64A,""Formid - Frostmourne"",0x514,0x0,Player-3725-09FE7744,""Khalous - Frostmourne"",0x40514,0x0,6940,""Blessing of Sacrifice"",0x2,Player-3725-09FE7744,0000000000000000,67569,86120,2586,472,5346,0,0,9741,10000,0,76.88,-900.65,2001,0.0607,246,1302,0,-1,32,0,0,0,nil,nil,nil")]
+        public void Test_DamageSplit(string input)
+        {
+            var @event = EventGenerator.GetCombatLogEvent<DamageSplit>(input);
+            CombatLogParser.Parse(@event);
+        }
+
+        [Theory]
+        [InlineData(typeof(SpellPeriodicDamage), @"11/28 19:32:36.434  SPELL_PERIODIC_DAMAGE,Creature-0-5047-2450-26923-175730-0000234859,""Fatescribe Roh-Kalo"",0x10a48,0x0,Player-1136-08E79DB6,""Bansky-Gurubashi"",0x512,0x0,353931,""Twist Fate"",0x20,Player-1136-08E79DB6,0000000000000000,50393,54600,2361,327,682,759,17,33,120,0,65.61,-901.65,2001,4.7087,247,4207,7861,-1,32,0,0,1601,nil,nil,nil")]
+        [InlineData(typeof(SpellDamage), @"11/28 19:46:43.567  SPELL_DAMAGE,Pet-0-5047-2450-26923-165189-0203600F87,""Gruffhorn"",0x1114,0x0,Creature-0-5047-2450-26923-175730-0000234DDC,""Fatescribe Roh-Kalo"",0x10a48,0x0,83381,""Kill Command"",0x1,Creature-0-5047-2450-26923-175730-0000234DDC,0000000000000000,139,20164970,0,0,1071,0,3,7,100,0,100.86,-931.17,2001,2.9855,63,2245,3021,-1,1,0,0,0,nil,nil,nil")]
+        [InlineData(typeof(SpellDamage), @"11/28 19:32:46.738  SPELL_DAMAGE,Player-3725-0BF357DA,""Koriz-Frostmourne"",0x514,0x0,Creature-0-5047-2450-26923-175730-0000234859,""Fatescribe Roh-Kalo"",0x10a48,0x0,285452,""Lava Burst"",0x4,Creature-0-5047-2450-26923-175730-0000234859,0000000000000000,18216931,20164970,0,0,1071,0,3,0,100,0,64.06,-904.28,2001,1.9476,63,8215,3816,-1,4,0,0,0,1,nil,nil")]
+        public void Test_DamageSuffix(Type eventType, string input)
+        {
+            var @event = EventGenerator.GetCombatLogEvent<CombatLogEvent>(input);
+            CombatLogParser.Parse(@event);
+            @event.GetType().Should().Be(eventType);
+        }
+    }
+}

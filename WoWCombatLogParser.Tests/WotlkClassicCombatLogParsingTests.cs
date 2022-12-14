@@ -18,6 +18,16 @@ namespace WoWCombatLogParser.Tests
         {
             CombatLogParser.Filename = @"TestLogs/WotlkClassic/Naxxramas.txt";
             var encounters = CombatLogParser.Scan().ToList();
+            CombatLogParser.Parse(encounters);
+            encounters.Should().NotBeNull().And.HaveCountGreaterThan(1);
+            encounters.ForEach(e => OutputEncounterSumary(e));
+        }
+
+        [Fact]
+        public void Test_FullRaidCombatLogAsync()
+        {
+            CombatLogParser.Filename = @"TestLogs/WotlkClassic/Naxxramas.txt";
+            var encounters = CombatLogParser.Scan().ToList();
             CombatLogParser.ParseAsync(encounters).Wait();
             encounters.Should().NotBeNull().And.HaveCountGreaterThan(1);
             encounters.ForEach(e => OutputEncounterSumary(e));

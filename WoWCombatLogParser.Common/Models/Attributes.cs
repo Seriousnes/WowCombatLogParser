@@ -83,7 +83,7 @@ namespace WoWCombatLogParser.Common.Models
         public int Fields { get; set; }
     }
 
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = true)]
     public class CombatLogVersionAttribute : Attribute
     {
         public CombatLogVersionAttribute(CombatLogVersion combatLogVersion)
