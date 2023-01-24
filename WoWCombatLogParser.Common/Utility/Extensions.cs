@@ -44,7 +44,7 @@ namespace WoWCombatLogParser.Common.Utility
             if (data.Current is GroupField groupData)
             {
                 var enumerator = groupData.Children.GetEnumerator();
-                return (enumerator.MoveNext(), enumerator, !data.MoveNext(), true);
+                return (enumerator.MoveNext() && enumerator.Current != null, enumerator, !data.MoveNext(), true);
             }
 
             return (true, data, false, false);

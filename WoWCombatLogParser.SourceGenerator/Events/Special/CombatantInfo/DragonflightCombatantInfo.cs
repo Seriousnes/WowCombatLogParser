@@ -34,14 +34,13 @@ namespace WoWCombatLogParser.Common.Events
         public int Armor { get; set; }
         public int CurrentSpecID { get; set; }
         public NestedEventSections<DragonflightTalent> ClassTalents { get; set; } = new NestedEventSections<DragonflightTalent>();
-        //public EventSections<Talent> PvPTalents { get; set; } = new EventSections<Talent>();
+        public EventSections<Talent> PvPTalents { get; set; } = new EventSections<Talent>();
         //public Powers Powers { get; set; } = new Powers();
         public NestedEventSections<EquippedItem> EquippedItems { get; set; } = new NestedEventSections<EquippedItem>();
         public EventSections<InterestingAura> InterestingAuras { get; set; } = new EventSections<InterestingAura>();
         public PvPStats PvPStats { get; set; } = new PvPStats();
     }
 
-    [DebuggerDisplay("{Id} ({Ranks})")]
     public class DragonflightTalent : EventSection
     {
         public int Id { get; set; }

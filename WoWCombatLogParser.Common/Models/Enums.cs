@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace WoWCombatLogParser.Common.Models
 {
@@ -284,7 +285,9 @@ namespace WoWCombatLogParser.Common.Models
     public enum MatchType
     {
         Skirmish,
-        Rated
+        Rated,
+        [Description("Rated Solo Shuffle")]
+        RatedSoloShuffle
     }
 
     public enum CombatLogVersion

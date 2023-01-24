@@ -15,7 +15,7 @@ namespace WoWCombatLogParser.Common.Models
         CombatLogEvent AddEvent(CombatLogEvent @event);
         (long Start, long End) Range { get; }
         bool IsEndEvent(IFightEnd type);
-        FightDataDictionary CommonDataDictionary { get; }
+        FightDataDictionary CommonDataDictionary { get; }        
     }
 
     [DebuggerDisplay("{GetDescription()}")]

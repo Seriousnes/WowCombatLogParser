@@ -2,12 +2,13 @@ using System.Linq;
 using Xunit.Abstractions;
 using WoWCombatLogParser.Common.Models;
 using WoWCombatLogParser.Common.Events;
+using System.Resources;
 
 namespace WoWCombatLogParser.Tests
 {
     public class CombatLogParsingTestBase : ApplicationContext
     {
-        internal readonly ITestOutputHelper output;
+        internal readonly ITestOutputHelper output;        
 
         public CombatLogParsingTestBase(ITestOutputHelper output, CombatLogVersion combatLogVersion)
         {

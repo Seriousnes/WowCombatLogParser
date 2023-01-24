@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="TestLogs\Dragonflight\WoWCombatLog.txt" />
     <None Remove="TestLogs\SingleFightCombatLog.txt" />
     <None Remove="TestLogs\WoWCombatLog-112821_193218.txt" />
     <None Remove="TestLogs\WoWCombatLog.txt" />
@@ -40,6 +41,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WoWCombatLogParser\WoWCombatLogParser.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="TestLogs\Dragonflight\WoWCombatLog.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

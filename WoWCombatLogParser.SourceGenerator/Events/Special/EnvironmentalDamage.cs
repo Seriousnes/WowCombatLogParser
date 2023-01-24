@@ -1,0 +1,26 @@
+﻿using System;
+using System.Diagnostics;
+using WoWCombatLogParser.Common.Events;
+using WoWCombatLogParser.Common.Models;
+
+namespace WoWCombatLogParser.SourceGenerator.Events.Special
+{
+    [Affix("ENVIRONMENTAL_DAMAGE")]
+    public class EnvironmentalDamage : EventSection, IDamage, IAdvancedLoggingDetails
+    {
+        public Unit Source { get; set; } = new();
+        public Unit Destination { get; set; } = new();
+        public AdvancedLoggingDetails AdvancedLoggingDetails { get; } = new();
+        public EnvironmentalType EnvironmentalType { get; set; }
+        public decimal Amount { get; set; }
+        public decimal UnmitigatedAmount { get; set; }
+        public bool IsOverkill { get; set; }
+        public SpellSchool School { get; set; }
+        public decimal Resisted { get; set; }
+        public decimal Blocked { get; set; }
+        public decimal Absorbed { get; set; }
+        public bool Critical { get; set; }
+        public bool Crushing { get; set; }
+        public bool IsOffHand { get; set; }
+    }
+}

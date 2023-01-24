@@ -157,7 +157,10 @@ namespace WoWCombatLogParser.Common.Events
                         innerEnumerator.Enumerator.Dispose();
 
                 } while (_continue);
-            }
+
+                if (outerEnumerator.Dispose)
+                    outerEnumerator.Enumerator.Dispose();
+            }            
 
             return true;
         }
