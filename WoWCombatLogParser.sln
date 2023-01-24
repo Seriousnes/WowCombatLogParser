@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWCombatLogParser.Common",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWCombatLogParser.SourceGenerator", "WoWCombatLogParser.SourceGenerator\WoWCombatLogParser.SourceGenerator.csproj", "{F801E147-4371-4D68-88CA-7935D2A7F081}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWCombatLogParser.Performance", "WoWCombatLogParser.Performance\WoWCombatLogParser.Performance.csproj", "{A92A2803-432F-428D-8CFC-A9AD7ED36B11}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,10 +39,6 @@ Global
 		{F801E147-4371-4D68-88CA-7935D2A7F081}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F801E147-4371-4D68-88CA-7935D2A7F081}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F801E147-4371-4D68-88CA-7935D2A7F081}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A92A2803-432F-428D-8CFC-A9AD7ED36B11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A92A2803-432F-428D-8CFC-A9AD7ED36B11}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A92A2803-432F-428D-8CFC-A9AD7ED36B11}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A92A2803-432F-428D-8CFC-A9AD7ED36B11}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
