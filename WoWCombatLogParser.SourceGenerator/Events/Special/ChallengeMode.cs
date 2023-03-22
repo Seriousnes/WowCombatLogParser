@@ -24,7 +24,7 @@ namespace WoWCombatLogParser.Common.Events
         public int Duration { get; set; }
     }
 
-    public class ChallengeModeAffix : IdPart
+    public class ChallengeModeAffix : IdPart<ChallengeModeAffixEnum>
     {
     }
 }

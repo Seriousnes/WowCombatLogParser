@@ -24,7 +24,7 @@ namespace WoWCombatLogParser.Tests
         {
             CombatLogParser.Filename = fileName;
             IFight encounter = CombatLogParser.Scan().First();
-            encounter.Should().NotBeNull().And.BeAssignableTo<Raid>();
+            encounter.Should().NotBeNull().And.BeAssignableTo<Boss>();
             if (isAsync)
                 CombatLogParser.ParseAsync(encounter).Wait();
             else

@@ -58,12 +58,12 @@ namespace WoWCombatLogParser.Common.Events
         public int Count { get; set; }
     }
 
-    public class SoulbindTrait : IdPart
+    public class SoulbindTrait : IdPart<int>
     {
     }
 
     [DebuggerDisplay("{Id} (Ilvl: {ItemLevel})")]
-    public class Conduit : IdPart
+    public class Conduit : IdPart<int>
     {
         public int ItemLevel { get; set; }
     }

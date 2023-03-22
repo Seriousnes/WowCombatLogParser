@@ -4,21 +4,21 @@ using WoWCombatLogParser.Common.Events;
 namespace WoWCombatLogParser.Common.Models
 {
     [DebuggerDisplay("{Id}")]
-    public abstract class IdPart : EventSection
+    public abstract class IdPart<T> : EventSection
     {
-        public int Id { get; set; }
+        public T Id { get; set; }
     }
 
     [DebuggerDisplay("{Id}")]
-    public class Talent : IdPart
+    public class Talent : IdPart<int>
     {
     }
 
-    public class BonusId : IdPart
+    public class BonusId : IdPart<int>
     {
     }
 
-    public class Gem : IdPart
+    public class Gem : IdPart<int>
     {
     }
 }

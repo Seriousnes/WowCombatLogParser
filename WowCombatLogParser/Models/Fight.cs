@@ -2,18 +2,44 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
+using WoWCombatLogParser.Common.Events;
 using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser.Models
 {
-    public class Raid : Fight<EncounterStart, EncounterEnd>
+    public class Boss : Fight<EncounterStart, EncounterEnd>
     {
-        public Raid(EncounterStart start) : base(start)
+        public Boss(EncounterStart start) : base(start)
         {
         }
 
         public override string Name => _start.Name;
         public override string Result => _end is EncounterEnd endOfFight && endOfFight.Success ? "Kill" : "Wipe";
+    }
+
+    public class Trash : IFight
+    {
+        public Trash() { }
+
+        protected CombatLogEvent _start;
+        protected CombatLogEvent _end;
+        protected List<CombatLogEvent> _events = new();
+
+        public void Sort() => _events = _events.OrderBy(x => x.Id).ToList();
+        public IList<CombatLogEvent> GetEvents() => _events;
+        public virtual FightDescription GetDetails() => new(Name, Duration, _start.Timestamp, Result);
+        public bool IsEndEvent(IFightEnd @event) => @event is IFightEnd;
+        public TimeSpan Duration => _end is null ? (_events.Last().Timestamp - _start.Timestamp) : TimeSpan.Zero;
+        public string Name { get; set; }
+        public string Result { get; } = string.Empty;
+        public (long Start, long End) Range { get; set; }
+        public FightDataDictionary CommonDataDictionary { get; } = new();
+        
+        public CombatLogEvent AddEvent(CombatLogEvent @event)
+        {
+            _events.Add(@event);
+            return @event;
+        }        
     }
 
     public class ChallengeMode : Fight<ChallengeModeStart, ChallengeModeEnd>
@@ -23,7 +49,7 @@ namespace WoWCombatLogParser.Models
         }
 
         public override string Name => $"{_start.InstanceId} Level {_start.KeystoneLevel} (Affixes: {string.Join(',', _start.Affixes?.Select(x => x.Id.ToString()))})";
-        public override string Result => _end is ChallengeModeEnd endOfFight && endOfFight.Success ? "Timed" : "Not timed";
+        public override string Result => _end is ChallengeModeEnd endOfFight && endOfFight.Success ? "Timed" : "Not timed";        
     }
 
     public class ArenaMatch : Fight<ArenaMatchStart, ArenaMatchEnd>

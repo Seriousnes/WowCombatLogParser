@@ -55,34 +55,39 @@ namespace WoWCombatLogParser
             _file = null;
         }
 
-        public IEnumerable<IFight> Scan()
+        public IEnumerable<IFight> Scan(bool quickScan = false)
         {
             if (string.IsNullOrEmpty(_filename))
                 throw new ArgumentNullException("Filename", "Filename must not be null");
             if (!File.Exists(_filename))
                 yield break;
 
-            using var sr = new StreamReader(_filename);
-            SetupEventGenerator(sr);
+            using var sr = new StreamReader(_filename, new FileStreamOptions { Access = FileAccess.Read, Share = FileShare.ReadWrite });
+            SetupEventGenerator(sr);            
             string line;
             IFight fight = null;
             while ((line = sr.ReadLine()) != null)
-            {
+            {                
                 var @event = ApplicationContext.EventGenerator.GetCombatLogEvent<CombatLogEvent>(line);
-                if (@event is null) continue;
                 switch (@event)
                 {
                     case IFightEnd end when @event is IFightEnd:
                         if (fight != null && fight.IsEndEvent(end))
+                        {
                             fight.AddEvent(@event);
+                            ApplicationContext.CombatLogParser.Parse(fight);
+                        }                            
                         yield return fight;
                         fight = null;
                         break;
                     case IFightStart start when @event is IFightStart:
-                        fight = start.GetFight();
+                        fight = start.GetFight();                        
+                        break;
+                    case null:
                         break;
                     default:
-                        fight?.AddEvent(@event);
+                        if (!quickScan)
+                            fight?.AddEvent(@event);
                         break;
                 }
             }

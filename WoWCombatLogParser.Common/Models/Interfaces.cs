@@ -126,7 +126,7 @@ namespace WoWCombatLogParser.Common.Models
     {
         IApplicationContext ApplicationContext { get; set; }
         string Filename { get; set; }
-        IEnumerable<IFight> Scan();
+        IEnumerable<IFight> Scan(bool quickScan = false);
         void Stop();
         void Watch(params FileSystemEventHandler[] fileChanged);
         void Parse(IFight encounter);

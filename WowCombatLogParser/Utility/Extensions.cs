@@ -25,7 +25,7 @@ namespace WoWCombatLogParser.Utility
         {
             return start switch
             {
-                EncounterStart raidStart when start.GetType() == typeof(EncounterStart) => new Raid(raidStart),
+                EncounterStart raidStart when start.GetType() == typeof(EncounterStart) => new Boss(raidStart),
                 ArenaMatchStart arenaStart when start.GetType() == typeof(ArenaMatchStart) => new ArenaMatch(arenaStart),
                 ChallengeModeStart challengeStart when start.GetType() == typeof(ChallengeModeStart) => new ChallengeMode(challengeStart),
                 _ => null

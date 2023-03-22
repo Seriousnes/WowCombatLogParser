@@ -119,7 +119,7 @@ namespace {@namespace}
             List<string> inheritance = new List<string>();
 
             inheritance.AddRange(types.SelectMany(x => x.GetInterfaces().Select(i => i.Name)));            
-            inheritance.AddRange(types.Where(x => x.BaseType?.IsGenericType ?? false).SelectMany(x => x.BaseType?.GetGenericArguments().SelectMany(g => g.GetInterfaces())?.Select(i => i.Name)));
+            inheritance.AddRange(types.Where(x => x.BaseType?.IsGenericType ?? false).SelectMany(x => x.BaseType?.GetGenericArguments().Where(x => !x.IsSealed).SelectMany(g => g.GetInterfaces())?.Select(i => i.Name)));
 
             var value = string.Join(", ", predefined.Union(inheritance.Distinct()));
             return !string.IsNullOrEmpty(value) ? $" : {value}" : "";

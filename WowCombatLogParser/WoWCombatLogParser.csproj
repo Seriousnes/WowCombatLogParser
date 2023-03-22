@@ -8,9 +8,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="AutoMapper" Version="11.0.0" />
+	  <PackageReference Include="AutoMapper" Version="12.0.1" />
 	</ItemGroup>
-
+	
 	<ItemGroup>
 		<ProjectReference Include="..\WoWCombatLogParser.Common\WoWCombatLogParser.Common.csproj" />
 		<ProjectReference Include="..\WoWCombatLogParser.IO\WoWCombatLogParser.IO.csproj" />

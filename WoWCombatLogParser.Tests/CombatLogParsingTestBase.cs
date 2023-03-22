@@ -27,7 +27,7 @@ namespace WoWCombatLogParser.Tests
         internal void OutputEncounterSumary(IFight fight)
         {
             output.WriteLine($"Event Summary\n{new string('=', 35)}");
-            output.WriteLine(fight.GetDescription().ToString());
+            output.WriteLine(fight.GetDetails().ToString());
             output.WriteLine(new string('-', 35));
             fight.GetEvents()
                 .GroupBy(x => x.Event)
