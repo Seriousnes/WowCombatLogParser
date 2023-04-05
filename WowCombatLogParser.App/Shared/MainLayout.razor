@@ -1,0 +1,19 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar>
+        WowCombatLogParser
+    </MudAppBar>
+    <MudDrawer Open="false" Variant="@DrawerVariant.Mini" Elevation="1" ClipMode="@DrawerClipMode.Always">
+        <MudNavMenu>
+            <MudNavLink Icon="@Icons.Material.Filled.VideoSettings" Href="/youtube"></MudNavLink>
+        </MudNavMenu>        
+    </MudDrawer>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
