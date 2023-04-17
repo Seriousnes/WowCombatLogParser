@@ -46,7 +46,7 @@ namespace WoWCombatLogParser
                 eventGenerator = value;
                 eventGenerator.ApplicationContext = this;
             }
-        }
+        }        
 
         private static IMapper InitializeMapper()
         {

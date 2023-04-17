@@ -8,13 +8,14 @@ using System.Xml.Linq;
 using WoWCombatLogParser.Common.Models;
 using WoWCombatLogParser.Common.Utility;
 using WoWCombatLogParser.Common.Events;
+using System.Collections;
 
 namespace WoWCombatLogParser
 {
     public class EventGenerator : IEventGenerator
     {
-        private static readonly VersionedDictionary<string, ObjectActivator> _ctors = new();
-        private static readonly VersionedDictionary<Type, ClassMap> _classMap = new();
+        private static readonly CombatLogVersionedDictionary<string, ObjectActivator> _ctors = new();
+        private static readonly CombatLogVersionedDictionary<Type, ClassMap> _classMap = new();
         private static readonly Assembly _assembly = Assembly.Load("WoWCombatLogParser.Common");
         private static readonly Regex _split = new(@"\s\s", RegexOptions.Compiled);
 
@@ -35,7 +36,7 @@ namespace WoWCombatLogParser
         public T GetCombatLogEvent<T>(string line, Action<ICombatLogEvent> afterCreate = null) where T : class, ICombatLogEvent
         {
             var (timestamp, eventType) = GetMinimalEventDetails(ref line);
-            var ctor = _ctors[CombatLogVersionEvent.Version].Where(c => c.Key == eventType).Select(c => c.Value).SingleOrDefault();
+            var ctor = _ctors[CombatLogVersionEvent.Version, eventType];
             if (ctor == null) return null;
 
             var result = (T)ctor(timestamp, eventType, line);
@@ -46,13 +47,13 @@ namespace WoWCombatLogParser
         public CombatLogVersionEvent GetCombatLogVersionEvent(string line, Action<ICombatLogEvent> afterCreate = null)
         {
             var (timestamp, eventType) = GetMinimalEventDetails(ref line);
-            var result = new CombatLogVersionEvent(timestamp, eventType, line);
+            var result = new CombatLogVersionEvent(timestamp, eventType, line);            
             return result;
         }
 
         public T CreateEventSection<T>()
         {
-            var ctor = _classMap[CombatLogVersionEvent.Version].Where(t => t.Key == typeof(T)).Select(c => c.Value.Constructor).SingleOrDefault();
+            var ctor = _classMap[CombatLogVersionEvent.Version, typeof(T)]?.Constructor;
             if (ctor == null) return default;
             return (T)ctor();
         }
@@ -60,17 +61,16 @@ namespace WoWCombatLogParser
         private (DateTime Timestamp, string EventType) GetMinimalEventDetails(ref string line)
         {
             var i = line.IndexOf(',');
-            var substr = line.Substring(0, i++);
-            line = new string(line.Skip(i).ToArray());
-            var resultParts = _split.Split(substr).ToArray();
-            return (DateTime.ParseExact(resultParts[(int)FieldIndex.Timestamp], "M/d HH:mm:ss.fff", CultureInfo.InvariantCulture), resultParts[(int)FieldIndex.EventType]);
+            var resultParts = _split.Split(line[..i++]).ToArray();
+            line = line[i..];            
+            return (resultParts[(int)FieldIndex.Timestamp].GetTimestamp(), resultParts[(int)FieldIndex.EventType]);
         }
 
-        public ClassMap GetClassMap(Type type) => _classMap[CombatLogVersionEvent.Version].TryGetValue(type, out var value) ? value : null;
+        public ClassMap GetClassMap(Type type) => _classMap.TryGetValue(CombatLogVersionEvent.Version, type, out var value) ? value : null;
         
-        public List<string> GetRegisteredEventHandlers() => _ctors[CombatLogVersionEvent.Version].Select(x => x.Key).OrderBy(x => x).ToList();
+        public List<string> GetRegisteredEventHandlers() => _ctors.GetKeys(x => x.Key.Discriminator).OrderBy(x => x).ToList();
 
-        public List<string> GetRegisteredClassMaps() => _classMap[CombatLogVersionEvent.Version].Select(x => x.Key.FullName).OrderBy(x => x).ToList();
+        public List<string> GetRegisteredClassMaps() => _classMap.GetKeys(x => x.Key.Discriminator.FullName).OrderBy(x => x).ToList();
 
         private static void SetupCombatLogEvents()
         {
@@ -93,8 +93,8 @@ namespace WoWCombatLogParser
 
             foreach (var CombatLogVersion in applicableCombatLogVersions)
             {
-                _ctors.TryAdd(name, activator, CombatLogVersion);
-                _classMap.TryAdd(type, new ClassMap { Constructor = activator, Properties = type.GetTypePropertyInfo().ToArray() }, CombatLogVersion);
+                _ctors.TryAdd(CombatLogVersion, name, activator);
+                _classMap.TryAdd(CombatLogVersion, type, new ClassMap { Constructor = activator, Properties = type.GetTypePropertyInfo().ToArray() });
             }
         }
 
@@ -118,7 +118,7 @@ namespace WoWCombatLogParser
                     applicableCombatLogVersions = new List<CombatLogVersion>() { CombatLogVersion.Any };
 
                 foreach (var CombatLogVersion in applicableCombatLogVersions)
-                    _classMap.TryAdd(t, cMap, CombatLogVersion);
+                    _classMap.TryAdd(CombatLogVersion, t, cMap);
             }
         }
 
@@ -133,23 +133,43 @@ namespace WoWCombatLogParser
         public void SetCombatLogVersion(string combatLogVersion)
         {
             CombatLogVersionEvent = GetCombatLogVersionEvent(combatLogVersion, e => ApplicationContext.CombatLogParser.Parse(e));
-            ApplicationContext.CombatLogParser.Parse(CombatLogVersionEvent);
         }
     }
-
-    public class VersionedDictionary<TKey, TValue> : Dictionary<TKey, Dictionary<CombatLogVersion, TValue>>
+    
+    public class CombatLogVersionedDictionary<TKey, TValue>
     {
-        public Dictionary<TKey, TValue> this[CombatLogVersion index] => this.ToDictionary(x => x.Key, x => x.Value.Where(c => c.Key.In(CombatLogVersion.Any, index)).Select(x => x.Value).SingleOrDefault());
+        private readonly Dictionary<TKey, TValue> _allVersions = new();
+        private readonly Dictionary<(CombatLogVersion, TKey), TValue> _specificVersions = new();
 
-        public bool TryAdd(TKey key, TValue value, CombatLogVersion version)
+        public TValue this[CombatLogVersion v, TKey k]
         {
-            if (!TryGetValue(key, out var keyList))
+            get => _allVersions.TryGetValue(k, out var value) ? value : _specificVersions.TryGetValue((v, k), out value) ? value : default;
+            set => TryAdd(v, k, value);
+        }
+
+        public bool TryGetValue(CombatLogVersion combatLogVersion, TKey key, out TValue value)
+        {
+            if (_allVersions.ContainsKey(key) || _specificVersions.ContainsKey((combatLogVersion, key)))
             {
-                keyList = new Dictionary<CombatLogVersion, TValue>();
-                Add(key, keyList);
+                value = this[combatLogVersion, key];
+                return true;
             }
 
-            return keyList.TryAdd(version, value);
+            value = default;
+            return false;
+        }
+
+        public bool TryAdd(CombatLogVersion combatLogVersion, TKey key, TValue value) => combatLogVersion switch
+        {
+            CombatLogVersion.Any => _allVersions.TryAdd(key, value),
+            _ => _specificVersions.TryAdd((combatLogVersion, key), value),
+        };
+
+        public IEnumerable<T> GetKeys<T>(Func<KeyValuePair<(CombatLogVersion CombatLogVersion, TKey Discriminator), TValue>, T> selector)
+        {
+            return _allVersions.Select(x => KeyValuePair.Create((CombatLogVersion.Any, x.Key), x.Value))
+                .Union(_specificVersions)
+                .Select(selector);
         }
     }
 }

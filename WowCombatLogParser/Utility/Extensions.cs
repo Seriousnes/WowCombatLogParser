@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Globalization;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Models;
 
@@ -31,6 +34,8 @@ namespace WoWCombatLogParser.Utility
                 _ => null
             };
         }
+
+        public static DateTime GetTimestamp(this string dateTimeString) => DateTime.TryParseExact(dateTimeString, "M/d HH:mm:ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var timestamp) ? timestamp : DateTime.MinValue;
 
         public static DifficultyInfo GetDifficultyInfo(this Difficulty difficulty) => difficulty switch
         {

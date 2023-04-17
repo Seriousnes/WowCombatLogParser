@@ -6,7 +6,7 @@ namespace WoWCombatLogParser
 {
     public static class TextFieldReader
     {
-        private static readonly HashSet<char> openingBrackets = new HashSet<char>() { '(', '[', '{' };
+        private static readonly HashSet<char> openingBrackets = new() { '(', '[', '{' };        
 
         private static IList<IField> ReadFields(StringReader sr, TextFieldReaderOptions options)
         {
@@ -87,7 +87,7 @@ namespace WoWCombatLogParser
 
         public static IList<IField> ReadFields(string line, TextFieldReaderOptions options)
         {
-            options ??= new TextFieldReaderOptions { Delimiters = new[] { ',' }, HasFieldsEnclosedInQuotes = false };
+            options ??= new TextFieldReaderOptions { Delimiters = new[] { ',' }, HasFieldsEnclosedInQuotes = false };            
             using var sr = new StringReader(line?.Replace("  ", ","));
             var result = ReadFields(sr, options);
             return result;

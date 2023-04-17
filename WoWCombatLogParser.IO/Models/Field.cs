@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 
 namespace WoWCombatLogParser
 {
@@ -14,13 +15,12 @@ namespace WoWCombatLogParser
     [DebuggerDisplay("{ToString()}")]
     public class TextField : IField
     {
-        public virtual string Content { get; set; }
+        private StringBuilder _text = new();
+        public virtual string Content => _text.ToString();
         public IField Parent { get; set; }
         public Range Range { get; set; } = Range.EmptyRange;
-        public virtual void Append(string value)
-        {
-            Content += value;
-        }
+
+        public virtual void Append(string value) => _text.Append(value);
 
         public virtual void Append(char value)
         {
@@ -29,10 +29,7 @@ namespace WoWCombatLogParser
             Append(value.ToString());
         }
 
-        public override string ToString()
-        {
-            return Content;
-        }
+        public override string ToString() => _text.ToString();
 
         public static implicit operator string(TextField field)
         {

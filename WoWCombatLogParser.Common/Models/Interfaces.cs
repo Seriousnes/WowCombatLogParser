@@ -114,6 +114,8 @@ namespace WoWCombatLogParser.Common.Models
     public partial interface IEventGenerator
     {
         IApplicationContext ApplicationContext { get; set; }
+        CombatLogVersionEvent CombatLogVersionEvent { get; }
+
         T CreateEventSection<T>();
         T GetCombatLogEvent<T>(string line, Action<ICombatLogEvent> afterCreate = null) where T : class, ICombatLogEvent;
         ClassMap GetClassMap(Type type);
@@ -134,7 +136,7 @@ namespace WoWCombatLogParser.Common.Models
         void Parse(IEnumerable<IFight> encounters);
         Task ParseAsync(ICombatLogEvent combatLogEvent, IFight encounter = null);
         Task ParseAsync(IFight encounter);
-        Task ParseAsync(IEnumerable<IFight> encounters);        
+        Task ParseAsync(IEnumerable<IFight> encounters);
     }
 
     public interface IApplicationContext

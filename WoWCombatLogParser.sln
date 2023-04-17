@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWCombatLogParser.Common",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWCombatLogParser.SourceGenerator", "WoWCombatLogParser.SourceGenerator\WoWCombatLogParser.SourceGenerator.csproj", "{F801E147-4371-4D68-88CA-7935D2A7F081}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WowCombatLogParser.Console", "WowCombatLogParser.Console\WowCombatLogParser.Console.csproj", "{4EB25EE5-65CA-4C13-915D-0E10E26F81B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WowCombatLogParser.Console", "WowCombatLogParser.Console\WowCombatLogParser.Console.csproj", "{4EB25EE5-65CA-4C13-915D-0E10E26F81B7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WowCombatLogParser.App", "WowCombatLogParser.App\WowCombatLogParser.App.csproj", "{264529ED-4FBC-41A5-93C8-6A3F27D28CF1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,12 @@ Global
 		{4EB25EE5-65CA-4C13-915D-0E10E26F81B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4EB25EE5-65CA-4C13-915D-0E10E26F81B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4EB25EE5-65CA-4C13-915D-0E10E26F81B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{264529ED-4FBC-41A5-93C8-6A3F27D28CF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{264529ED-4FBC-41A5-93C8-6A3F27D28CF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{264529ED-4FBC-41A5-93C8-6A3F27D28CF1}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{264529ED-4FBC-41A5-93C8-6A3F27D28CF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{264529ED-4FBC-41A5-93C8-6A3F27D28CF1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{264529ED-4FBC-41A5-93C8-6A3F27D28CF1}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
