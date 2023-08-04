@@ -10,49 +10,62 @@ namespace WoWCombatLogParser.Common.Events
 {
     public interface IEventSection
     {
-        bool Parse(IEventGenerator eventGenerator, FightDataDictionary fightDataDictionary, IEnumerator<IField> data);
+        //bool Parse(IEnumerator<IField> data, FightDataDictionary fightDataDictionary, IEventGenerator eventGenerator);
     }
 
     public abstract class EventSection : IEventSection
     {
         private static readonly Type eventSectionType = typeof(EventSection);
         
-        public virtual bool Parse(IEventGenerator eventGenerator, FightDataDictionary fightDataDictionary, IEnumerator<IField> data)
+        internal virtual bool Parse(IEnumerator<IField> data, FightDataDictionary fightDataDictionary = null, IEventGenerator eventGenerator = null)
         {
-            foreach (var property in eventGenerator.GetClassMap(this.GetType()).Properties)
-            {
-                if (!ParseProperty(eventGenerator, fightDataDictionary, property, data)) return false;
+            try
+            { 
+                foreach (var property in eventGenerator.GetClassMap(this.GetType()).Properties)
+                {
+                    if (!ParseProperty(eventGenerator, fightDataDictionary, property, data)) return false;
+                }
+                return true;
             }
-            return true;
-        }
+            catch (WowCombatlogParserPropertyException)
+            {
+                throw;
+            }
+}
 
         protected virtual bool ParseProperty(IEventGenerator eventGenerator, FightDataDictionary fightDataDictionary, PropertyInfo property, IEnumerator<IField> data)
         {
-            bool parseResult;
-            if (property.PropertyType.IsSubclassOf(eventSectionType))
-            {
-                if (typeof(IKey).IsAssignableFrom(property.PropertyType) && fightDataDictionary is not null)
+            try
+            { 
+                bool parseResult;
+                if (property.PropertyType.IsSubclassOf(eventSectionType))
                 {
-                    if (ParseCommonDataProperty(eventGenerator, fightDataDictionary, property, data))
-                        return true;
+                    if (typeof(IKey).IsAssignableFrom(property.PropertyType) && fightDataDictionary is not null)
+                    {
+                        if (ParseCommonDataProperty(eventGenerator, fightDataDictionary, property, data))
+                            return true;
+                    }
+
+                    var (Success, Enumerator, EndOfParent, Dispose) = data.GetEnumeratorForProperty();                    
+                    parseResult = Success && (Enumerator == null || ((EventSection)property.GetValue(this)).Parse(Enumerator, fightDataDictionary, eventGenerator));
+                    if (Dispose) Enumerator.Dispose();
+
+                    parseResult &= !EndOfParent;
                 }
-
-                var (Success, Enumerator, EndOfParent, Dispose) = data.GetEnumeratorForProperty();
-                parseResult = Success && ((EventSection)property.GetValue(this)).Parse(eventGenerator, fightDataDictionary, Enumerator);
-
-                if (Dispose) Enumerator.Dispose();
-
-                parseResult = parseResult && !EndOfParent;
+                else if (typeof(IEventSectionList).IsAssignableFrom(property.PropertyType))
+                {
+                    parseResult = ((IEventSectionList)property.GetValue(this)).Parse(eventGenerator, fightDataDictionary, data);
+                }
+                else
+                {
+                    parseResult = SetPropertyValue(property, data);
+                }
+                return parseResult;
             }
-            else if (typeof(IEventSectionList).IsAssignableFrom(property.PropertyType))
+            catch (WowCombatlogParserPropertyException)
             {
-                parseResult = ((IEventSectionList)property.GetValue(this)).Parse(eventGenerator, fightDataDictionary, data);
+                throw;
             }
-            else
-            {
-                parseResult = SetPropertyValue(property, data);
-            }
-            return parseResult;
         }
 
         protected virtual bool SetPropertyValue(PropertyInfo property, IEnumerator<IField> data)
@@ -113,21 +126,22 @@ namespace WoWCombatLogParser.Common.Events
     {
         public virtual bool Parse(IEventGenerator eventGenerator, FightDataDictionary fightDataDictionary, IEnumerator<IField> data)
         {
-            var enumeratorResult = data.GetEnumeratorForProperty();
+            var (success, enumerator, endOfParent, dispose) = data.GetEnumeratorForProperty();
+            if (enumerator == null) return endOfParent;
 
-            if (enumeratorResult.Success)
+            if (success)
             {
                 bool _continue;
                 do
                 {
                     T item = eventGenerator.CreateEventSection<T>();
-                    _continue = item.Parse(eventGenerator, fightDataDictionary, enumeratorResult.Enumerator);
+                    _continue = item.Parse(enumerator, fightDataDictionary, eventGenerator);
                     Add(item);
                 } while (_continue);
             }
 
-            if (enumeratorResult.Dispose)
-                enumeratorResult.Enumerator.Dispose();
+            if (dispose)
+                enumerator.Dispose();
 
             return true;
         }
@@ -147,7 +161,7 @@ namespace WoWCombatLogParser.Common.Events
                     if (innerEnumerator.Success)
                     {
                         T item = eventGenerator.CreateEventSection<T>();
-                        _continue = item.Parse(eventGenerator, fightDataDictionary, innerEnumerator.Enumerator);
+                        _continue = item.Parse(innerEnumerator.Enumerator, fightDataDictionary, eventGenerator);
                         Add(item);
                     }
 

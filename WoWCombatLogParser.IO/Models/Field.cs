@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace WoWCombatLogParser
         IField Parent { get; set; }
         Range Range { get; set; }
     }
+
 
     [DebuggerDisplay("{ToString()}")]
     public class TextField : IField

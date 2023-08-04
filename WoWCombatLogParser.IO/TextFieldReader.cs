@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace WoWCombatLogParser
 {
     public static class TextFieldReader
     {
-        private static readonly HashSet<char> openingBrackets = new() { '(', '[', '{' };        
+        private static readonly HashSet<char> openingBrackets = new() { '(', '[', '{' };
 
         private static IList<IField> ReadFields(StringReader sr, TextFieldReaderOptions options)
         {
@@ -60,7 +59,7 @@ namespace WoWCombatLogParser
                         {
                             if (c.In(options.Delimiters))
                             {
-                                if (field != null && !(field is GroupField))
+                                if (field != null && field is not GroupField)
                                 {
                                     field.Range.End = index - 1;
                                     field = field.Parent;
@@ -87,8 +86,8 @@ namespace WoWCombatLogParser
 
         public static IList<IField> ReadFields(string line, TextFieldReaderOptions options)
         {
-            options ??= new TextFieldReaderOptions { Delimiters = new[] { ',' }, HasFieldsEnclosedInQuotes = false };            
-            using var sr = new StringReader(line?.Replace("  ", ","));
+            options ??= new TextFieldReaderOptions { Delimiters = new[] { ',' }, HasFieldsEnclosedInQuotes = false };             
+            using var sr = new StringReader(line);
             var result = ReadFields(sr, options);
             return result;
         }

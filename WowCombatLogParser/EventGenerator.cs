@@ -9,16 +9,21 @@ using WoWCombatLogParser.Common.Models;
 using WoWCombatLogParser.Common.Utility;
 using WoWCombatLogParser.Common.Events;
 using System.Collections;
+using System.Buffers;
+using System.Text;
 
 namespace WoWCombatLogParser
 {
-    public class EventGenerator : IEventGenerator
+    public partial class EventGenerator : IEventGenerator
     {
+        [GeneratedRegex("(?<timestamp>.*?)\\s{2}(?<eventtype>.*?),(?<parameters>.*)", RegexOptions.Compiled)]
+        private static partial Regex getEventTypeExpr();
+        private static readonly Regex _eventTypeExpr = getEventTypeExpr(); 
         private static readonly CombatLogVersionedDictionary<string, ObjectActivator> _ctors = new();
         private static readonly CombatLogVersionedDictionary<Type, ClassMap> _classMap = new();
         private static readonly Assembly _assembly = Assembly.Load("WoWCombatLogParser.Common");
-        private static readonly Regex _split = new(@"\s\s", RegexOptions.Compiled);
-
+        
+        
         static EventGenerator()
         {
             SetupClassMap();
@@ -35,20 +40,25 @@ namespace WoWCombatLogParser
 
         public T GetCombatLogEvent<T>(string line, Action<ICombatLogEvent> afterCreate = null) where T : class, ICombatLogEvent
         {
-            var (timestamp, eventType) = GetMinimalEventDetails(ref line);
-            var ctor = _ctors[CombatLogVersionEvent.Version, eventType];
+            var preParseResult = PreParseLine(line);
+            var ctor = _ctors[CombatLogVersionEvent.Version, preParseResult.Event];
             if (ctor == null) return null;
 
-            var result = (T)ctor(timestamp, eventType, line);
+            var result = (T)ctor(preParseResult.Parameters, ApplicationContext);
             afterCreate?.Invoke(result);
             return result;
         }
-
+        
         public CombatLogVersionEvent GetCombatLogVersionEvent(string line, Action<ICombatLogEvent> afterCreate = null)
         {
-            var (timestamp, eventType) = GetMinimalEventDetails(ref line);
-            var result = new CombatLogVersionEvent(timestamp, eventType, line);            
+            var result = new CombatLogVersionEvent(line, ApplicationContext);            
             return result;
+        }
+
+        private (string Event, string Parameters) PreParseLine(string line)
+        {
+            var m = _eventTypeExpr.Match(line).Groups;
+            return (m["eventtype"].Value, string.Join(',', m["timestamp"].Value, m["parameters"].Value));
         }
 
         public T CreateEventSection<T>()
@@ -56,14 +66,6 @@ namespace WoWCombatLogParser
             var ctor = _classMap[CombatLogVersionEvent.Version, typeof(T)]?.Constructor;
             if (ctor == null) return default;
             return (T)ctor();
-        }
-
-        private (DateTime Timestamp, string EventType) GetMinimalEventDetails(ref string line)
-        {
-            var i = line.IndexOf(',');
-            var resultParts = _split.Split(line[..i++]).ToArray();
-            line = line[i..];            
-            return (resultParts[(int)FieldIndex.Timestamp].GetTimestamp(), resultParts[(int)FieldIndex.EventType]);
         }
 
         public ClassMap GetClassMap(Type type) => _classMap.TryGetValue(CombatLogVersionEvent.Version, type, out var value) ? value : null;
@@ -82,7 +84,7 @@ namespace WoWCombatLogParser
 
         private static void AddType(string name, Type type)
         {
-            var constructor = type.GetConstructor(new[] { typeof(DateTime), typeof(string), typeof(string) }) ?? type.GetConstructors().First();
+            var constructor = type.GetConstructor(new[] { typeof(string), typeof(IApplicationContext) }) ?? type.GetConstructors().First();
             var activator = CombatLogEventActivator.GetActivator<object>(constructor);
 
             var applicableCombatLogVersions = type.GetCustomAttributes<CombatLogVersionAttribute>()
@@ -132,8 +134,9 @@ namespace WoWCombatLogParser
 
         public void SetCombatLogVersion(string combatLogVersion)
         {
-            CombatLogVersionEvent = GetCombatLogVersionEvent(combatLogVersion, e => ApplicationContext.CombatLogParser.Parse(e));
-        }
+            var (_, parameters) = PreParseLine(combatLogVersion);
+            CombatLogVersionEvent = GetCombatLogVersionEvent(parameters);
+        }        
     }
     
     public class CombatLogVersionedDictionary<TKey, TValue>

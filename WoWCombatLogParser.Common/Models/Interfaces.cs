@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -12,7 +13,9 @@ namespace WoWCombatLogParser.Common.Models
         int Id { get; }
         DateTime Timestamp { get; }
         string Event { get; }
-        IList<IField> GetData(bool reset = true);
+
+        Task<bool> GetParseResultAsync();
+        bool GetParseResult();
     }
 
     public interface ICombatantInfo
@@ -23,6 +26,7 @@ namespace WoWCombatLogParser.Common.Models
 
     public partial interface IFight
     {
+        bool IsSuccess { get; }
     }
 
     /// <summary>

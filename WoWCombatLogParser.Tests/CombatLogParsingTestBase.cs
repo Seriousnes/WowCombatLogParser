@@ -3,6 +3,7 @@ using Xunit.Abstractions;
 using WoWCombatLogParser.Common.Models;
 using WoWCombatLogParser.Common.Events;
 using System.Resources;
+using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Tests
 {

@@ -39,12 +39,23 @@ namespace WoWCombatLogParser.Common.Utility
             return properties;
         }
 
+        public static bool Is(this SpellSchool spellSchool, params SpellSchool[] spellSchools) => spellSchools.CombineSpellSchools() == spellSchool;
+        public static bool Is(this SpellSchool spellSchool, IEnumerable<SpellSchool> spellSchools) => spellSchool.Is(spellSchools.ToArray());
+        public static SpellSchool CombineSpellSchools(this IEnumerable<SpellSchool> spellSchools) => spellSchools.Aggregate(SpellSchool.None, (result, s) => result |= s);
+
         public static (bool Success, IEnumerator<IField> Enumerator, bool EndOfParent, bool Dispose) GetEnumeratorForProperty(this IEnumerator<IField> data)
         {
             if (data.Current is GroupField groupData)
             {
-                var enumerator = groupData.Children.GetEnumerator();
-                return (enumerator.MoveNext() && enumerator.Current != null, enumerator, !data.MoveNext(), true);
+                if (groupData.Children.Count > 0)
+                {
+                    var enumerator = groupData.Children.GetEnumerator();
+                    return (enumerator.MoveNext() && enumerator.Current != null, enumerator, !data.MoveNext(), true);
+                }
+                else
+                {
+                    return (true, null, !data.MoveNext(), false);
+                }                
             }
 
             return (true, data, false, false);

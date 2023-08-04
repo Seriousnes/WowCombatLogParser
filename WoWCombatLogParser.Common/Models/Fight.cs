@@ -20,7 +20,7 @@ namespace WoWCombatLogParser.Common.Models
         string Name { get; }
     }
 
-    [DebuggerDisplay("{GetDescription()}")]
+    [DebuggerDisplay("{GetDetails()}")]
     public abstract partial class Fight<TStart, TEnd> : IFight
         where TStart : CombatLogEvent, IFightStart
         where TEnd : CombatLogEvent, IFightEnd
@@ -55,6 +55,7 @@ namespace WoWCombatLogParser.Common.Models
         public abstract string Result { get; }
         public (long Start, long End) Range { get; set; }
         public FightDataDictionary CommonDataDictionary { get; } = new();
+        public abstract bool IsSuccess { get; }
     }
 
     [DebuggerDisplay("{Description} ({Result}) {Duration} {Time}")]

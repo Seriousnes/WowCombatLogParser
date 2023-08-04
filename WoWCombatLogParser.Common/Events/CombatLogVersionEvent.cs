@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 using WoWCombatLogParser.Common.Models;
 using WoWCombatLogParser.Common.Utility;
 
@@ -11,8 +13,9 @@ namespace WoWCombatLogParser.Common.Events
     {
         public CombatLogVersionEvent() : base() { }
 
-        public CombatLogVersionEvent(DateTime timestamp, string @event, string data) : base(timestamp, @event, data)
+        public CombatLogVersionEvent(string parameters, IApplicationContext context) : base(parameters, context)
         {
+            GetParseResultAsync().Wait();
         }
 
         public CombatLogVersion Version { get; set; }
@@ -22,10 +25,11 @@ namespace WoWCombatLogParser.Common.Events
         public string BuildVersion { get; set; }
         [Offset(1)]
         public int ProjectId { get; set; }
-
-        public override bool Parse(IEventGenerator eventGenerator, FightDataDictionary fightDataDictionary, IEnumerator<IField> data)
+        
+        internal override bool Parse(IEnumerator<IField> data, FightDataDictionary fightDataDictionary = null, IEventGenerator eventGenerator = null)
         {
-            foreach (var property in eventGenerator.GetClassMap(this.GetType()).Properties)
+            eventGenerator ??= ApplicationContext.EventGenerator;
+            foreach (var property in this.GetType().GetTypePropertyInfo())
             {
                 var steps = property.GetCustomAttribute<OffsetAttribute>()?.Value ?? 0;
                 data.MoveBy(steps);

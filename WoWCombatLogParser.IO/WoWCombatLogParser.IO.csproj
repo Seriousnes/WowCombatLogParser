@@ -6,4 +6,9 @@
 		<LangVersion>11.0</LangVersion>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="System.IO.Pipelines" Version="7.0.0" />
+	  <PackageReference Include="System.Memory" Version="4.5.5" />
+	</ItemGroup>
+
 </Project>

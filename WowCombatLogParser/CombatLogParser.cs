@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Diagnostics.Metrics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -62,9 +64,10 @@ namespace WoWCombatLogParser
             if (!File.Exists(_filename))
                 yield break;
 
-            using var sr = new StreamReader(_filename, new FileStreamOptions { Access = FileAccess.Read, Share = FileShare.ReadWrite });
-            SetupEventGenerator(sr);            
+            using var fs = new FileStream(_filename, new FileStreamOptions { Access = FileAccess.Read, Share = FileShare.ReadWrite });
+            using var sr = new StreamReader(fs);
             string line;
+            SetupEventGenerator(sr, false);            
             IFight fight = null;
             while ((line = sr.ReadLine()) != null)
             {                
@@ -74,20 +77,28 @@ namespace WoWCombatLogParser
                     case IFightEnd end when @event is IFightEnd:
                         if (fight != null && fight.IsEndEvent(end))
                         {
+                            @event.GetParseResult();
                             fight.AddEvent(@event);
-                            ApplicationContext.CombatLogParser.Parse(fight);
-                        }                            
+                        }
+                        if (!quickScan)
+                        {
+                            Task.WaitAll(fight.GetEvents().Select(x => x.GetParseResultAsync()).ToArray());
+                        }
                         yield return fight;
                         fight = null;
                         break;
                     case IFightStart start when @event is IFightStart:
+                        ParseAsync(@event).Wait();
                         fight = start.GetFight();                        
                         break;
                     case null:
                         break;
                     default:
-                        if (!quickScan)
-                            fight?.AddEvent(@event);
+                        fight?.AddEvent(@event);
+                        if (!quickScan && fight is null)
+                        {
+                            @event.GetParseResult();
+                        }                            
                         break;
                 }
             }
@@ -95,13 +106,7 @@ namespace WoWCombatLogParser
 
         public void Parse(ICombatLogEvent combatLogEvent, IFight encounter = null)
         {
-            var dataEnumerator = combatLogEvent.GetData()?.GetEnumerator();
-            if (dataEnumerator?.MoveNext() ?? false)
-            {
-                combatLogEvent.Parse(ApplicationContext.EventGenerator, encounter?.CommonDataDictionary, dataEnumerator);
-            }
-            
-            dataEnumerator?.Dispose();
+            combatLogEvent.GetParseResult();
         }
 
         public void Parse(IFight encounter)
@@ -131,7 +136,7 @@ namespace WoWCombatLogParser
             await Parallel.ForEachAsync(encounters, async (e, _) => await ParseAsync(e));
         }
 
-        private void SetupEventGenerator(StreamReader sr)
+        private void SetupEventGenerator(StreamReader sr, bool resetToCurrentPosition = true)
         {
             var currentPosition = sr.BaseStream.Position;
             sr.BaseStream.Position = 0;
@@ -143,7 +148,8 @@ namespace WoWCombatLogParser
                 ApplicationContext.EventGenerator.SetCombatLogVersion(line);
             }
 
-            sr.BaseStream.Position = currentPosition;
+            if (resetToCurrentPosition)
+                sr.BaseStream.Position = currentPosition;
         }
     }
 }

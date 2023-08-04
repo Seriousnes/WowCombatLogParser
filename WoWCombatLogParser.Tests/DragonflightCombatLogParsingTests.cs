@@ -6,6 +6,7 @@ using WoWCombatLogParser.Events;
 using WoWCombatLogParser.Models;
 using WoWCombatLogParser.Common.Events;
 using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.Utility;
 using Xunit;
 using Xunit.Abstractions;
 using static WoWCombatLogParser.EventGenerator;
@@ -19,18 +20,23 @@ namespace WoWCombatLogParser.Tests
         }
 
         [Theory]
-        [InlineData(@"TestLogs/Dragonflight/WoWCombatLog.txt", true)]
+        [InlineData(@"TestLogs/Dragonflight/WoWCombatLog.txt", true)]        
+        [InlineData(@"TestLogs/Dragonflight/EchoOfNeltharion_Wipe.txt", true)]
         public void Test_SingleEncounter(string fileName, bool isAsync)
         {
             CombatLogParser.Filename = fileName;
-            IFight encounter = CombatLogParser.Scan().First();
+            IFight encounter = CombatLogParser.Scan(quickScan: true).First();
             encounter.Should().NotBeNull().And.BeAssignableTo<Boss>();
             if (isAsync)
                 CombatLogParser.ParseAsync(encounter).Wait();
             else
                 CombatLogParser.Parse(encounter);
+
+            var combatants = encounter.GetEvents().OfType<DragonflightCombatantInfo>().ToList();
+
             OutputEncounterSumary(encounter);
         }
+
 
         [Fact(Skip = "Used for debugging")]       
         public void Test_FullRaidCombatLog()
@@ -55,7 +61,7 @@ namespace WoWCombatLogParser.Tests
         public void Test_EventsList(string input)
         {
             var @event = EventGenerator.GetCombatLogEvent<CombatLogEvent>(input);
-            CombatLogParser.Parse(@event);
+            @event.GetParseResultAsync().Wait();
 
             switch (@event)
             {
@@ -99,6 +105,15 @@ namespace WoWCombatLogParser.Tests
             encounter.Should().NotBeNull();
             CombatLogParser.ParseAsync(encounter).Wait();
             OutputEncounterSumary(encounter);
+        }
+
+        [Fact]
+        public void Test_ScanMultipleFights()
+        {
+            CombatLogParser.Filename = @"TestLogs/Dragonflight/WoWCombatLog.txt";
+            var encounters = CombatLogParser.Scan(quickScan: true).ToList();
+            encounters.Should().NotBeNull();
+            encounters.ForEach(e => OutputEncounterSumary(e));
         }
 
         [Theory]

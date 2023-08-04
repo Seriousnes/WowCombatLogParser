@@ -9,12 +9,23 @@ namespace WoWCombatLogParser.Models
 {
     public class Boss : Fight<EncounterStart, EncounterEnd>
     {
+        private List<ICombatantInfo> _combatants;
+
         public Boss(EncounterStart start) : base(start)
         {
         }
 
         public override string Name => _start.Name;
         public override string Result => _end is EncounterEnd endOfFight && endOfFight.Success ? "Kill" : "Wipe";
+        public override bool IsSuccess => Result == "Kill";
+        public List<ICombatantInfo> Combatants
+        {
+            get
+            {
+                return _combatants ??= _events.OfType<ICombatantInfo>().ToList();
+            }
+        }
+
     }
 
     public class Trash : IFight
@@ -34,12 +45,13 @@ namespace WoWCombatLogParser.Models
         public string Result { get; } = string.Empty;
         public (long Start, long End) Range { get; set; }
         public FightDataDictionary CommonDataDictionary { get; } = new();
-        
+        public bool IsSuccess => true;
         public CombatLogEvent AddEvent(CombatLogEvent @event)
         {
             _events.Add(@event);
+            @event.Encounter = this;
             return @event;
-        }        
+        }
     }
 
     public class ChallengeMode : Fight<ChallengeModeStart, ChallengeModeEnd>
@@ -49,7 +61,9 @@ namespace WoWCombatLogParser.Models
         }
 
         public override string Name => $"{_start.InstanceId} Level {_start.KeystoneLevel} (Affixes: {string.Join(',', _start.Affixes?.Select(x => x.Id.ToString()))})";
-        public override string Result => _end is ChallengeModeEnd endOfFight && endOfFight.Success ? "Timed" : "Not timed";        
+        public override string Result => _end is ChallengeModeEnd endOfFight && endOfFight.Success ? "Timed" : "Not timed";
+        public override bool IsSuccess => Result == "Timed";
+
     }
 
     public class ArenaMatch : Fight<ArenaMatchStart, ArenaMatchEnd>
@@ -60,5 +74,6 @@ namespace WoWCombatLogParser.Models
 
         public override string Name => _start.InstanceId.ToString();
         public override string Result => _end is ArenaMatchEnd endOfFight ? $"Team {endOfFight.WinningTeam} wins. New ratings: Team1 = {endOfFight.NewRatingTeam1}, Team2 = {endOfFight.NewRatingTeam2}" : "";
+        public override bool IsSuccess => Result.Contains("wins", StringComparison.InvariantCultureIgnoreCase);
     }
 }

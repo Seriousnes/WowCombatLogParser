@@ -2,6 +2,8 @@ using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.Common.Utility;
+using System.Linq;
 
 namespace WoWCombatLogParser.Tests
 {
@@ -27,16 +29,10 @@ namespace WoWCombatLogParser.Tests
 
         [Theory]
         [InlineData(SpellSchool.Elemental, SpellSchool.Nature, SpellSchool.Fire, SpellSchool.Frost)]
-        [InlineData(SpellSchool.FlameStrike, SpellSchool.Fire, SpellSchool.Physical)]
+        [InlineData(SpellSchool.Inferno, SpellSchool.Fire, SpellSchool.Physical)]
         public void TestSpellSchools(SpellSchool expected, params SpellSchool[] spellSchools)
         {
-            SpellSchool calculated = SpellSchool.None;
-            foreach (var school in spellSchools)
-            {
-                calculated |= school;
-            }
-
-            Assert.True(expected == calculated);
+            Assert.True(expected.Is(spellSchools));
         }
 
         [Fact]
