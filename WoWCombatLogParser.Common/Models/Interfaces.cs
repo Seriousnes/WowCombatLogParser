@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -13,7 +12,6 @@ namespace WoWCombatLogParser.Common.Models
         int Id { get; }
         DateTime Timestamp { get; }
         string Event { get; }
-
         Task<bool> GetParseResultAsync();
         bool GetParseResult();
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Events;
@@ -15,17 +16,23 @@ namespace WoWCombatLogParser.Models
         {
         }
 
+        public override CombatLogEvent AddEvent(CombatLogEvent @event)
+        {
+            base.AddEvent(@event);
+
+            if (@event is ICombatantInfo combatantInfoEvent)
+            {
+                @event.GetParseResult();
+                Combatants.Add(combatantInfoEvent);
+            }
+
+            return @event;
+        }
+
         public override string Name => _start.Name;
         public override string Result => _end is EncounterEnd endOfFight && endOfFight.Success ? "Kill" : "Wipe";
         public override bool IsSuccess => Result == "Kill";
-        public List<ICombatantInfo> Combatants
-        {
-            get
-            {
-                return _combatants ??= _events.OfType<ICombatantInfo>().ToList();
-            }
-        }
-
+        public virtual List<ICombatantInfo> Combatants { get; } = new();
     }
 
     public class Trash : IFight

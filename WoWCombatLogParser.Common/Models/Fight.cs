@@ -35,7 +35,7 @@ namespace WoWCombatLogParser.Common.Models
             _events.Add(start);
         }
 
-        public CombatLogEvent AddEvent(CombatLogEvent @event)
+        public virtual CombatLogEvent AddEvent(CombatLogEvent @event)
         {
             _events.Add(@event);
             @event.Encounter = this;
@@ -46,15 +46,15 @@ namespace WoWCombatLogParser.Common.Models
             return @event;
         }
 
-        public void Sort() => _events = _events.OrderBy(x => x.Id).ToList();
-        public IList<CombatLogEvent> GetEvents() => _events;
+        public virtual void Sort() => _events = _events.OrderBy(x => x.Id).ToList();
+        public virtual IList<CombatLogEvent> GetEvents() => _events;
         public virtual FightDescription GetDetails() => new(Name, Duration, _start.Timestamp, Result);
-        public bool IsEndEvent(IFightEnd @event) => typeof(TEnd).IsAssignableFrom(@event.GetType());
-        public TimeSpan Duration => _end is null ? (_events.Last().Timestamp - _start.Timestamp) : TimeSpan.FromMilliseconds(_end.Duration);
+        public virtual bool IsEndEvent(IFightEnd @event) => typeof(TEnd).IsAssignableFrom(@event.GetType());
+        public virtual TimeSpan Duration => _end is null ? (_events.Last().Timestamp - _start.Timestamp) : TimeSpan.FromMilliseconds(_end.Duration);
         public abstract string Name { get; }
         public abstract string Result { get; }
-        public (long Start, long End) Range { get; set; }
-        public FightDataDictionary CommonDataDictionary { get; } = new();
+        public virtual (long Start, long End) Range { get; set; }
+        public virtual FightDataDictionary CommonDataDictionary { get; } = new();
         public abstract bool IsSuccess { get; }
     }
 
