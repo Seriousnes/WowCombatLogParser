@@ -4,6 +4,9 @@ using WoWCombatLogParser.Common.Models;
 using WoWCombatLogParser.Common.Events;
 using System.Resources;
 using WoWCombatLogParser.Models;
+using Xunit;
+using System;
+using WoWCombatLogParser.Common.Utility;
 
 namespace WoWCombatLogParser.Tests
 {
@@ -38,6 +41,15 @@ namespace WoWCombatLogParser.Tests
             output.WriteLine(new string('-', 35));
             output.WriteLine($"{"Count",-11}{fight.GetEvents().Count,24}");
             output.WriteLine($"{new string('=', 35)}\n\n");
+        }
+
+        [Fact]
+        public void OuputDamageTypes()
+        {
+            Enum.GetValues(typeof(SpellSchool))
+                .Cast<SpellSchool>()
+                .ToList()                
+                .ForEach(x => output.WriteLine($"{x,-15} - {(int)x,3}"));
         }
     }
 }
