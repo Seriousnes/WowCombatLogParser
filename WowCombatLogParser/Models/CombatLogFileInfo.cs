@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace WoWCombatLogParser.Models;
 
-namespace WoWCombatLogParser.Models
+public class CombatLogFileInfo
 {
-    public class CombatLogFileInfo
-    {
-    }
 }

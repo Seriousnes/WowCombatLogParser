@@ -1,30 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using WoWCombatLogParser.Common.Models;
 
-namespace WoWCombatLogParser.Common.Events
+namespace WoWCombatLogParser.Common.Events;
+
+[Affix("CHALLENGE_MODE_START")]
+public class ChallengeModeStart : Event, IFightStart
 {
-    [Affix("CHALLENGE_MODE_START")]
-    public class ChallengeModeStart : EventSection, IFightStart
-    {
-        public string ZoneName { get; set; }
-        public int InstanceId { get; set; }
-        public int ChallengeModeId { get; set; }
-        public int KeystoneLevel { get; set; }
-        public EventSections<ChallengeModeAffix> Affixes { get; set; } = new EventSections<ChallengeModeAffix>();
-    }
+    public string ZoneName { get; set; }
+    public int InstanceId { get; set; }
+    public int ChallengeModeId { get; set; }
+    public int KeystoneLevel { get; set; }
+    [IsSingleDataField]
+    public List<ChallengeModeAffix> Affixes { get; set; } = new();
+}
 
-    [Affix("CHALLENGE_MODE_END")]
-    public class ChallengeModeEnd : EventSection, IFightEnd, IFightEndSuccess
-    {
-        public int InstanceId { get; set; }
-        public bool Success { get; set; }
-        public int KeystoneLevel { get; set; }
-        public int Duration { get; set; }
-    }
+[Affix("CHALLENGE_MODE_END")]
+public class ChallengeModeEnd : Event, IFightEnd, IFightEndSuccess
+{
+    public int InstanceId { get; set; }
+    public bool Success { get; set; }
+    public int KeystoneLevel { get; set; }
+    public int Duration { get; set; }
+}
 
-    public class ChallengeModeAffix : IdPart<ChallengeModeAffixEnum>
-    {
-    }
+public class ChallengeModeAffix : IdPart<ChallengeModeAffixEnum>
+{
 }

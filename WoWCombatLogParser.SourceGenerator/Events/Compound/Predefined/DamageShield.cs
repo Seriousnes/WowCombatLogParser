@@ -1,10 +1,8 @@
-﻿using System.Diagnostics;
-using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.Common.Models;
 
-namespace WoWCombatLogParser.Common.Events
+namespace WoWCombatLogParser.Common.Events;
+
+[Affix("DAMAGE_SHIELD")]
+public class DamageShield : Predefined<Spell, Damage>
 {
-    [Affix("DAMAGE_SHIELD")]
-    public class DamageShield : Predefined<Spell, Damage>
-    {
-    }
 }

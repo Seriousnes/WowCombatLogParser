@@ -1,10 +1,9 @@
 ﻿using WoWCombatLogParser.Common.Models;
 
-namespace WoWCombatLogParser.Common.Events
+namespace WoWCombatLogParser.Common.Events;
+
+public abstract class CombatantInfo : Event
 {
-    public abstract class CombatantInfo : EventSection
-    {
-        public WowGuid PlayerGuid { get; set; }
-        public Faction Faction { get; set; }
-    }
+    public WowGuid PlayerGuid { get; set; }
+    public Faction Faction { get; set; }
 }

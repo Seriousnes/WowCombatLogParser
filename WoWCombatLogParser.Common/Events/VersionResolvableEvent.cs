@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.Common.Models;
 
-namespace WoWCombatLogParser.Common.Events
+namespace WoWCombatLogParser.Common.Events;
+
+public interface IVersionResolvableEvent
 {
-    public interface IVersionResolvableEvent
-    {
-        CombatLogVersion Version { get; set; }
-    }
-
-    public interface IVersionResolvableEvent<T> : IVersionResolvableEvent
-    {
-    }    
+    CombatLogVersion Version { get; set; }
 }
+
+public interface IVersionResolvableEvent<T> : IVersionResolvableEvent
+{
+}    

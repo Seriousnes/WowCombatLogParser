@@ -1,10 +1,8 @@
-﻿using System;
-using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.Common.Models;
 
-namespace WoWCombatLogParser.Common.Events
+namespace WoWCombatLogParser.Common.Events;
+
+public abstract class SuffixAbilityBase : Event
 {
-    public abstract class SuffixAbilityBase : EventSection
-    {
-        public Ability ExtraSpell { get; set; } = new();
-    }
+    public Ability ExtraSpell { get; set; } = new();
 }

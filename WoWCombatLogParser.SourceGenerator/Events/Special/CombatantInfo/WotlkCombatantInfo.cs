@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
+﻿using System.Diagnostics;
 using WoWCombatLogParser.Common.Models;
 
-namespace WoWCombatLogParser.Common.Events
+namespace WoWCombatLogParser.Common.Events;
+
+[CombatLogVersion(CombatLogVersion.Wotlk)]
+[Affix("COMBATANT_INFO")]
+[DebuggerDisplay("{PlayerGuid} {Faction}")]
+public class WotlkCombatantInfo : CombatantInfo, ICombatantInfo
 {
-    [CombatLogVersion(CombatLogVersion.Wotlk)]
-    [Affix("COMBATANT_INFO")]
-    [DebuggerDisplay("{PlayerGuid} {Faction}")]
-    public class WotlkCombatantInfo : CombatantInfo, ICombatantInfo
-    {
-    }
 }

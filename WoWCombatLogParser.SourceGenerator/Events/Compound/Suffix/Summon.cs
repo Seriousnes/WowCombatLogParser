@@ -1,10 +1,8 @@
-﻿using System.Diagnostics;
-using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.Common.Models;
 
-namespace WoWCombatLogParser.Common.Events
+namespace WoWCombatLogParser.Common.Events;
+
+[Suffix("_SUMMON")]
+public class Summon : Event
 {
-    [Suffix("_SUMMON")]
-    public class Summon : EventSection
-    {
-    }
 }

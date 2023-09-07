@@ -1,13 +1,16 @@
-﻿using WoWCombatLogParser.Common.Models;
+﻿using System.Collections.Generic;
+using WoWCombatLogParser.Common.Models;
 
-namespace WoWCombatLogParser.Common.Events
+namespace WoWCombatLogParser.Common.Events;
+
+public class EquippedItem : Event
 {
-    public class EquippedItem : EventSection
-    {
-        public int ItemId { get; set; }
-        public int ItemLevel { get; set; }
-        public ItemEnchants Enchantments { get; set; } = new ItemEnchants();
-        public EventSections<BonusId> BonusIds { get; set; } = new EventSections<BonusId>();
-        public EventSections<Gem> Gems { get; set; } = new EventSections<Gem>();
-    }
+    public int ItemId { get; set; }
+    public int ItemLevel { get; set; }
+    [IsSingleDataField]
+    public ItemEnchants Enchantments { get; set; } = new();
+    [IsSingleDataField]
+    public List<BonusId> BonusIds { get; set; } = new();
+    [IsSingleDataField]
+    public List<Gem> Gems { get; set; } = new();
 }

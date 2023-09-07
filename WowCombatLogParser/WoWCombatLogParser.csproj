@@ -5,6 +5,11 @@
 		<DebugType>portable</DebugType>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -2,4 +2,3 @@
 global using WoWCombatLogParser.Events;
 global using WoWCombatLogParser.Models;
 global using System.Collections.Generic;
-global using WoWCombatLogParser.Utility;

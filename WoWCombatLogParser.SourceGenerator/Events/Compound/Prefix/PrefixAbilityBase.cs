@@ -1,10 +1,8 @@
-﻿using System;
-using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.Common.Models;
 
-namespace WoWCombatLogParser.Common.Events
+namespace WoWCombatLogParser.Common.Events;
+
+public abstract class PrefixAbilityBase : Event
 {
-    public abstract class PrefixAbilityBase : EventSection
-    {
-        public Ability Spell { get; set; } = new();
-    }
+    public Ability Spell { get; set; } = new();
 }

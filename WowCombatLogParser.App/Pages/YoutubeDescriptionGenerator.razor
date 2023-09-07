@@ -4,72 +4,72 @@
 <MudGrid>
     <MudItem xs="4">
         @if (loading)
-        {
-            <MudList>
+    {
+        <MudList>
                 <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave"></MudSkeleton>
             </MudList>    
-        }
-        else
-        {
-            <MudList Clickable="true" Dense="true">
+    }
+    else
+    {
+        <MudList Clickable="true" Dense="true">
                 @foreach (var encounters in encounterList)
-                {
-                    <MudListItem Text="@encounters.Key">                    
+            {
+                <MudListItem Text="@encounters.Key">                    
                         <NestedList>                            
                         @{
-                            @foreach (var (encounter, i) in encounters.Value.Select((x, i) => (x, i + 1)))
-                            {
-                                var fightDetails = encounter.GetDetails();
-                                <MudListItem>
+                        @foreach (var (encounter, i) in encounters.Value.Select((x, i) => (x, i + 1)))
+                        {
+                            var fightDetails = encounter.GetDetails();
+                            <MudListItem>
                                     <MudText Color="@(fightDetails.Result == "Kill" ? Color.Surface : Color.Error)">
                                         @if (fightDetails.Result == "Kill")
-                                        {
-                                            @:Kill
-                                        }
-                                        else
-                                        {
-                                            @: Wipe @(i) - @fightDetails.Duration
-                                        }
+                                    {
+                                        @:Kill
+                                    }
+                                    else
+                                    {
+                                        @: Wipe @(i) - @fightDetails.Duration
+                                    }
                                     </MudText>
                                 </MudListItem>
-                            }
                         }
+                    }
                         </NestedList>
                     </MudListItem>
-                }            
+            }            
             </MudList>
-        }
+    }
     </MudItem>
     <MudItem xs="8">
     </MudItem>
 </MudGrid>
 
 @code {
-    string baseDirectory = @"E:\Games\World of Warcraft\_retail_\Logs";
+string baseDirectory = @"E:\Games\World of Warcraft\_retail_\Logs";
 
-    Dictionary<string, List<IFight>> encounterList;
-    bool loading = true;
+Dictionary<string, List<IFight>> encounterList;
+bool loading = true;
 
-    protected override async Task OnParametersSetAsync()
+protected override async Task OnParametersSetAsync()
+{
+    var log = Directory.GetFiles(baseDirectory, "WowCombatLog*.txt")
+            .Select(x => new FileInfo(x))
+            .OrderByDescending(x => x.LastAccessTime)
+            .Select(x => x.FullName)
+            .FirstOrDefault();
+
+    if (!File.Exists(log))
     {
-        var log = Directory.GetFiles(baseDirectory, "WowCombatLog*.txt")
-                .Select(x => new FileInfo(x))
-                .OrderByDescending(x => x.LastAccessTime)
-                .Select(x => x.FullName)
-                .FirstOrDefault();
-
-        if (!File.Exists(log))
-        {
-            return;
-        }
-
-        CombatLogParser.Filename = log;
-        encounterList = await Task.Factory.StartNew(() =>
-        {
-            return CombatLogParser.Scan(quickScan: true)
-                .GroupBy(x => x.Name)
-                .ToDictionary(k => k.Key, v => v.ToList());
-        });
-        loading = false;
+        return;
     }
+
+    CombatLogParser.Filename = log;
+    encounterList = await Task.Factory.StartNew(() =>
+    {
+        return CombatLogParser.Scan(quickScan: true)
+            .GroupBy(x => x.Name)
+            .ToDictionary(k => k.Key, v => v.ToList());
+    });
+    loading = false;
+}
 }

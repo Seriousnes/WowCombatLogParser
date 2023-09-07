@@ -1,14 +1,13 @@
 ﻿using System.Diagnostics;
 using WoWCombatLogParser.Common.Models;
 
-namespace WoWCombatLogParser.Common.Events
+namespace WoWCombatLogParser.Common.Events;
+
+[Suffix("_ENERGIZE")]
+[DebuggerDisplay("{OverEnergize} {PowerType} {AlternatePowerType}")]
+public class Energize : AdvancedLoggingDetailsBase, IAdvancedLoggingDetails
 {
-    [Suffix("_ENERGIZE")]
-    [DebuggerDisplay("{OverEnergize} {PowerType} {AlternatePowerType}")]
-    public class Energize : AdvancedLoggingDetailsBase, IAdvancedLoggingDetails
-    {
-        public decimal OverEnergize { get; set; }
-        public PowerType PowerType { get; set; }
-        public PowerType AlternatePowerType { get; set; }
-    }
+    public decimal OverEnergize { get; set; }
+    public PowerType PowerType { get; set; }
+    public PowerType AlternatePowerType { get; set; }
 }
