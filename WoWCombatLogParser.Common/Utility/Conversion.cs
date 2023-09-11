@@ -41,7 +41,7 @@ public static class Conversion
         return (T)GetValue(value, typeof(T));
     }
 
-    public static object GetValue(IField value, Type type) => GetValue(value.ToString(), type);
+    public static object GetValue(ICombatLogDataField value, Type type) => GetValue(value.ToString(), type);
 
     private static int ConvertToInt(string value) => Convert.ToInt32(value, value.StartsWith("0x") ? 16 : 10);
 

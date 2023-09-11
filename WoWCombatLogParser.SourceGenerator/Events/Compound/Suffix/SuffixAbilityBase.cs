@@ -2,7 +2,7 @@
 
 namespace WoWCombatLogParser.Common.Events;
 
-public abstract class SuffixAbilityBase : Event
+public abstract class SuffixAbilityBase : CombagLogEventComponent
 {
     public Ability ExtraSpell { get; set; } = new();
 }

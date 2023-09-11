@@ -3,7 +3,7 @@ using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser.Common.Events;
 
-public class EquippedItem : Event
+public class EquippedItem : CombagLogEventComponent
 {
     public int ItemId { get; set; }
     public int ItemLevel { get; set; }

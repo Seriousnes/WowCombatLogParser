@@ -10,7 +10,7 @@ namespace WoWCombatLogParser;
 
 public static class EventParser
 {
-    public static async Task ParseCombatLogEventAsync<T>(T instance, IList<IField> data, IEventGenerator generator) where T : class, IEvent
+    public static async Task ParseCombatLogEventAsync<T>(T instance, IList<ICombatLogDataField> data, IEventGenerator generator) where T : class, ICombagLogEventComponent
     {
         var classMap = generator.GetClassMap(instance.GetType());
         if (classMap.CustomAttributes.OfType<KeyValuePairAttribute>().Any())
@@ -24,17 +24,17 @@ public static class EventParser
         actions.ForEach(action => action());
     }    
 
-    private static void GetCombatLogEventProperties(ClassMap classMap, List<InstancePropertyInfo> values, IEvent @event, IEventGenerator generator)
+    private static void GetCombatLogEventProperties(ClassMap classMap, List<InstancePropertyInfo> values, ICombagLogEventComponent @CombagLogEventComponent, IEventGenerator generator)
     {
         foreach (var prop in classMap.Properties)
         {
             if (prop.HasCustomAttribute<IsSingleDataFieldAttribute>() || prop.IsGenericList())
             {
-                values.Add(new InstancePropertyInfo(@event, prop));
+                values.Add(new InstancePropertyInfo(@CombagLogEventComponent, prop));
             }
-            else if (typeof(IEvent).IsAssignableFrom(prop.PropertyType))
+            else if (typeof(ICombagLogEventComponent).IsAssignableFrom(prop.PropertyType))
             {
-                if (prop.GetValue(@event) is Event nestedEvent)
+                if (prop.GetValue(@CombagLogEventComponent) is CombagLogEventComponent nestedEvent)
                 {
                     var nestedClassMap = generator.GetClassMap(nestedEvent.GetType());
                     GetCombatLogEventProperties(nestedClassMap, values, nestedEvent, generator);
@@ -42,12 +42,12 @@ public static class EventParser
             }
             else
             {
-                values.Add(new InstancePropertyInfo(@event, prop));
+                values.Add(new InstancePropertyInfo(@CombagLogEventComponent, prop));
             }
         } 
     }
 
-    private static void SetPropertyValue(InstancePropertyInfo _this, IField data, IEventGenerator generator)
+    private static void SetPropertyValue(InstancePropertyInfo _this, ICombatLogDataField data, IEventGenerator generator)
     {
         if (_this.Property.IsGenericList())
         {
@@ -55,12 +55,12 @@ public static class EventParser
         }
         else
         {
-            if (data is GroupField groupField)
+            if (data is CombatLogDataFieldCollection CombatLogDataFieldCollection)
             {
-                var instance = _this.GetPropertyInstance<IEvent>();
+                var instance = _this.GetPropertyInstance<ICombagLogEventComponent>();
                 if (instance != null)
                 {
-                    ParseCombatLogEventAsync(instance, groupField.Children, generator).Wait();
+                    ParseCombatLogEventAsync(instance, CombatLogDataFieldCollection.Children, generator).Wait();
                 }
             }
             else
@@ -70,12 +70,12 @@ public static class EventParser
         }        
     }
 
-    private static async Task SetListValue(InstancePropertyInfo _this, IField data, IEventGenerator generator)
+    private static async Task SetListValue(InstancePropertyInfo _this, ICombatLogDataField data, IEventGenerator generator)
     {
         // instance of the list
         var instance = _this.Property.GetValue(_this.Instance);
-        // any list will have the data as a GroupField with each child representing a single list entry
-        var listData = ((GroupField)data).Children;
+        // any list will have the data as a CombatLogDataFieldCollection with each child representing a single list entry
+        var listData = ((CombatLogDataFieldCollection)data).Children;
         // the type of each item in the list
         var listItemType = _this.Property.GetGenericListType();
         // the type defintion for the list
@@ -90,8 +90,8 @@ public static class EventParser
 
         foreach (var field in listData) 
         {
-            var item = (IEvent)classMap.Constructor();
-            if (field is GroupField listItemData)
+            var item = (ICombagLogEventComponent)classMap.Constructor();
+            if (field is CombatLogDataFieldCollection listItemData)
             {
                 await ParseCombatLogEventAsync(item, listItemData.Children, generator);
             }
@@ -104,16 +104,16 @@ public static class EventParser
         }
     }
 
-    private static IList<IField> CollateKeyValuePairs(IList<IField> data)
+    private static IList<ICombatLogDataField> CollateKeyValuePairs(IList<ICombatLogDataField> data)
     {
         var result = data
             .Select((x, i) => new { Index = i, Value = x })
             .GroupBy(x => x.Index / 2)
             .Select(x =>
             {
-                var group = new GroupField { OpeningBracket = '[', };                
+                var group = new CombatLogDataFieldCollection { OpeningBracket = '[', };                
                 x.Select(x => x.Value).ToList().ForEach(x => group.AddChild(x));
-                return (IField)group;
+                return (ICombatLogDataField)group;
             })
             .ToList();
         return result;

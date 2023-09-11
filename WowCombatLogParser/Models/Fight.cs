@@ -13,17 +13,17 @@ public class Boss : Fight<EncounterStart, EncounterEnd>
     {
     }
 
-    public override CombatLogEvent AddEvent(CombatLogEvent @event)
+    public override CombatLogEvent AddEvent(CombatLogEvent @CombagLogEventComponent)
     {
-        base.AddEvent(@event);
+        base.AddEvent(@CombagLogEventComponent);
 
-        if (@event is ICombatantInfo combatantInfoEvent)
+        if (@CombagLogEventComponent is ICombatantInfo combatantInfoEvent)
         {
             
             Combatants.Add(combatantInfoEvent);
         }
 
-        return @event;
+        return @CombagLogEventComponent;
     }
 
     public override string Name => _start.Name;
@@ -43,18 +43,18 @@ public class Trash : IFight
     public void Sort() => _events = _events.OrderBy(x => x.Id).ToList();
     public IList<CombatLogEvent> GetEvents() => _events;
     public virtual FightDescription GetDetails() => new(Name, Duration, _start.Timestamp, Result);
-    public bool IsEndEvent(IFightEnd @event) => @event is IFightEnd;
+    public bool IsEndEvent(IFightEnd @CombagLogEventComponent) => @CombagLogEventComponent is IFightEnd;
     public TimeSpan Duration => _end is null ? (_events.Last().Timestamp - _start.Timestamp) : TimeSpan.Zero;
     public string Name { get; set; }
     public string Result { get; } = string.Empty;
     public (long Start, long End) Range { get; set; }
     public FightDataDictionary CommonDataDictionary { get; } = new();
     public bool IsSuccess => true;
-    public CombatLogEvent AddEvent(CombatLogEvent @event)
+    public CombatLogEvent AddEvent(CombatLogEvent @CombagLogEventComponent)
     {
-        _events.Add(@event);
-        @event.Encounter = this;
-        return @event;
+        _events.Add(@CombagLogEventComponent);
+        @CombagLogEventComponent.Encounter = this;
+        return @CombagLogEventComponent;
     }
 }
 

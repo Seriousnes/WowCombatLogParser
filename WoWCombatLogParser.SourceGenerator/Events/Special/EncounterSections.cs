@@ -3,7 +3,7 @@ using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser.Common.Events;
 
-public abstract class EncounterFragment : Event
+public abstract class EncounterFragment : CombagLogEventComponent
 {
     public int EncounterId { get; set; }
     public string Name { get; set; }
@@ -28,7 +28,7 @@ public class EncounterEnd : EncounterFragment, IFightEnd, IFightEndSuccess
 }
 
 
-public abstract class LocationChange : Event
+public abstract class LocationChange : CombagLogEventComponent
 {
     public int LocationId { get; set; }
     public string Name { get; set; }

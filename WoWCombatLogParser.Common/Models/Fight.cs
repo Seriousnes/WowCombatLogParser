@@ -11,7 +11,7 @@ public partial interface IFight
     void Sort();
     FightDescription GetDetails();
     IList<CombatLogEvent> GetEvents();
-    CombatLogEvent AddEvent(CombatLogEvent @event);
+    CombatLogEvent AddEvent(CombatLogEvent @CombagLogEventComponent);
     (long Start, long End) Range { get; }
     bool IsEndEvent(IFightEnd type);
     FightDataDictionary CommonDataDictionary { get; }        
@@ -33,21 +33,21 @@ public abstract partial class Fight<TStart, TEnd> : IFight
         _events.Add(start);
     }
 
-    public virtual CombatLogEvent AddEvent(CombatLogEvent @event)
+    public virtual CombatLogEvent AddEvent(CombatLogEvent @CombagLogEventComponent)
     {
-        _events.Add(@event);
-        @event.Encounter = this;
-        if (@event is TEnd endEvent)
+        _events.Add(@CombagLogEventComponent);
+        @CombagLogEventComponent.Encounter = this;
+        if (@CombagLogEventComponent is TEnd endEvent)
         {
             _end = endEvent;
         }
-        return @event;
+        return @CombagLogEventComponent;
     }
 
     public virtual void Sort() => _events = _events.OrderBy(x => x.Id).ToList();
     public virtual IList<CombatLogEvent> GetEvents() => _events;
     public virtual FightDescription GetDetails() => new(Name, Duration, _start.Timestamp, Result);
-    public virtual bool IsEndEvent(IFightEnd @event) => typeof(TEnd).IsAssignableFrom(@event.GetType());
+    public virtual bool IsEndEvent(IFightEnd @CombagLogEventComponent) => typeof(TEnd).IsAssignableFrom(@CombagLogEventComponent.GetType());
     public virtual TimeSpan Duration => _end is null ? (_events.Last().Timestamp - _start.Timestamp) : TimeSpan.FromMilliseconds(_end.Duration);
     public abstract string Name { get; }
     public abstract string Result { get; }

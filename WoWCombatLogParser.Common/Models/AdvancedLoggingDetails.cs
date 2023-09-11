@@ -4,7 +4,7 @@ using WoWCombatLogParser.Common.Events;
 namespace WoWCombatLogParser.Common.Models;
 
 [DebuggerDisplay("{InfoGuid} {OwnerGuid} {UnitInfo} {Location} {Level}")]
-public class AdvancedLoggingDetails : Event, IAdvancedDetails
+public class AdvancedLoggingDetails : CombagLogEventComponent, IAdvancedDetails
 {
     public WowGuid InfoGuid { get; set; }
     public WowGuid OwnerGuid { get; set; }
@@ -14,14 +14,14 @@ public class AdvancedLoggingDetails : Event, IAdvancedDetails
 }
 
 [DebuggerDisplay("{AdvancedLoggingDetails} {Amount}")]
-public class AdvancedLoggingDetailsBase : Event
+public class AdvancedLoggingDetailsBase : CombagLogEventComponent
 {
     public AdvancedLoggingDetails AdvancedLoggingDetails { get; } = new AdvancedLoggingDetails();
     public decimal Amount { get; set; }
 }
 
 [DebuggerDisplay("{CurrentHP} {MaxHP} {AttackPower} {SpellPower} {Armor} {Absorb} {Power}")]
-public class UnitInfo : Event
+public class UnitInfo : CombagLogEventComponent
 {
     public int CurrentHP { get; set; }
     public int MaxHP { get; set; }
@@ -33,7 +33,7 @@ public class UnitInfo : Event
 }
 
 [DebuggerDisplay("{PowerType} {CurrentPower} {MaxPower} {PowerCost}")]
-public class Power : Event
+public class Power : CombagLogEventComponent
 {
     public PowerType PowerType { get; set; }
     public decimal CurrentPower { get; set; }
@@ -42,7 +42,7 @@ public class Power : Event
 }
 
 [DebuggerDisplay("{X} {Y} {MapId} {Facing}")]
-public class Location : Event
+public class Location : CombagLogEventComponent
 {
     public decimal X { get; set; }
     public decimal Y { get; set; }

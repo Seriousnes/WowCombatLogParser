@@ -7,9 +7,9 @@ namespace WoWCombatLogParser.Utility;
 
 public static class Extensions
 {
-    public static (bool Success, IEnumerator<IField> Enumerator, bool EndOfParent, bool Dispose) GetEnumeratorForProperty(this IEnumerator<IField> data)
+    public static (bool Success, IEnumerator<ICombatLogDataField> Enumerator, bool EndOfParent, bool Dispose) GetEnumeratorForProperty(this IEnumerator<ICombatLogDataField> data)
     {
-        if (data.Current is GroupField groupData)
+        if (data.Current is CombatLogDataFieldCollection groupData)
         {
             var enumerator = groupData.Children.GetEnumerator();
             return (enumerator.MoveNext(), enumerator, !data.MoveNext(), true);
@@ -52,13 +52,13 @@ public static class Extensions
         Difficulty.HeroicRaid => new DifficultyInfo { Name = "Heroic", Type = InstanceType.Raid },
         Difficulty.MythicRaid => new DifficultyInfo { Name = "Mythic", Type = InstanceType.Raid },
         Difficulty.LookingForRaid => new DifficultyInfo { Name = "Looking For Raid", Type = InstanceType.Raid },
-        Difficulty.Event_Raid => new DifficultyInfo { Name = "Event", Type = InstanceType.Raid },
-        Difficulty.Event_Party => new DifficultyInfo { Name = "Event", Type = InstanceType.Party },
-        Difficulty.EventScenario_Scenario => new DifficultyInfo { Name = "Event Scenario", Type = InstanceType.Scenario },
+        Difficulty.Event_Raid => new DifficultyInfo { Name = "CombagLogEventComponent", Type = InstanceType.Raid },
+        Difficulty.Event_Party => new DifficultyInfo { Name = "CombagLogEventComponent", Type = InstanceType.Party },
+        Difficulty.EventScenario_Scenario => new DifficultyInfo { Name = "CombagLogEventComponent Scenario", Type = InstanceType.Scenario },
         Difficulty.MythicDungeon => new DifficultyInfo { Name = "Mythic", Type = InstanceType.Party },
         Difficulty.WorldPvPScenario => new DifficultyInfo { Name = "World PvP Scenario", Type = InstanceType.Party },
         Difficulty.PvEvPScenario => new DifficultyInfo { Name = "PvEvP Scenario", Type = InstanceType.Scenario },
-        Difficulty.EventScenario => new DifficultyInfo { Name = "Event", Type = InstanceType.Scenario },
+        Difficulty.EventScenario => new DifficultyInfo { Name = "CombagLogEventComponent", Type = InstanceType.Scenario },
         Difficulty.WorldPvPScenario1 => new DifficultyInfo { Name = "World PvP Scenario", Type = InstanceType.Scenario },
         Difficulty.TimewalkingRaid => new DifficultyInfo { Name = "Timewalking", Type = InstanceType.Scenario },
         Difficulty.PvP => new DifficultyInfo { Name = "PvP", Type = InstanceType.Scenario },

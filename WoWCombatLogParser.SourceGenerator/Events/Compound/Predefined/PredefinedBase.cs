@@ -1,6 +1,6 @@
 ﻿namespace WoWCombatLogParser.Common.Events;
 
-public abstract class PredefinedBase : Event
+public abstract class PredefinedBase : CombagLogEventComponent
 {
 }
 

@@ -92,11 +92,11 @@ public class EventGenerator : IEventGenerator
 
     private static void SetupClassMap()
     {
-        var types = GetTypesWhere(i => i.GetCustomAttribute<AffixAttribute>() == null && i.IsSubclassOf(typeof(Event)) && !i.IsAbstract && !i.IsGenericType);
+        var types = GetTypesWhere(i => i.GetCustomAttribute<AffixAttribute>() == null && i.IsSubclassOf(typeof(CombagLogEventComponent)) && !i.IsAbstract && !i.IsGenericType);
         var classMaps = types
             .ToDictionary(key => key, value => new ClassMap
             {
-                Constructor = CombatLogEventActivator.GetActivator<Event>(value.GetConstructors().FirstOrDefault()),
+                Constructor = CombatLogEventActivator.GetActivator<CombagLogEventComponent>(value.GetConstructors().FirstOrDefault()),
                 Properties = value.GetTypePropertyInfo().ToList(),
                 CustomAttributes = value.GetCustomAttributes().ToList()
             })

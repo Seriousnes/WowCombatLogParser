@@ -8,11 +8,11 @@ using static WoWCombatLogParser.CombatLogFieldReader;
 
 namespace WoWCombatLogParser.Common.Models;
 
-public interface ICombatLogEvent : IEvent
+public interface ICombatLogEvent : ICombagLogEventComponent
 {
     int Id { get; }
     DateTime Timestamp { get; set; }
-    string Event { get; }
+    string CombagLogEventComponent { get; }
 }
 
 public interface ICombatantInfo

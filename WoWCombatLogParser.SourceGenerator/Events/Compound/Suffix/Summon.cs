@@ -3,6 +3,6 @@
 namespace WoWCombatLogParser.Common.Events;
 
 [Suffix("_SUMMON")]
-public class Summon : Event
+public class Summon : CombagLogEventComponent
 {
 }

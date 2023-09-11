@@ -5,7 +5,7 @@ namespace WoWCombatLogParser.Common.Events;
 
 [Suffix("_MISSED")]
 [DebuggerDisplay("{MissType} {IsOffHand} {AmountMissed} {Critical}")]
-public class Missed : Event
+public class Missed : CombagLogEventComponent
 {
     public MissType MissType { get; set; }
     public bool IsOffHand { get; set; }

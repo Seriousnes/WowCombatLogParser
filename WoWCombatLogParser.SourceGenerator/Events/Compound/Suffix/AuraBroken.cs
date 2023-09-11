@@ -3,7 +3,7 @@
 namespace WoWCombatLogParser.Common.Events;
 
 [Suffix("_AURA_BROKEN")]
-public class AuraBroken : Event, IAura
+public class AuraBroken : CombagLogEventComponent, IAura
 {
     public AuraType AuraType { get; set; }
 }

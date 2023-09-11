@@ -3,7 +3,7 @@ using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser.Common.Events;
 
-public abstract class CombatLogEvent : Event, ICombatLogEvent
+public abstract class CombatLogEvent : CombagLogEventComponent, ICombatLogEvent
 {
     private static int _count = 0;
 
@@ -16,7 +16,7 @@ public abstract class CombatLogEvent : Event, ICombatLogEvent
     public int Id { get; init; }
     public DateTime Timestamp { get; set; }
     [NonData]
-    public virtual string Event => GetType().Name;
+    public virtual string CombagLogEventComponent => GetType().Name;
     [NonData]
     public IFight Encounter { get; set; }
     [NonData]

@@ -7,19 +7,19 @@ using System.Text;
 
 namespace WoWCombatLogParser;
 
-public interface IField
+public interface ICombatLogDataField
 {
-    IField Parent { get; set; }
+    ICombatLogDataField Parent { get; set; }
     Range Range { get; set; }
 }
 
 
 [DebuggerDisplay("{ToString()}")]
-public class TextField : IField
+public class CombatLogTextField : ICombatLogDataField
 {
     private StringBuilder _text = new();
     public virtual string Content => _text.ToString();
-    public IField Parent { get; set; }
+    public ICombatLogDataField Parent { get; set; }
     public Range Range { get; set; } = Range.EmptyRange;
 
     public virtual void Append(string value) => _text.Append(value);
@@ -33,14 +33,14 @@ public class TextField : IField
 
     public override string ToString() => _text.ToString();
 
-    public static implicit operator string(TextField field)
+    public static implicit operator string(CombatLogTextField field)
     {
         return field.ToString();
     }
 }
 
 [DebuggerDisplay("{ToString()}")]
-public class QuotedTextField : TextField
+public class QuotedCombatLogTextField : CombatLogTextField
 {
     public override string ToString()
     {
@@ -49,7 +49,7 @@ public class QuotedTextField : TextField
 }
 
 [DebuggerDisplay("{ToString()}")]
-public class GroupField : IField
+public class CombatLogDataFieldCollection : ICombatLogDataField
 {
     private static readonly Dictionary<char, char> bracketPairs = new Dictionary<char, char>()
     {
@@ -59,7 +59,7 @@ public class GroupField : IField
     };
 
     private char openingBracket;
-    public IList<IField> Children { get; } = new List<IField>();
+    public IList<ICombatLogDataField> Children { get; } = new List<ICombatLogDataField>();
 
     public virtual char OpeningBracket
     {
@@ -71,10 +71,10 @@ public class GroupField : IField
         }
     }
     public virtual char ClosingBracket { get; private set; }
-    public IField Parent { get; set; }
+    public ICombatLogDataField Parent { get; set; }
     public Range Range { get; set; } = new Range(0, 0);
 
-    public virtual void AddChild(IField child)
+    public virtual void AddChild(ICombatLogDataField child)
     {
         child.Parent = this;
         Children.Add(child);

@@ -20,7 +20,7 @@ public class Damage : AdvancedLoggingDetailsBase, IDamage, IAdvancedLoggingDetai
 
 
 /// <remarks>
-/// Inherited events populate properties in order of inheritance. If this event inherits from Damage, it will populate the Damage properties before the advanced logging properties
+/// Inherited events populate properties in order of inheritance. If this CombagLogEventComponent inherits from Damage, it will populate the Damage properties before the advanced logging properties
 /// </remarks>
 [Suffix("_DAMAGE_LANDED")]
 [DebuggerDisplay("{Amount} {UnmitigatedAmount} {IsOverkill} {School} {Resisted} {Blocked} {Absorbed} {Critical} {Crushing} {IsOffHand}")]

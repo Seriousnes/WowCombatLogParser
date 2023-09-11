@@ -33,15 +33,15 @@ public static class Extensions
     public static List<PropertyInfo> GetTypePropertyInfo(this Type type)
     {
         var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(i => !i.HasCustomAttribute<NonDataAttribute>() && (i.PropertyType.IsSubclassOf(typeof(Event)) || i.CanWrite))
+            .Where(i => !i.HasCustomAttribute<NonDataAttribute>() && (i.PropertyType.IsSubclassOf(typeof(CombagLogEventComponent)) || i.CanWrite))
             .OrderBy(i => i.DeclaringType == type)
             .ToList();
         return properties;
     }
 
-    public static (bool Success, IEnumerator<IField> Enumerator, bool EndOfParent, bool Dispose) GetEnumeratorForProperty(this IEnumerator<IField> data)
+    public static (bool Success, IEnumerator<ICombatLogDataField> Enumerator, bool EndOfParent, bool Dispose) GetEnumeratorForProperty(this IEnumerator<ICombatLogDataField> data)
     {
-        if (data.Current is GroupField groupData)
+        if (data.Current is CombatLogDataFieldCollection groupData)
         {
             if (groupData.Children.Count > 0)
             {

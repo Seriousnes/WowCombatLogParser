@@ -63,25 +63,25 @@ public class CombatLogParser : ICombatLogParser
         IFight fight = null;
         foreach (var line in cr.ReadLines())
         {
-            var @event = ApplicationContext.EventGenerator.GetCombatLogEvent<CombatLogEvent>(line);
-            switch (@event)
+            var @CombagLogEventComponent = ApplicationContext.EventGenerator.GetCombatLogEvent<CombatLogEvent>(line);
+            switch (@CombagLogEventComponent)
             {
-                case IFightEnd end when @event is IFightEnd:
+                case IFightEnd end when @CombagLogEventComponent is IFightEnd:
                     if (fight != null && fight.IsEndEvent(end))
                     {
-                        fight.AddEvent(@event);
+                        fight.AddEvent(@CombagLogEventComponent);
                     }                    
                     yield return fight;
                     fight = null;
                     break;
-                case IFightStart start when @event is IFightStart:
-                    ParseAsync(@event).Wait();
+                case IFightStart start when @CombagLogEventComponent is IFightStart:
+                    ParseAsync(@CombagLogEventComponent).Wait();
                     fight = start.GetFight();
                     break;
                 case null:
                     break;
                 default:
-                    fight?.AddEvent(@event);
+                    fight?.AddEvent(@CombagLogEventComponent);
                     break;
             }
         }

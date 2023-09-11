@@ -4,7 +4,7 @@ using WoWCombatLogParser.Common.Events;
 namespace WoWCombatLogParser.Common.Models;
 
 [DebuggerDisplay("{Id}")]
-public abstract class IdPart<T> : Event
+public abstract class IdPart<T> : CombagLogEventComponent
 {
     public T Id { get; set; }
 }

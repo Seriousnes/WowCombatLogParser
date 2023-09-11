@@ -7,10 +7,10 @@ using System.Linq;
 
 namespace WoWCombatLogParser.Common.Events;
 
-public interface IEvent
+public interface ICombagLogEventComponent
 {
 }
 
-public abstract class Event : IEvent
+public abstract class CombagLogEventComponent : ICombagLogEventComponent
 {    
 }

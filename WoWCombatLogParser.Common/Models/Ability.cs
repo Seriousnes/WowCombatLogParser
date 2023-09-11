@@ -4,7 +4,7 @@ using WoWCombatLogParser.Common.Events;
 namespace WoWCombatLogParser.Common.Models;
 
 [DebuggerDisplay("{Id} {Name} {School}")]
-public class Ability : Event, IKey
+public class Ability : CombagLogEventComponent, IKey
 {
     [Key(3)]
     public int Id { get; set; }

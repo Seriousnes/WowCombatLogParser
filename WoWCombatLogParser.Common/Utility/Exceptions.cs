@@ -38,10 +38,10 @@ public class WowCombatlogParserPropertyException : WowCombatlogParserException
     {
     }
 
-    public WowCombatlogParserPropertyException(PropertyInfo property, IEvent @event, string message, Exception innerException = null) : base(message, innerException)
+    public WowCombatlogParserPropertyException(PropertyInfo property, ICombagLogEventComponent @CombagLogEventComponent, string message, Exception innerException = null) : base(message, innerException)
     {
         Property = property;
-        Event = @event;
+        CombagLogEventComponent = @CombagLogEventComponent;
     }
 
     protected WowCombatlogParserPropertyException(SerializationInfo info, StreamingContext context) : base(info, context)
@@ -49,5 +49,5 @@ public class WowCombatlogParserPropertyException : WowCombatlogParserException
     }
 
     public PropertyInfo Property { get; }
-    public IEvent Event { get; }
+    public ICombagLogEventComponent CombagLogEventComponent { get; }
 }

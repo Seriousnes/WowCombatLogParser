@@ -5,7 +5,7 @@ using WoWCombatLogParser.Common.Events;
 namespace WoWCombatLogParser.Common.Models;
 
 [DebuggerDisplay("{Id} {UnitName} {Flags} {RaidFlags}")]
-public class Unit : Event, IKey
+public class Unit : CombagLogEventComponent, IKey
 {
     private string _name;
     private string _server;

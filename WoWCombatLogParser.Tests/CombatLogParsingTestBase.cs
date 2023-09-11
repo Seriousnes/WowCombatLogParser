@@ -27,11 +27,11 @@ public class CombatLogParsingTestBase : ApplicationContext
 
     internal void OutputEncounterSumary(IFight fight)
     {
-        output.WriteLine($"Event Summary\n{new string('=', 35)}");
+        output.WriteLine($"CombagLogEventComponent Summary\n{new string('=', 35)}");
         output.WriteLine(fight.GetDetails().ToString());
         output.WriteLine(new string('-', 35));
         fight.GetEvents()
-            .GroupBy(x => x.Event)
+            .GroupBy(x => x.CombagLogEventComponent)
             .OrderBy(x => x.Key)
             .ToList()
             .ForEach(x => output.WriteLine($"{x.Key,-25}{x.Count(),10}"));
