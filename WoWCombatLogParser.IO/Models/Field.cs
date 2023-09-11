@@ -10,7 +10,6 @@ namespace WoWCombatLogParser;
 public interface ICombatLogDataField
 {
     ICombatLogDataField Parent { get; set; }
-    Range Range { get; set; }
 }
 
 
@@ -20,7 +19,6 @@ public class CombatLogTextField : ICombatLogDataField
     private StringBuilder _text = new();
     public virtual string Content => _text.ToString();
     public ICombatLogDataField Parent { get; set; }
-    public Range Range { get; set; } = Range.EmptyRange;
 
     public virtual void Append(string value) => _text.Append(value);
 
@@ -72,7 +70,6 @@ public class CombatLogDataFieldCollection : ICombatLogDataField
     }
     public virtual char ClosingBracket { get; private set; }
     public ICombatLogDataField Parent { get; set; }
-    public Range Range { get; set; } = new Range(0, 0);
 
     public virtual void AddChild(ICombatLogDataField child)
     {

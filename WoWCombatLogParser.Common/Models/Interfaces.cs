@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Events;
 using WoWCombatLogParser.Common.Utility;
-using static WoWCombatLogParser.CombatLogFieldReader;
+using static WoWCombatLogParser.IO.CombatLogFieldReader;
 
 namespace WoWCombatLogParser.Common.Models;
 

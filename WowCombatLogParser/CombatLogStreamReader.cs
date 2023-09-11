@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using WoWCombatLogParser.Common.Models;
-using static WoWCombatLogParser.CombatLogFieldReader;
+using static WoWCombatLogParser.IO.CombatLogFieldReader;
 
 namespace WoWCombatLogParser;
 

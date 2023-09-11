@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using WoWCombatLogParser.Common.Models;
 using WoWCombatLogParser.Common.Utility;
 using WoWCombatLogParser.Common.Events;
-using static WoWCombatLogParser.CombatLogFieldReader;
+using static WoWCombatLogParser.IO.CombatLogFieldReader;
 using System.Threading.Tasks;
 
 namespace WoWCombatLogParser;

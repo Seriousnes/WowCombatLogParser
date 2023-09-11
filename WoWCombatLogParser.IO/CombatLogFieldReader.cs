@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace WoWCombatLogParser;
+namespace WoWCombatLogParser.IO;
 
 public static class CombatLogFieldReader
 {
@@ -15,7 +15,6 @@ public static class CombatLogFieldReader
         var content = new List<ICombatLogDataField>();
         ICombatLogDataField field = null;
         int character;
-        int index = 0;
         while ((character = sr.Read()) != -1)
         {
             char c = (char)character;
@@ -31,7 +30,6 @@ public static class CombatLogFieldReader
                 int next;
                 if (c == '"' && ((next = sr.Peek()) == -1 || ((char)next).In(delimiters)))
                 {
-                    quotedField.Range.End = index - 1;
                     field = quotedField.Parent;
                 }
                 else
@@ -43,25 +41,22 @@ public static class CombatLogFieldReader
             {
                 if (c == '"' && hasFieldsEnclosedInQuotes)
                 {
-                    field = AddFieldToResults<QuotedCombatLogTextField>(index + 1, field, content);
+                    field = AddFieldToResults<QuotedCombatLogTextField>(field, content);
                 }
                 else
                 {
                     if (openingBrackets.Contains(c))
                     {
-                        var bracketField = AddFieldToResults<CombatLogDataFieldCollection>(index, field, content);
+                        var bracketField = AddFieldToResults<CombatLogDataFieldCollection>(field, content);
                         bracketField.OpeningBracket = c;
                         field = bracketField;
                     }
                     else if (field is CombatLogDataFieldCollection bracketField && bracketField.ClosingBracket == c)
                     {
                         field = bracketField.Parent;
-                        bracketField.Range.End = index;
                     }
                     else if (field is CombatLogTextField && field.Parent is CombatLogDataFieldCollection textFieldParent && textFieldParent.ClosingBracket == c)
                     {
-                        field.Range.End = index - 1;
-                        field.Parent.Range.End = index;
                         field = textFieldParent.Parent;
                     }
                     else
@@ -70,7 +65,6 @@ public static class CombatLogFieldReader
                         {
                             if (field != null && field is not CombatLogDataFieldCollection)
                             {
-                                field.Range.End = index - 1;
                                 field = field.Parent;
                             }
                         }
@@ -78,7 +72,7 @@ public static class CombatLogFieldReader
                         {
                             if (field is CombatLogDataFieldCollection || field is null)
                             {
-                                field = AddFieldToResults<CombatLogTextField>(index, field, content);
+                                field = AddFieldToResults<CombatLogTextField>(field, content);
                             }
 
                             ((CombatLogTextField)field).Append(c);
@@ -86,8 +80,6 @@ public static class CombatLogFieldReader
                     }
                 }
             }
-
-            index++;
         }
 
         return content;
@@ -99,9 +91,9 @@ public static class CombatLogFieldReader
         return new CombatLogLineData(ReadFields(sr));
     }
 
-    private static T AddFieldToResults<T>(int startIndex, ICombatLogDataField parent, IList<ICombatLogDataField> results) where T : ICombatLogDataField, new()
+    private static T AddFieldToResults<T>(ICombatLogDataField parent, IList<ICombatLogDataField> results) where T : ICombatLogDataField, new()
     {
-        T field = new() { Range = new Range(startIndex, 0) };
+        T field = new();
         if (parent is CombatLogDataFieldCollection bracketField)
         {
             bracketField.AddChild(field);
