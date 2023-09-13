@@ -43,7 +43,7 @@ public class DragonflightCombatantInfo : CombatantInfo, ICombatantInfo
     public PvPStats PvPStats { get; set; } = new PvPStats();
 }
 
-public class DragonflightTalent : CombagLogEventComponent
+public class DragonflightTalent : CombatLogEventComponent
 {
     public int Id { get; set; }
     public int Unknown { get; set; }

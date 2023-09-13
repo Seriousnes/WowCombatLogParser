@@ -3,7 +3,7 @@ using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser.Common.Events;
 
-public abstract class Cast : CombagLogEventComponent
+public abstract class Cast : CombatLogEventComponent
 {
 }
 

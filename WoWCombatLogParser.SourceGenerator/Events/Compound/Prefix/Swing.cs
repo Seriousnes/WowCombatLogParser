@@ -4,6 +4,6 @@ namespace WoWCombatLogParser.Common.Events;
 
 [Prefix("SWING")]
 [SuffixAllowed(typeof(Damage), typeof(DamageLanded), typeof(Missed))]
-public class Swing : CombagLogEventComponent
+public class Swing : CombatLogEventComponent
 {
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using WoWCombatLogParser.Common.Models;
@@ -32,8 +33,9 @@ public static class Conversion
         {
             return ConvertToEnum((string)value, type);
         }
+        var result = Convert.ChangeType(value, type);
 
-        return Convert.ChangeType(value, type);
+        return result;
     }
 
     public static T GetValue<T>(string value)
@@ -56,4 +58,6 @@ public static class Conversion
             return EnumExtensions.FromDescription(value, type);
         }
     }
+
+    public static Stopwatch Stopwatch { get; } = new Stopwatch();
 }

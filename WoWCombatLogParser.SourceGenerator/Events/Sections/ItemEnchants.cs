@@ -3,7 +3,7 @@
 namespace WoWCombatLogParser.Common.Events;
 
 [DebuggerDisplay("({PermanentEnchantId}) ({TempEnchantId}) ({OnUseSpellEnchantId})")]
-public class ItemEnchants : CombagLogEventComponent
+public class ItemEnchants : CombatLogEventComponent
 {
     public int PermanentEnchantId { get; set; }
     public int TempEnchantId { get; set; }

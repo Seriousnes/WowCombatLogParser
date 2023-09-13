@@ -12,7 +12,7 @@ public class CombatLogVersionEvent : CombatLogEvent
  
     public CombatLogVersionEvent() : base() { }
 
-    public CombatLogVersionEvent(string line, IApplicationContext applicationContext) : this()
+    public CombatLogVersionEvent(string line) : this()
     {
         var m = _eventTypeExpr.Match(line).Groups;
         Timestamp = Conversion.GetValue<DateTime>(m["timestamp"].Value);
@@ -20,7 +20,6 @@ public class CombatLogVersionEvent : CombatLogEvent
         AdvancedLogEnabled = Conversion.GetValue<bool>(m["advancedlogenabled"].Value);
         BuildVersion = m["buildversion"].Value;
         ProjectId = Conversion.GetValue<int>(m["projectid"].Value);
-        ApplicationContext = applicationContext;
     }
 
     public CombatLogVersion Version { get; set; }

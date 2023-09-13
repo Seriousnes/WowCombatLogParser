@@ -44,7 +44,7 @@ public class ShadowlandsCombatantInfo : CombatantInfo, ICombatantInfo
     public PvPStats PvPStats { get; set; } = new PvPStats();
 }
 
-public class Powers : CombagLogEventComponent
+public class Powers : CombatLogEventComponent
 {
     public Soulbind Soulbind { get; set; }
     public Covenant Covenant { get; set; }
@@ -57,7 +57,7 @@ public class Powers : CombagLogEventComponent
 }
 
 [DebuggerDisplay("{Id} @ {Count} (Maw Power ID: {MawPowerId})")]
-public class AnimaPower : CombagLogEventComponent
+public class AnimaPower : CombatLogEventComponent
 {
     public int Id { get; set; }
     public int MawPowerId { get; set; }

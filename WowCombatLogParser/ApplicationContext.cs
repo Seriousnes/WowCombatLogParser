@@ -4,6 +4,12 @@ using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser;
 
+public interface IApplicationContext
+{
+    ICombatLogParser CombatLogParser { get; set; }
+    IEventGenerator EventGenerator { get; set; }
+}
+
 public class ApplicationContext : IApplicationContext
 {
     private ICombatLogParser combatLogParser;

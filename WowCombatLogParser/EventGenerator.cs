@@ -9,6 +9,19 @@ using static WoWCombatLogParser.IO.CombatLogFieldReader;
 using System.Threading.Tasks;
 
 namespace WoWCombatLogParser;
+public partial interface IEventGenerator
+{
+    IApplicationContext ApplicationContext { get; set; }
+    CombatLogVersionEvent CombatLogVersionEvent { get; }
+    ClassMap GetClassMap(Type type);
+    void SetCombatLogVersion(string combatLogVersion);
+    List<string> GetRegisteredEventHandlers();
+    List<string> GetRegisteredClassMaps();
+    T GetCombatLogEvent<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent;
+    T GetCombatLogEvent<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent;
+    Task<T> GetCombatLogEventAsync<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent;
+    Task<T> GetCombatLogEventAsync<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent;
+}
 
 public class EventGenerator : IEventGenerator
 {
@@ -48,13 +61,19 @@ public class EventGenerator : IEventGenerator
 
     public async Task<T?> GetCombatLogEventAsync<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent
     {
-        var ctor = _ctors[CombatLogVersionEvent.Version, line.EventType];
+        var result = GetInstanceOf<T>(line.EventType);
+        if (result == null) return null;
+        await EventParser.ParseCombatLogEvent(result, line.Data, ApplicationContext.EventGenerator);
+        return result;
+    }
+
+    private T? GetInstanceOf<T>(string eventType) where T: class, ICombatLogEvent
+    {
+        var ctor = _ctors[CombatLogVersionEvent.Version, eventType];
         if (ctor == null) return null;
-        
+
         var result = (T)ctor();
         if (result == null) return null;
-        
-        await EventParser.ParseCombatLogEventAsync(result, line.Data, ApplicationContext.EventGenerator);
         return result;
     }
 
@@ -92,11 +111,11 @@ public class EventGenerator : IEventGenerator
 
     private static void SetupClassMap()
     {
-        var types = GetTypesWhere(i => i.GetCustomAttribute<AffixAttribute>() == null && i.IsSubclassOf(typeof(CombagLogEventComponent)) && !i.IsAbstract && !i.IsGenericType);
+        var types = GetTypesWhere(i => i.GetCustomAttribute<AffixAttribute>() == null && i.IsSubclassOf(typeof(CombatLogEventComponent)) && !i.IsAbstract && !i.IsGenericType);
         var classMaps = types
             .ToDictionary(key => key, value => new ClassMap
             {
-                Constructor = CombatLogEventActivator.GetActivator<CombagLogEventComponent>(value.GetConstructors().FirstOrDefault()),
+                Constructor = CombatLogEventActivator.GetActivator<CombatLogEventComponent>(value.GetConstructors().FirstOrDefault()),
                 Properties = value.GetTypePropertyInfo().ToList(),
                 CustomAttributes = value.GetCustomAttributes().ToList()
             })
@@ -125,7 +144,7 @@ public class EventGenerator : IEventGenerator
 
     public void SetCombatLogVersion(string combatLogVersion)
     {        
-        CombatLogVersionEvent = new CombatLogVersionEvent(combatLogVersion, ApplicationContext);
+        CombatLogVersionEvent = new CombatLogVersionEvent(combatLogVersion);
     }
 }
 

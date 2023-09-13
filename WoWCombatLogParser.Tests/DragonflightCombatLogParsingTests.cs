@@ -51,9 +51,9 @@ public class DragonflightCombatLogParsingTests : CombatLogParsingTestBase
     [InlineData(@"11/28 19:40:57.094  DAMAGE_SPLIT,Player-3725-0669E64A,""Formid - Frostmourne"",0x514,0x0,Player-3725-09FE7744,""Khalous - Frostmourne"",0x40514,0x0,6940,""Blessing of Sacrifice"",0x2,Player-3725-09FE7744,0000000000000000,67569,86120,2586,472,5346,0,0,9741,10000,0,76.88,-900.65,2001,0.0607,246,1302,0,-1,32,0,0,0,nil,nil,nil")]
     public void Test_EventsList(string input)
     {
-        var @CombagLogEventComponent = EventGenerator.GetCombatLogEvent<CombatLogEvent>(input);
+        var @CombatLogEventComponent = EventGenerator.GetCombatLogEvent<CombatLogEvent>(input);
 
-        switch (@CombagLogEventComponent)
+        switch (@CombatLogEventComponent)
         {
             case SpellCastSuccess spellCastSuccess:
                 break;
@@ -109,8 +109,8 @@ public class DragonflightCombatLogParsingTests : CombatLogParsingTestBase
     [InlineData(@"11/28 19:46:43.635  ENCOUNTER_END,2431,""Fatescribe Roh-Kalo"",15,14,1,404969", true)]
     public void Test_EncounterEnd(string input, bool success)
     {
-        var @CombagLogEventComponent = EventGenerator.GetCombatLogEvent<EncounterEnd>(input);
-        @CombagLogEventComponent.Success.Should().Be(success);
+        var @CombatLogEventComponent = EventGenerator.GetCombatLogEvent<EncounterEnd>(input);
+        @CombatLogEventComponent.Success.Should().Be(success);
     }
 
     [Theory]
@@ -119,17 +119,17 @@ public class DragonflightCombatLogParsingTests : CombatLogParsingTestBase
     [InlineData(typeof(SpellDamage), @"11/28 19:32:46.738  SPELL_DAMAGE,Player-3725-0BF357DA,""Koriz-Frostmourne"",0x514,0x0,Creature-0-5047-2450-26923-175730-0000234859,""Fatescribe Roh-Kalo"",0x10a48,0x0,285452,""Lava Burst"",0x4,Creature-0-5047-2450-26923-175730-0000234859,0000000000000000,18216931,20164970,0,0,1071,0,3,0,100,0,64.06,-904.28,2001,1.9476,63,8215,3816,-1,4,0,0,0,1,nil,nil")]
     public void Test_DamageSuffix(Type eventType, string input)
     {
-        var @CombagLogEventComponent = EventGenerator.GetCombatLogEventAsync<CombatLogEvent>(input).Result;
-        @CombagLogEventComponent.GetType().Should().Be(eventType);
+        var @CombatLogEventComponent = EventGenerator.GetCombatLogEventAsync<CombatLogEvent>(input).Result;
+        @CombatLogEventComponent.GetType().Should().Be(eventType);
     }
 
     [Theory]
     [InlineData(@"7/31 20:09:49.424  COMBATANT_INFO,Player-3725-0C203472,0,901,9196,26638,2192,0,0,0,1440,1440,1440,250,0,4827,4827,4827,699,4993,2122,2122,2122,5591,263,[(80938,101801,1),(80939,101802,1),(80940,101803,1),(80941,101804,1),(80942,101805,1),(80943,101806,2),(80956,101821,1),(80957,101822,2),(80958,101823,1),(80961,101826,2),(80971,101837,2),(80972,101838,1),(80975,101841,1),(81056,101944,1),(81057,101945,1),(81059,101947,1),(81062,101950,1),(81063,101951,1),(81064,101952,1),(81067,101956,1),(81068,101957,1),(81072,101963,1),(81074,101965,1),(81080,101973,1),(81081,101974,2),(81082,101976,1),(81084,101978,2),(81085,101979,1),(81086,101980,2),(81087,101981,2),(81088,101983,1),(81089,101984,2),(81102,102000,1),(81106,102004,1),(92682,114819,1),(81061,101949,1),(81060,101948,1),(80944,101808,1),(80945,101809,2),(80947,101811,1),(80948,101812,1),(80955,101820,1),(80963,101828,1),(80964,101829,2),(80965,101830,1),(80970,101836,1),(80953,101818,1),(80974,101840,1),(81071,101961,1),(81096,101994,1),(81097,101995,1),(81103,102001,1)],(0,355580,410673,289874),[(202470,441,(),(6652,9414,9229,9409,9334,1498,8767),()),(206180,437,(),(6652,9144,9477,8782,9329,1659,8767),(192958,415,192958,415,192958,415)),(202468,441,(),(6652,9227,9409,9334,1498,8767),()),(0,0,(),(),()),(202473,447,(6625,0,0),(40,9382,9231,1498),()),(193463,447,(),(8836,8840,8902,8960),(192958,415)),(202469,441,(6490,0,0),(6652,9228,9409,9334,1498,8767),()),(193421,447,(6607,0,0),(8836,8840,8902),()),(159356,441,(6574,0,0),(6652,9414,9223,9220,9144,9334,3311,8767),()),(193465,447,(),(8836,8840,8902,8960),()),(192999,447,(6562,0,0),(8836,8840,8902,8780),(192958,415)),(159463,447,(6562,0,0),(9382,6652,9144,3317,8767,9413),(192988,415)),(155881,447,(),(9382,6652,9144,3317,8767),()),(203729,441,(),(9409,6652,9334,1495,8767),()),(133245,441,(6592,0,0),(6652,9223,9220,9144,9334,9458,8767),()),(190513,447,(6643,5401,0),(8836,8840,8902),()),(190518,447,(6643,5400,0),(8836,8840,8902),()),(140579,40,(),(),())],[Player-3725-0C203472,396092,Player-3725-0C203472,411537,Player-3725-0C203472,371172,Player-3725-0C203472,2645,Player-3725-0BE25150,1459,Player-3725-0C1D8956,381756,Player-3725-0C047A40,1126,Player-3725-0BF2915B,6673],51,0,0,0")]
     public void Test_CombatantInfo(string input)
     {
-        var @CombagLogEventComponent = EventGenerator.GetCombatLogEvent<DragonflightCombatantInfo>(input);
+        var @CombatLogEventComponent = EventGenerator.GetCombatLogEvent<DragonflightCombatantInfo>(input);
         output.WriteLine("Interesting Auras on combatant");
-        foreach (var aura in @CombagLogEventComponent.InterestingAuras)
+        foreach (var aura in @CombatLogEventComponent.InterestingAuras)
         {
             output.WriteLine($"SpellId: {aura.AuraId}");
         }

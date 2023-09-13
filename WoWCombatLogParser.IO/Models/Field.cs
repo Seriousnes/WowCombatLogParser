@@ -16,20 +16,29 @@ public interface ICombatLogDataField
 [DebuggerDisplay("{ToString()}")]
 public class CombatLogTextField : ICombatLogDataField
 {
+    private ReadOnlyMemory<char> data;
     private StringBuilder _text = new();
-    public virtual string Content => _text.ToString();
+
+    public virtual string Content => ToString();
+
     public ICombatLogDataField Parent { get; set; }
 
     public virtual void Append(string value) => _text.Append(value);
 
     public virtual void Append(char value)
     {
-        if (value == '{') Append("{");
-        if (value == '}') Append("}");
-        Append(value.ToString());
+        if (value.In('{', '}'))
+            _text.Append(value);
+        _text.Append(value);
     }
 
-    public override string ToString() => _text.ToString();
+    public virtual void Finalise()
+    {
+        data = _text.ToString().AsMemory();
+        _text = null;
+    }
+
+    public override string ToString() => data.ToString();
 
     public static implicit operator string(CombatLogTextField field)
     {

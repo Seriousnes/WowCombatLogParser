@@ -2,7 +2,7 @@
 
 namespace WoWCombatLogParser.Common.Events;
 
-public class InterestingAura : CombagLogEventComponent
+public class InterestingAura : CombatLogEventComponent
 {
     public WowGuid PlayerId { get; set; }
     public int AuraId { get; set; }

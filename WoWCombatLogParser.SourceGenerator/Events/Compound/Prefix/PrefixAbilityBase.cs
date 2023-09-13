@@ -2,7 +2,7 @@
 
 namespace WoWCombatLogParser.Common.Events;
 
-public abstract class PrefixAbilityBase : CombagLogEventComponent
+public abstract class PrefixAbilityBase : CombatLogEventComponent
 {
     public Ability Spell { get; set; } = new();
 }

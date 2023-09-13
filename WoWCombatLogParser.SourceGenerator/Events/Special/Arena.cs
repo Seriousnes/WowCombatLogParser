@@ -3,7 +3,7 @@
 namespace WoWCombatLogParser.Common.Events;
 
 [Affix("ARENA_MATCH_START")]
-public class ArenaMatchStart : CombagLogEventComponent, IFightStart
+public class ArenaMatchStart : CombatLogEventComponent, IFightStart
 {
     public int InstanceId { get; set; }
     public object UnknownProperty1 { get; set; }
@@ -12,7 +12,7 @@ public class ArenaMatchStart : CombagLogEventComponent, IFightStart
 }
 
 [Affix("ARENA_MATCH_END")]
-public class ArenaMatchEnd : CombagLogEventComponent, IFightEnd
+public class ArenaMatchEnd : CombatLogEventComponent, IFightEnd
 {
     public int WinningTeam { get; set; }
     public int Duration { get; set; }

@@ -33,7 +33,7 @@ public static class Extensions
     public static List<PropertyInfo> GetTypePropertyInfo(this Type type)
     {
         var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(i => !i.HasCustomAttribute<NonDataAttribute>() && (i.PropertyType.IsSubclassOf(typeof(CombagLogEventComponent)) || i.CanWrite))
+            .Where(i => !i.HasCustomAttribute<NonDataAttribute>() && (i.PropertyType.IsSubclassOf(typeof(CombatLogEventComponent)) || i.CanWrite))
             .OrderBy(i => i.DeclaringType == type)
             .ToList();
         return properties;

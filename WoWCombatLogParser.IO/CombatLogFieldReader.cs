@@ -13,24 +13,21 @@ public static class CombatLogFieldReader
     private static IList<ICombatLogDataField> ReadFields(StringReader sr)
     {
         var content = new List<ICombatLogDataField>();
-        ICombatLogDataField field = null;
+        ICombatLogDataField currentField = null;
         int character;
         while ((character = sr.Read()) != -1)
         {
             char c = (char)character;
 
-            if (c == SPACE && sr.Peek() == SPACE)
-            {
-                sr.Read();
+            if (c == SPACE && sr.Peek() == SPACE && sr.Read() > 0)
                 c = ',';
-            }
 
-            if (field is QuotedCombatLogTextField quotedField)
+            if (currentField is QuotedCombatLogTextField quotedField)
             {
                 int next;
                 if (c == '"' && ((next = sr.Peek()) == -1 || ((char)next).In(delimiters)))
                 {
-                    field = quotedField.Parent;
+                    currentField = quotedField.Parent;
                 }
                 else
                 {
@@ -41,41 +38,41 @@ public static class CombatLogFieldReader
             {
                 if (c == '"' && hasFieldsEnclosedInQuotes)
                 {
-                    field = AddFieldToResults<QuotedCombatLogTextField>(field, content);
+                    currentField = AddFieldToResults<QuotedCombatLogTextField>(currentField, content);
                 }
                 else
                 {
                     if (openingBrackets.Contains(c))
                     {
-                        var bracketField = AddFieldToResults<CombatLogDataFieldCollection>(field, content);
+                        var bracketField = AddFieldToResults<CombatLogDataFieldCollection>(currentField, content);
                         bracketField.OpeningBracket = c;
-                        field = bracketField;
+                        currentField = bracketField;
                     }
-                    else if (field is CombatLogDataFieldCollection bracketField && bracketField.ClosingBracket == c)
+                    else if (currentField is CombatLogDataFieldCollection bracketField && bracketField.ClosingBracket == c)
                     {
-                        field = bracketField.Parent;
+                        currentField = bracketField.Parent;
                     }
-                    else if (field is CombatLogTextField && field.Parent is CombatLogDataFieldCollection textFieldParent && textFieldParent.ClosingBracket == c)
+                    else if (currentField is CombatLogTextField && currentField.Parent is CombatLogDataFieldCollection textFieldParent && textFieldParent.ClosingBracket == c)
                     {
-                        field = textFieldParent.Parent;
+                        currentField = textFieldParent.Parent;
                     }
                     else
                     {
                         if (c.In(delimiters))
                         {
-                            if (field != null && field is not CombatLogDataFieldCollection)
-                            {
-                                field = field.Parent;
-                            }
+                            if (currentField is CombatLogTextField textField)
+                                textField.Finalise();
+                            if (currentField != null && currentField is not CombatLogDataFieldCollection)
+                                currentField = currentField.Parent;
                         }
                         else
                         {
-                            if (field is CombatLogDataFieldCollection || field is null)
+                            if (currentField is CombatLogDataFieldCollection || currentField is null)
                             {
-                                field = AddFieldToResults<CombatLogTextField>(field, content);
+                                currentField = AddFieldToResults<CombatLogTextField>(currentField, content);
                             }
 
-                            ((CombatLogTextField)field).Append(c);
+                            ((CombatLogTextField)currentField).Append(c);
                         }
                     }
                 }

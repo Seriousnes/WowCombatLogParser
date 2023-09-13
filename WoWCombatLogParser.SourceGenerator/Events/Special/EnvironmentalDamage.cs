@@ -4,7 +4,7 @@ using WoWCombatLogParser.Common.Models;
 namespace WoWCombatLogParser.SourceGenerator.Events.Special;
 
 [Affix("ENVIRONMENTAL_DAMAGE")]
-public class EnvironmentalDamage : CombagLogEventComponent, IDamage, IAdvancedLoggingDetails
+public class EnvironmentalDamage : CombatLogEventComponent, IDamage, IAdvancedLoggingDetails
 {
     public Unit Source { get; set; } = new();
     public Unit Destination { get; set; } = new();

@@ -21,14 +21,14 @@ public class EventSourceGenerator : ISourceGenerator
     private static Dictionary<Type, IList<string>> defaultInheritance = new Dictionary<Type, IList<string>>
     {
         { typeof(CompoundEventSection), new[] { "CombatLogEvent", "ICombatLogEvent", "IAction" }},
-        { typeof(CombagLogEventComponent), new[] { "CombatLogEvent", "ICombatLogEvent" }}
+        { typeof(CombatLogEventComponent), new[] { "CombatLogEvent", "ICombatLogEvent" }}
     };
 
     public void Execute(GeneratorExecutionContext context)
     {
         var sections = Assembly.GetExecutingAssembly()
             .GetTypes()
-            .Where(x => x.IsSubclassOf(typeof(CombagLogEventComponent)) && !x.IsAbstract/* && !x.IsGenericType*/);
+            .Where(x => x.IsSubclassOf(typeof(CombatLogEventComponent)) && !x.IsAbstract/* && !x.IsGenericType*/);
 
         var events = Assembly.GetExecutingAssembly()
             .GetTypes()
@@ -68,7 +68,7 @@ public class EventSourceGenerator : ISourceGenerator
                     }
                     else
                     {
-                        generatedItem = GenerateSourceText<CombagLogEventComponent>(
+                        generatedItem = GenerateSourceText<CombatLogEventComponent>(
                             types: new[] { affix.EventType },
                             @namespace: "WoWCombatLogParser.Events",
                             usings: new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Sections" });
@@ -82,7 +82,7 @@ public class EventSourceGenerator : ISourceGenerator
             .ToList()
             .ForEach(s =>
             {
-                var generatedItem = GenerateSourceText(new[] { s }, null, "WoWCombatLogParser.Sections", new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Events" }, new[] { "CombagLogEventComponent" }, false);
+                var generatedItem = GenerateSourceText(new[] { s }, null, "WoWCombatLogParser.Sections", new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Events" }, new[] { "CombatLogEventComponent" }, false);
                 context.AddSource(generatedItem.name, generatedItem.source);
             });
     }
@@ -110,7 +110,7 @@ namespace {@namespace}
 }}", Encoding.UTF8));
     }
 
-    private (string name, SourceText source) GenerateSourceText<T>(Type[] types, string @namespace = null, IList<string> usings = null, bool generateAdditionalConstructor = true) where T : CombagLogEventComponent
+    private (string name, SourceText source) GenerateSourceText<T>(Type[] types, string @namespace = null, IList<string> usings = null, bool generateAdditionalConstructor = true) where T : CombatLogEventComponent
     {
         return GenerateSourceText(types, typeof(T).GetTypePropertyInfo(), @namespace, usings, defaultInheritance.TryGetValue(typeof(T), out var inheritsFrom) ? inheritsFrom : null, generateAdditionalConstructor);
     }
@@ -241,7 +241,7 @@ public static class EventSourceGeneratorExtensions
             value += $" {{{(property.CanRead ? " get;" : "")}{(property.CanWrite ? " set;" : "")} }}";
         }
 
-        if (property.PropertyType.IsSubclassOf(typeof(CombagLogEventComponent)) || (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>)))
+        if (property.PropertyType.IsSubclassOf(typeof(CombatLogEventComponent)) || (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>)))
         {
             value += " = new();";
         }

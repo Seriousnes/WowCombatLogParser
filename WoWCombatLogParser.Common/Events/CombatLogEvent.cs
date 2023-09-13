@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser.Common.Events;
 
-public abstract class CombatLogEvent : CombagLogEventComponent, ICombatLogEvent
+public abstract class CombatLogEvent : CombatLogEventComponent, ICombatLogEvent
 {
     private static int _count = 0;
 
@@ -16,9 +20,5 @@ public abstract class CombatLogEvent : CombagLogEventComponent, ICombatLogEvent
     public int Id { get; init; }
     public DateTime Timestamp { get; set; }
     [NonData]
-    public virtual string CombagLogEventComponent => GetType().Name;
-    [NonData]
-    public IFight Encounter { get; set; }
-    [NonData]
-    public IApplicationContext ApplicationContext { get; set; }
+    public virtual string Name => GetType().Name;    
 }

@@ -10,7 +10,7 @@ namespace WoWCombatLogParser;
 
 public static class EventParser
 {
-    public static async Task ParseCombatLogEventAsync<T>(T instance, IList<ICombatLogDataField> data, IEventGenerator generator) where T : class, ICombagLogEventComponent
+    public static async Task ParseCombatLogEvent<T>(T instance, IList<ICombatLogDataField> data, IEventGenerator generator) where T : class, ICombatLogEventComponent
     {
         var classMap = generator.GetClassMap(instance.GetType());
         if (classMap.CustomAttributes.OfType<KeyValuePairAttribute>().Any())
@@ -20,21 +20,20 @@ public static class EventParser
         var flatMap = new List<InstancePropertyInfo>();
         GetCombatLogEventProperties(classMap, flatMap, instance, generator);
         var actions = flatMap.Zip(data, (p, f) => new Action(() => SetPropertyValue(p, f, generator))).ToList();
-
         actions.ForEach(action => action());
     }    
 
-    private static void GetCombatLogEventProperties(ClassMap classMap, List<InstancePropertyInfo> values, ICombagLogEventComponent @CombagLogEventComponent, IEventGenerator generator)
+    private static void GetCombatLogEventProperties(ClassMap classMap, List<InstancePropertyInfo> values, ICombatLogEventComponent combatLogEventComponent, IEventGenerator generator)
     {
         foreach (var prop in classMap.Properties)
         {
             if (prop.HasCustomAttribute<IsSingleDataFieldAttribute>() || prop.IsGenericList())
             {
-                values.Add(new InstancePropertyInfo(@CombagLogEventComponent, prop));
+                values.Add(new InstancePropertyInfo(combatLogEventComponent, prop));
             }
-            else if (typeof(ICombagLogEventComponent).IsAssignableFrom(prop.PropertyType))
+            else if (typeof(ICombatLogEventComponent).IsAssignableFrom(prop.PropertyType))
             {
-                if (prop.GetValue(@CombagLogEventComponent) is CombagLogEventComponent nestedEvent)
+                if (prop.GetValue(combatLogEventComponent) is CombatLogEventComponent nestedEvent)
                 {
                     var nestedClassMap = generator.GetClassMap(nestedEvent.GetType());
                     GetCombatLogEventProperties(nestedClassMap, values, nestedEvent, generator);
@@ -42,7 +41,7 @@ public static class EventParser
             }
             else
             {
-                values.Add(new InstancePropertyInfo(@CombagLogEventComponent, prop));
+                values.Add(new InstancePropertyInfo(combatLogEventComponent, prop));
             }
         } 
     }
@@ -57,10 +56,10 @@ public static class EventParser
         {
             if (data is CombatLogDataFieldCollection CombatLogDataFieldCollection)
             {
-                var instance = _this.GetPropertyInstance<ICombagLogEventComponent>();
+                var instance = _this.GetPropertyInstance<ICombatLogEventComponent>();
                 if (instance != null)
                 {
-                    ParseCombatLogEventAsync(instance, CombatLogDataFieldCollection.Children, generator).Wait();
+                    ParseCombatLogEvent(instance, CombatLogDataFieldCollection.Children, generator).Wait();
                 }
             }
             else
@@ -68,6 +67,17 @@ public static class EventParser
                 _this.Property.SetValue(_this.Instance, Conversion.GetValue(data, _this.Property.PropertyType));
             }
         }        
+    }
+
+    internal static async Task ParseMinimal<T>(T unparsedEvent, IList<ICombatLogDataField> data, IEventGenerator generator) where T : class, ICombatLogEventComponent
+    {
+        var propertiesToParse = generator.GetClassMap(unparsedEvent.GetType()).Properties
+            .Take(2)
+            .Select(p => new InstancePropertyInfo(unparsedEvent, p))
+            .Zip(data, (p, f) => new Task(() => SetPropertyValue(p, f, generator)))
+            .ToList();
+
+        await Parallel.ForEachAsync(propertiesToParse, async (task, ct) => await task.WaitAsync(ct));
     }
 
     private static async Task SetListValue(InstancePropertyInfo _this, ICombatLogDataField data, IEventGenerator generator)
@@ -90,14 +100,14 @@ public static class EventParser
 
         foreach (var field in listData) 
         {
-            var item = (ICombagLogEventComponent)classMap.Constructor();
+            var item = (ICombatLogEventComponent)classMap.Constructor();
             if (field is CombatLogDataFieldCollection listItemData)
             {
-                await ParseCombatLogEventAsync(item, listItemData.Children, generator);
+                await ParseCombatLogEvent(item, listItemData.Children, generator);
             }
             else
             {
-                await ParseCombatLogEventAsync(item, new[] { field }, generator);
+                await ParseCombatLogEvent(item, new[] { field }, generator);
             }
                 
             addMethod?.Invoke(instance, new[] { item });

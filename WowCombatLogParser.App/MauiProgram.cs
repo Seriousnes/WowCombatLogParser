@@ -2,6 +2,7 @@
 using MudBlazor.Services;
 using WoWCombatLogParser;
 using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.Models;
 
 namespace WowCombatLogParser.App;
 

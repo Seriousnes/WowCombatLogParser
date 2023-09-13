@@ -4,6 +4,7 @@ using WoWCombatLogParser.Common.Models;
 using WoWCombatLogParser.Common.Events;
 using Xunit;
 using System;
+using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Tests;
 
@@ -27,11 +28,11 @@ public class CombatLogParsingTestBase : ApplicationContext
 
     internal void OutputEncounterSumary(IFight fight)
     {
-        output.WriteLine($"CombagLogEventComponent Summary\n{new string('=', 35)}");
+        output.WriteLine($"CombatLogEventComponent Summary\n{new string('=', 35)}");
         output.WriteLine(fight.GetDetails().ToString());
         output.WriteLine(new string('-', 35));
         fight.GetEvents()
-            .GroupBy(x => x.CombagLogEventComponent)
+            .GroupBy(x => x.Name)
             .OrderBy(x => x.Key)
             .ToList()
             .ForEach(x => output.WriteLine($"{x.Key,-25}{x.Count(),10}"));

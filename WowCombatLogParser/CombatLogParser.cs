@@ -8,6 +8,15 @@ using WoWCombatLogParser.Utility;
 
 namespace WoWCombatLogParser;
 
+public interface ICombatLogParser
+{
+    IApplicationContext ApplicationContext { get; set; }
+    string Filename { get; set; }
+    IEnumerable<IFight> Scan(bool quickScan = false);
+    void Stop();
+    void Watch(params FileSystemEventHandler[] fileChanged);
+}
+
 public class CombatLogParser : ICombatLogParser
 {
     private FileSystemWatcher _file;
@@ -60,72 +69,30 @@ public class CombatLogParser : ICombatLogParser
             yield break;
 
         using var cr = new CombatLogStreamReader(_filename, ApplicationContext);
-        IFight fight = null;
+        IFight? fight = null;
         foreach (var line in cr.ReadLines())
         {
-            var @CombagLogEventComponent = ApplicationContext.EventGenerator.GetCombatLogEvent<CombatLogEvent>(line);
-            switch (@CombagLogEventComponent)
+            var combatLogEvent = ApplicationContext.EventGenerator.GetCombatLogEvent<CombatLogEvent>(line);
+            switch (combatLogEvent)
             {
-                case IFightEnd end when @CombagLogEventComponent is IFightEnd:
-                    if (fight != null && fight.IsEndEvent(end))
+                case IFightEnd end when combatLogEvent is IFightEnd:
+                    if (fight is { })
                     {
-                        fight.AddEvent(@CombagLogEventComponent);
-                    }                    
-                    yield return fight;
+                        if (fight.IsEndEvent(end))
+                            fight.AddEvent(combatLogEvent);
+                        yield return fight;
+                    }                                        
                     fight = null;
                     break;
-                case IFightStart start when @CombagLogEventComponent is IFightStart:
-                    ParseAsync(@CombagLogEventComponent).Wait();
+                case IFightStart start when combatLogEvent is IFightStart:
                     fight = start.GetFight();
                     break;
                 case null:
                     break;
                 default:
-                    fight?.AddEvent(@CombagLogEventComponent);
+                    fight?.AddEvent(combatLogEvent);
                     break;
             }
         }
-    }
-
-    public void Parse(IFight encounter)
-    {
-        foreach (var combatLogEvent in encounter.GetEvents())
-        {
-        }
-    }
-
-    public void Parse(IEnumerable<IFight> encounters)
-    {
-        foreach (var encounter in encounters)
-            Parse(encounter);
-    }
-
-    public async Task ParseAsync(ICombatLogEvent combatLogEvent, IFight encounter = null) => 
-        await Task.Run(() => { });
-
-    public async Task ParseAsync(IFight encounter) => 
-        await Parallel.ForEachAsync(
-            encounter.GetEvents(),                
-            async (c, _) => await ParseAsync(c, encounter));
-
-    public async Task ParseAsync(IEnumerable<IFight> encounters)
-    {
-        await Parallel.ForEachAsync(encounters, async (e, _) => await ParseAsync(e));
-    }
-
-    private void SetupEventGenerator(StreamReader sr, bool resetToCurrentPosition = true)
-    {
-        var currentPosition = sr.BaseStream.Position;
-        sr.BaseStream.Position = 0;
-
-        string line = sr.ReadLine();
-        if (line != null)
-        {
-            ApplicationContext.EventGenerator = new EventGenerator() { ApplicationContext = ApplicationContext };
-            ApplicationContext.EventGenerator.SetCombatLogVersion(line);
-        }
-
-        if (resetToCurrentPosition)
-            sr.BaseStream.Position = currentPosition;
     }
 }
