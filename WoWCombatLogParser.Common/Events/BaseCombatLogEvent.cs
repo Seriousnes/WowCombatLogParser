@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser.Common.Events;
 
-public abstract class CombatLogEvent : CombatLogEventComponent, ICombatLogEvent
+public abstract class BaseCombatLogEvent : CombatLogEventComponent, ICombatLogEvent
 {
     private static int _count = 0;
 
-    public CombatLogEvent()
+    public BaseCombatLogEvent()
     {
         Id = ++_count;
     }

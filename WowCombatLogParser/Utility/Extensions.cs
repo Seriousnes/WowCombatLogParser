@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Threading.Tasks;
-using WoWCombatLogParser.Common.Events;
 using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser.Utility;

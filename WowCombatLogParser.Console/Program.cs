@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using WoWCombatLogParser;
+using WoWCombatLogParser.Parser;
 
 namespace WowCombatLogParser.App;
 
@@ -14,22 +14,8 @@ internal class Program
             .Select(x => new FileInfo(x))
             .OrderByDescending(x => x.LastAccessTime)
             .Select(x => x.FullName)
-            .First();
+            .First();        
 
-        var sw = new Stopwatch();            
-        sw.Start();
 
-        //using var fs = new FileStream(log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-        
-        context.CombatLogParser.Filename = log;
-        var fights = context.CombatLogParser.Scan(true);
-        var firstKill = fights.FirstOrDefault(x => x is Boss && x.IsSuccess);
-
-        //var events = parser.GetCombatLogEvents();
-        //Console.WriteLine($"{events.Count()} scanned.");
-        
-        sw.Stop();
-        Console.WriteLine($"Time taken: {sw.Elapsed}");
-        Console.ReadKey();
     }
 }

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
-using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.IO;
 using static WoWCombatLogParser.IO.CombatLogFieldReader;
 
-namespace WoWCombatLogParser;
+namespace WoWCombatLogParser.Parser;
 
 internal class CombatLogStreamReader : IDisposable
 {
@@ -23,7 +23,7 @@ internal class CombatLogStreamReader : IDisposable
         while ((line = _reader?.ReadLine()) != null)
             yield return ReadFields(line);
     }
-    
+
     public void SetFilename(string filename)
     {
         Close();

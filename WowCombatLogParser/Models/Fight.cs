@@ -13,7 +13,6 @@ public interface IFight
     CombatLogEvent AddEvent(CombatLogEvent combatLogEvent);
     (long Start, long End) Range { get; }
     bool IsEndEvent(IFightEnd type);
-    FightDataDictionary CommonDataDictionary { get; }
     string Name { get; }
     bool IsSuccess { get; }
 }
@@ -49,7 +48,6 @@ public abstract partial class Fight<TStart, TEnd> : IFight
     public abstract string Name { get; }
     public abstract string Result { get; }
     public virtual (long Start, long End) Range { get; set; }
-    public virtual FightDataDictionary CommonDataDictionary { get; } = new();
     public abstract bool IsSuccess { get; }
 }
 
@@ -118,7 +116,6 @@ public class Trash : IFight
     public string Name { get; set; }
     public string Result { get; } = string.Empty;
     public (long Start, long End) Range { get; set; }
-    public FightDataDictionary CommonDataDictionary { get; } = new();
     public bool IsSuccess => true;
     public CombatLogEvent AddEvent(CombatLogEvent combatLogEvent)
     {

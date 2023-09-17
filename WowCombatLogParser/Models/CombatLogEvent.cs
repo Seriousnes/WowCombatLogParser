@@ -1,16 +1,29 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Events;
 using WoWCombatLogParser.Common.Models;
 using WoWCombatLogParser.Common.Utility;
+using WoWCombatLogParser.Parser;
+using static WoWCombatLogParser.IO.CombatLogFieldReader;
 
-namespace WoWCombatLogParser;
+namespace WoWCombatLogParser.Models;
 
-public static class EventParser
+public abstract class CombatLogEvent : BaseCombatLogEvent, IParsable
 {
-    public static async Task ParseCombatLogEvent<T>(T instance, IList<ICombatLogDataField> data, IEventGenerator generator) where T : class, ICombatLogEventComponent
+    public IApplicationContext ApplicationContext { get; set; }
+
+    public async Task Parse(IList<ICombatLogDataField> data)
+    {
+        await ParseCombatLogEvent(this, data, ApplicationContext.EventGenerator);
+    }
+
+    public async Task Parse(string line)
+    {
+        await ParseCombatLogEvent(this, ReadFields(line).Data, ApplicationContext.EventGenerator);
+    }
+
+    private static async Task ParseCombatLogEvent<T>(T instance, IList<ICombatLogDataField> data, IEventGenerator generator) where T : class, ICombatLogEventComponent
     {
         var classMap = generator.GetClassMap(instance.GetType());
         if (classMap.CustomAttributes.OfType<KeyValuePairAttribute>().Any())
@@ -21,7 +34,7 @@ public static class EventParser
         GetCombatLogEventProperties(classMap, flatMap, instance, generator);
         var actions = flatMap.Zip(data, (p, f) => new Action(() => SetPropertyValue(p, f, generator))).ToList();
         actions.ForEach(action => action());
-    }    
+    }
 
     private static void GetCombatLogEventProperties(ClassMap classMap, List<InstancePropertyInfo> values, ICombatLogEventComponent combatLogEventComponent, IEventGenerator generator)
     {
@@ -43,7 +56,7 @@ public static class EventParser
             {
                 values.Add(new InstancePropertyInfo(combatLogEventComponent, prop));
             }
-        } 
+        }
     }
 
     private static void SetPropertyValue(InstancePropertyInfo _this, ICombatLogDataField data, IEventGenerator generator)
@@ -66,10 +79,10 @@ public static class EventParser
             {
                 _this.Property.SetValue(_this.Instance, Conversion.GetValue(data, _this.Property.PropertyType));
             }
-        }        
+        }
     }
 
-    internal static async Task ParseMinimal<T>(T unparsedEvent, IList<ICombatLogDataField> data, IEventGenerator generator) where T : class, ICombatLogEventComponent
+    internal async Task ParseMinimal<T>(T unparsedEvent, IList<ICombatLogDataField> data, IEventGenerator generator) where T : class, ICombatLogEventComponent
     {
         var propertiesToParse = generator.GetClassMap(unparsedEvent.GetType()).Properties
             .Take(2)
@@ -98,7 +111,7 @@ public static class EventParser
         if (_this.Property.HasCustomAttribute<KeyValuePairAttribute>())
             listData = CollateKeyValuePairs(listData);
 
-        foreach (var field in listData) 
+        foreach (var field in listData)
         {
             var item = (ICombatLogEventComponent)classMap.Constructor();
             if (field is CombatLogDataFieldCollection listItemData)
@@ -109,7 +122,7 @@ public static class EventParser
             {
                 await ParseCombatLogEvent(item, new[] { field }, generator);
             }
-                
+
             addMethod?.Invoke(instance, new[] { item });
         }
     }
@@ -121,24 +134,11 @@ public static class EventParser
             .GroupBy(x => x.Index / 2)
             .Select(x =>
             {
-                var group = new CombatLogDataFieldCollection { OpeningBracket = '[', };                
+                var group = new CombatLogDataFieldCollection { OpeningBracket = '[', };
                 x.Select(x => x.Value).ToList().ForEach(x => group.AddChild(x));
                 return (ICombatLogDataField)group;
             })
             .ToList();
         return result;
     }
-}
-
-internal class InstancePropertyInfo
-{
-    public InstancePropertyInfo(object instance, PropertyInfo propertyInfo)
-    {
-        Instance = instance;
-        Property = propertyInfo;
-    }
-
-    public object Instance { get; set; }
-    public PropertyInfo Property { get; set; }
-    public T? GetPropertyInstance<T>() => (T?)Property.GetValue(Instance);
 }

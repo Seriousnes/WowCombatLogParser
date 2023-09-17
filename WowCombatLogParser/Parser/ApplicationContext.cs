@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 using System.Reflection;
-using WoWCombatLogParser.Common.Models;
 
-namespace WoWCombatLogParser;
+namespace WoWCombatLogParser.Parser;
 
 public interface IApplicationContext
 {
@@ -47,7 +46,7 @@ public class ApplicationContext : IApplicationContext
             eventGenerator = value;
             eventGenerator.ApplicationContext = this;
         }
-    }        
+    }
 
     private static IMapper InitializeMapper()
     {

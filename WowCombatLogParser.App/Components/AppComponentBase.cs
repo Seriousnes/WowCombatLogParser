@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using WoWCombatLogParser;
+using WoWCombatLogParser.Parser;
 
 namespace WowCombatLogParser.App.Components;
 

@@ -174,7 +174,7 @@ using WoWCombatLogParser.Common.Events;
             GetAffix(types), 
             GetApplicableCombatLogVersion(types),    
             GetDataFieldAttributes(types))}
-    public class {className}{GetInheritance(types, inheritsFrom)}
+    public partial class {className}{GetInheritance(types, inheritsFrom)}
     {{
         public {className}() : base()
         {{
@@ -183,14 +183,6 @@ using WoWCombatLogParser.Common.Events;
 {(baseProperties?.Count > 0 ? string.Join(Environment.NewLine, baseProperties.ToList().Select(x => x.GetProperty(2))) : "")}
 {GetProperties(types)}
     }}";
-    }
-
-    private string GetAdditionalConstructor(string className, bool generate)
-    {
-        return generate ? $@"
-        public {className}(string parameters, IApplicationContext context) : base(parameters, context)
-        {{
-        }}" : "";
     }
 
     private string GetProperties(IList<Type> types)

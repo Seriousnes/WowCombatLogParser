@@ -1,10 +1,11 @@
 using System.Linq;
 using Xunit.Abstractions;
 using WoWCombatLogParser.Common.Models;
-using WoWCombatLogParser.Common.Events;
 using Xunit;
 using System;
 using WoWCombatLogParser.Models;
+using WoWCombatLogParser.Events;
+using WoWCombatLogParser.Parser;
 
 namespace WoWCombatLogParser.Tests;
 

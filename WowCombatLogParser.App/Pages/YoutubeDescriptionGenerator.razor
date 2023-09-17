@@ -63,13 +63,14 @@ protected override async Task OnParametersSetAsync()
         return;
     }
 
-    CombatLogParser.Filename = log;
-    encounterList = await Task.Factory.StartNew(() =>
-    {
-        return CombatLogParser.Scan(quickScan: true)
-            .GroupBy(x => x.Name)
-            .ToDictionary(k => k.Key, v => v.ToList());
-    });
+    // CombatLogParser.Filename = log;
+    // encounterList = await Task.Factory.StartNew(() =>
+    // {
+    //     return CombatLogParser.Scan(quickScan: true)
+    //         .GroupBy(x => x.Name)
+    //         .ToDictionary(k => k.Key, v => v.ToList());
+    // });
+
     loading = false;
 }
 }

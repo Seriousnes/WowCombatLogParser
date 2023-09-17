@@ -1,8 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-using MudBlazor.Services;
-using WoWCombatLogParser;
-using WoWCombatLogParser.Common.Models;
-using WoWCombatLogParser.Models;
+﻿using MudBlazor.Services;
+using WoWCombatLogParser.Parser;
 
 namespace WowCombatLogParser.App;
 

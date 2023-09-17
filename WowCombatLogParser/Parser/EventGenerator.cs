@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using WoWCombatLogParser.Common.Models;
 using WoWCombatLogParser.Common.Utility;
 using WoWCombatLogParser.Common.Events;
 using static WoWCombatLogParser.IO.CombatLogFieldReader;
 using System.Threading.Tasks;
+using WoWCombatLogParser.IO;
 
-namespace WoWCombatLogParser;
+namespace WoWCombatLogParser.Parser;
+
 public partial interface IEventGenerator
 {
     IApplicationContext ApplicationContext { get; set; }
@@ -17,10 +18,10 @@ public partial interface IEventGenerator
     void SetCombatLogVersion(string combatLogVersion);
     List<string> GetRegisteredEventHandlers();
     List<string> GetRegisteredClassMaps();
-    T GetCombatLogEvent<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent;
-    T GetCombatLogEvent<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent;
-    Task<T> GetCombatLogEventAsync<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent;
-    Task<T> GetCombatLogEventAsync<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent;
+    T GetCombatLogEvent<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent, IParsable;
+    T GetCombatLogEvent<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent, IParsable;
+    Task<T> GetCombatLogEventAsync<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent, IParsable;
+    Task<T> GetCombatLogEventAsync<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent, IParsable;
 }
 
 public class EventGenerator : IEventGenerator
@@ -28,8 +29,8 @@ public class EventGenerator : IEventGenerator
     private static readonly CombatLogVersionedDictionary<string, ObjectActivator> _ctors = new();
     private static readonly CombatLogVersionedDictionary<Type, ClassMap> _classMap = new();
     private static readonly Assembly _assembly = Assembly.Load("WoWCombatLogParser.Common");
-    
-    
+
+
     static EventGenerator()
     {
         SetupClassMap();
@@ -44,41 +45,48 @@ public class EventGenerator : IEventGenerator
 
     public IApplicationContext ApplicationContext { get; set; }
 
-    public T? GetCombatLogEvent<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent
+    public T? GetCombatLogEvent<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent, IParsable
     {
         return GetCombatLogEvent<T>(ReadFields(line), afterCreate);
     }
 
-    public T? GetCombatLogEvent<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent
+    public T? GetCombatLogEvent<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent, IParsable
     {
         return GetCombatLogEventAsync<T>(line, afterCreate).Result;
     }
 
-    public async Task<T?> GetCombatLogEventAsync<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent
+    public async Task<T?> GetCombatLogEventAsync<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent, IParsable
     {
         return await GetCombatLogEventAsync<T>(ReadFields(line), afterCreate);
     }
 
-    public async Task<T?> GetCombatLogEventAsync<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent
+    public async Task<T?> GetCombatLogEventAsync<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent, IParsable
     {
         var result = GetInstanceOf<T>(line.EventType);
-        if (result == null) return null;
-        await EventParser.ParseCombatLogEvent(result, line.Data, ApplicationContext.EventGenerator);
+        if (result is { })
+            await result.Parse(line.Data);
         return result;
     }
 
-    private T? GetInstanceOf<T>(string eventType) where T: class, ICombatLogEvent
+    private T? GetInstanceOf<T>(string eventType) where T : class, ICombatLogEvent, IParsable
     {
-        var ctor = _ctors[CombatLogVersionEvent.Version, eventType];
-        if (ctor == null) return null;
-
-        var result = (T)ctor();
-        if (result == null) return null;
-        return result;
+        try
+        {
+            var result = (T)_ctors[CombatLogVersionEvent.Version, eventType]();
+            if (result is { })
+            {
+                result.ApplicationContext = ApplicationContext;
+            }
+            return result;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public ClassMap GetClassMap(Type type) => _classMap.TryGetValue(CombatLogVersionEvent.Version, type, out var value) ? value : null;
-    
+
     public List<string> GetRegisteredEventHandlers() => _ctors.GetKeys(x => x.Key.Discriminator).OrderBy(x => x).ToList();
 
     public List<string> GetRegisteredClassMaps() => _classMap.GetKeys(x => x.Key.Discriminator.FullName).OrderBy(x => x).ToList();
@@ -93,10 +101,11 @@ public class EventGenerator : IEventGenerator
 
     private static void AddType(string name, Type type)
     {
-        var constructor = /*type.GetConstructor(new[] { typeof(string), typeof(IApplicationContext) }) ??*/ type.GetConstructors().First();
+        var constructor = type.GetConstructors().First();
         var activator = CombatLogEventActivator.GetActivator<object>(constructor);
 
-        var applicableCombatLogVersions = type.GetCustomAttributes<CombatLogVersionAttribute>()
+        var applicableCombatLogVersions = type
+            .GetCustomAttributes<CombatLogVersionAttribute>()
             .Select(x => x.Value)
             .ToList();
         if (!applicableCombatLogVersions.Any())
@@ -136,14 +145,14 @@ public class EventGenerator : IEventGenerator
 
     private static IEnumerable<Type> GetTypesWhere(Func<Type, bool> expr)
     {
-        foreach (var type in _assembly.GetTypes().Where(expr))            
+        foreach (var type in _assembly.GetTypes().Where(expr))
             yield return type;
         foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(expr))
             yield return type;
     }
 
     public void SetCombatLogVersion(string combatLogVersion)
-    {        
+    {
         CombatLogVersionEvent = new CombatLogVersionEvent(combatLogVersion);
     }
 }
@@ -159,7 +168,7 @@ public class CombatLogVersionedDictionary<TKey, TValue>
         set => TryAdd(v, k, value);
     }
 
-    public bool TryGetValue(CombatLogVersion combatLogVersion, TKey key, out TValue value)
+    public bool TryGetValue(CombatLogVersion combatLogVersion, TKey key, out TValue? value)
     {
         if (_allVersions.ContainsKey(key) || _specificVersions.ContainsKey((combatLogVersion, key)))
         {
