@@ -1,28 +1,26 @@
 ﻿using AutoMapper;
 using System.Reflection;
 
-namespace WoWCombatLogParser.Parser;
+namespace WoWCombatLogParser;
 
-public interface IApplicationContext
+public interface IParserContext
 {
     ICombatLogParser CombatLogParser { get; set; }
     IEventGenerator EventGenerator { get; set; }
 }
 
-public class ApplicationContext : IApplicationContext
+public class ParserContext : IParserContext
 {
     private ICombatLogParser combatLogParser;
     private IEventGenerator eventGenerator;
     private IMapper Mapper;
 
-    public ApplicationContext()
+    public ParserContext() : this(new CombatLogParser(), new EventGenerator())
     {
-        CombatLogParser = new CombatLogParser();
-        EventGenerator = new EventGenerator();
         Mapper = InitializeMapper();
     }
 
-    public ApplicationContext(ICombatLogParser combatLogParser, IEventGenerator eventGenerator)
+    public ParserContext(ICombatLogParser combatLogParser, IEventGenerator eventGenerator)
     {
         CombatLogParser = combatLogParser;
         EventGenerator = eventGenerator;
@@ -34,7 +32,7 @@ public class ApplicationContext : IApplicationContext
         set
         {
             combatLogParser = value;
-            combatLogParser.ApplicationContext = this;
+            combatLogParser.ParserContext = this;
         }
     }
 
@@ -44,7 +42,7 @@ public class ApplicationContext : IApplicationContext
         set
         {
             eventGenerator = value;
-            eventGenerator.ApplicationContext = this;
+            eventGenerator.ParserContext = this;
         }
     }
 

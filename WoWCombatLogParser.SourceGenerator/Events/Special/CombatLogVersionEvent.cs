@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using WoWCombatLogParser.Common.Models;
-using WoWCombatLogParser.Common.Utility;
+﻿using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser.Common.Events;
 

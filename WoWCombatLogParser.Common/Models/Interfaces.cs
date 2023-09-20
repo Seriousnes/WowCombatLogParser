@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Events;
 
 namespace WoWCombatLogParser.Common.Models;
@@ -9,7 +7,7 @@ public interface ICombatLogEvent : ICombatLogEventComponent
 {
     int Id { get; }
     DateTime Timestamp { get; set; }
-    string Name { get; }
+    string EventName { get; }
 }
 
 public interface ICombatantInfo

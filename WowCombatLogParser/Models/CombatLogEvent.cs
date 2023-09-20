@@ -4,23 +4,23 @@ using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Events;
 using WoWCombatLogParser.Common.Models;
 using WoWCombatLogParser.Common.Utility;
-using WoWCombatLogParser.Parser;
 using static WoWCombatLogParser.IO.CombatLogFieldReader;
 
 namespace WoWCombatLogParser.Models;
 
-public abstract class CombatLogEvent : BaseCombatLogEvent, IParsable
+public abstract class CombatLogEvent : BaseCombatLogEvent
 {
-    public IApplicationContext ApplicationContext { get; set; }
+    [NonData]
+    internal IParserContext ParserContext { get; set; }
 
     public async Task Parse(IList<ICombatLogDataField> data)
     {
-        await ParseCombatLogEvent(this, data, ApplicationContext.EventGenerator);
+        await ParseCombatLogEvent(this, data, ParserContext.EventGenerator);
     }
 
     public async Task Parse(string line)
     {
-        await ParseCombatLogEvent(this, ReadFields(line).Data, ApplicationContext.EventGenerator);
+        await ParseCombatLogEvent(this, ReadFields(line).Data, ParserContext.EventGenerator);
     }
 
     private static async Task ParseCombatLogEvent<T>(T instance, IList<ICombatLogDataField> data, IEventGenerator generator) where T : class, ICombatLogEventComponent

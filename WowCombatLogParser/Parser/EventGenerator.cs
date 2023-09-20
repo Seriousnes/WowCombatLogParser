@@ -8,20 +8,22 @@ using static WoWCombatLogParser.IO.CombatLogFieldReader;
 using System.Threading.Tasks;
 using WoWCombatLogParser.IO;
 
-namespace WoWCombatLogParser.Parser;
+namespace WoWCombatLogParser;
 
 public partial interface IEventGenerator
 {
-    IApplicationContext ApplicationContext { get; set; }
+    IParserContext ParserContext { get; set; }
     CombatLogVersionEvent CombatLogVersionEvent { get; }
     ClassMap GetClassMap(Type type);
     void SetCombatLogVersion(string combatLogVersion);
     List<string> GetRegisteredEventHandlers();
     List<string> GetRegisteredClassMaps();
-    T GetCombatLogEvent<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent, IParsable;
-    T GetCombatLogEvent<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent, IParsable;
-    Task<T> GetCombatLogEventAsync<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent, IParsable;
-    Task<T> GetCombatLogEventAsync<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent, IParsable;
+    T GetCombatLogEvent<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : CombatLogEvent;
+    T GetCombatLogEvent<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : CombatLogEvent;
+    Task<T> GetCombatLogEventAsync<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : CombatLogEvent;
+    Task<T> GetCombatLogEventAsync<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : CombatLogEvent;
+    CombatLogEvent GetCombatLogEvent(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null);
+    CombatLogEvent? GetCombatLogEvent(string line, Action<ICombatLogEvent>? afterCreate = null);
 }
 
 public class EventGenerator : IEventGenerator
@@ -43,24 +45,34 @@ public class EventGenerator : IEventGenerator
 
     public CombatLogVersionEvent CombatLogVersionEvent { get; set; }
 
-    public IApplicationContext ApplicationContext { get; set; }
+    public IParserContext ParserContext { get; set; }
 
-    public T? GetCombatLogEvent<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent, IParsable
+    public CombatLogEvent? GetCombatLogEvent(string line, Action<ICombatLogEvent>? afterCreate = null)
+    {
+        return GetCombatLogEvent<CombatLogEvent>(ReadFields(line), afterCreate);
+    }
+
+    public CombatLogEvent GetCombatLogEvent(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null)
+    {
+        return GetCombatLogEventAsync<CombatLogEvent>(line, afterCreate).Result;
+    }
+
+    public T? GetCombatLogEvent<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : CombatLogEvent
     {
         return GetCombatLogEvent<T>(ReadFields(line), afterCreate);
     }
 
-    public T? GetCombatLogEvent<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent, IParsable
+    public T? GetCombatLogEvent<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : CombatLogEvent
     {
         return GetCombatLogEventAsync<T>(line, afterCreate).Result;
     }
 
-    public async Task<T?> GetCombatLogEventAsync<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent, IParsable
+    public async Task<T?> GetCombatLogEventAsync<T>(string line, Action<ICombatLogEvent>? afterCreate = null) where T : CombatLogEvent
     {
         return await GetCombatLogEventAsync<T>(ReadFields(line), afterCreate);
     }
 
-    public async Task<T?> GetCombatLogEventAsync<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : class, ICombatLogEvent, IParsable
+    public async Task<T?> GetCombatLogEventAsync<T>(CombatLogLineData line, Action<ICombatLogEvent>? afterCreate = null) where T : CombatLogEvent
     {
         var result = GetInstanceOf<T>(line.EventType);
         if (result is { })
@@ -68,14 +80,16 @@ public class EventGenerator : IEventGenerator
         return result;
     }
 
-    private T? GetInstanceOf<T>(string eventType) where T : class, ICombatLogEvent, IParsable
+    private T? GetInstanceOf<T>(string eventType) where T : CombatLogEvent
     {
         try
         {
-            var result = (T)_ctors[CombatLogVersionEvent.Version, eventType]();
+            var constructor = _ctors[CombatLogVersionEvent.Version, eventType];
+            if (constructor == null) return null;
+            var result = (T)constructor();
             if (result is { })
             {
-                result.ApplicationContext = ApplicationContext;
+                result.ParserContext = ParserContext;
             }
             return result;
         }

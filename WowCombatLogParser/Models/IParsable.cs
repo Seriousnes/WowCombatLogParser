@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WoWCombatLogParser.Parser;
+﻿using System.Threading.Tasks;
 
 namespace WoWCombatLogParser.Models;
 
-public interface IParsable
+internal interface IParsable
 {
     Task Parse(IList<ICombatLogDataField> data);
     Task Parse(string line);
-    IApplicationContext ApplicationContext { get; set; }
+    IParserContext ParserContext { get; set; }
 }

@@ -1,5 +1,3 @@
-using FluentAssertions;
-using System.Linq;
 using WoWCombatLogParser.Common.Models;
 using Xunit;
 using Xunit.Abstractions;

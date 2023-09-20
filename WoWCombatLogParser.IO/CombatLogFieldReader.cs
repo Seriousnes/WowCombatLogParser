@@ -27,6 +27,7 @@ public static class CombatLogFieldReader
                 int next;
                 if (c == '"' && ((next = sr.Peek()) == -1 || ((char)next).In(delimiters)))
                 {
+                    quotedField.Finalise();
                     currentField = quotedField.Parent;
                 }
                 else

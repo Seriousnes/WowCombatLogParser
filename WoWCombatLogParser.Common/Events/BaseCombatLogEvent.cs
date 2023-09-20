@@ -16,5 +16,5 @@ public abstract class BaseCombatLogEvent : CombatLogEventComponent, ICombatLogEv
     public int Id { get; init; }
     public DateTime Timestamp { get; set; }
     [NonData]
-    public virtual string Name => GetType().Name;    
+    public string EventName => GetType().Name;
 }

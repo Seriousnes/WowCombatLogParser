@@ -1,13 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using WoWCombatLogParser.Common.Events;
-using WoWCombatLogParser.Common.Models;
-using WoWCombatLogParser.Common.Utility;
+﻿using System.Reflection;
 
-namespace WoWCombatLogParser.Parser;
+namespace WoWCombatLogParser;
 
+[DebuggerDisplay("{Instance.GetType().Name} - {Property.Name}")]
 internal class InstancePropertyInfo
 {
     public InstancePropertyInfo(object instance, PropertyInfo propertyInfo)

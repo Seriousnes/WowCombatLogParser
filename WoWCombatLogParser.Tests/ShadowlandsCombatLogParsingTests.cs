@@ -1,9 +1,7 @@
 using FluentAssertions;
 using System;
-using System.Linq;
 using WoWCombatLogParser.Events;
 using WoWCombatLogParser.Models;
-using WoWCombatLogParser.Common.Events;
 using WoWCombatLogParser.Common.Models;
 using Xunit;
 using Xunit.Abstractions;
@@ -57,13 +55,13 @@ public class ShadowlandsCombatLogParsingTests : CombatLogParsingTestBase
     [InlineData(@"11/28 19:54:13.422  SPELL_DISPEL,Player-3725-0AF257AE,""Naxa - Frostmourne"",0x514,0x0,Player-3725-06B15901,""Svothgos - Frostmourne"",0x514,0x0,4987,""Cleanse"",0x2,357298,""Frozen Binds"",16,DEBUFF")]
     public void Test_SpellDispel(string input)
     {
-        var @CombatLogEventComponent = EventGenerator.GetCombatLogEvent<SpellDispel>(input);
+        var combatLogEvent = EventGenerator.GetCombatLogEvent<SpellDispel>(input);
         // unit name testing
-        @CombatLogEventComponent.Source.UnitName.Should().Be("Naxa - Frostmourne");
-        @CombatLogEventComponent.Source.Name.Should().Be("Naxa");
-        @CombatLogEventComponent.Source.Server.Should().Be("Frostmourne");
-        @CombatLogEventComponent.Spell.Name.Should().Be("Cleanse");
-        @CombatLogEventComponent.ExtraSpell.Id.Should().Be(357298);
+        combatLogEvent.Source.UnitName.Should().Be("Naxa - Frostmourne");
+        combatLogEvent.Source.Name.Should().Be("Naxa");
+        combatLogEvent.Source.Server.Should().Be("Frostmourne");
+        combatLogEvent.Spell.Name.Should().Be("Cleanse");
+        combatLogEvent.ExtraSpell.Id.Should().Be(357298);
     }
 
     [Theory]
@@ -71,8 +69,8 @@ public class ShadowlandsCombatLogParsingTests : CombatLogParsingTestBase
     [InlineData(@"11/28 19:46:43.635  ENCOUNTER_END,2431,""Fatescribe Roh-Kalo"",15,14,1,404969", true)]
     public void Test_EncounterEnd(string input, bool success)
     {
-        var @CombatLogEventComponent = EventGenerator.GetCombatLogEvent<EncounterEnd>(input);
-        @CombatLogEventComponent.Success.Should().Be(success);
+        var combatLogEvent = EventGenerator.GetCombatLogEvent<EncounterEnd>(input);
+        combatLogEvent.Success.Should().Be(success);
     }
 
     [Theory]
@@ -92,7 +90,7 @@ public class ShadowlandsCombatLogParsingTests : CombatLogParsingTestBase
     [InlineData(@"11/28 19:40:57.094  DAMAGE_SPLIT,Player-3725-0669E64A,""Formid - Frostmourne"",0x514,0x0,Player-3725-09FE7744,""Khalous - Frostmourne"",0x40514,0x0,6940,""Blessing of Sacrifice"",0x2,Player-3725-09FE7744,0000000000000000,67569,86120,2586,472,5346,0,0,9741,10000,0,76.88,-900.65,2001,0.0607,246,1302,0,-1,32,0,0,0,nil,nil,nil")]
     public void Test_DamageSplit(string input)
     {
-        var @CombatLogEventComponent = EventGenerator.GetCombatLogEvent<DamageSplit>(input);
+        var combatLogEvent = EventGenerator.GetCombatLogEvent<DamageSplit>(input);
     }
 
     [Theory]
@@ -101,7 +99,17 @@ public class ShadowlandsCombatLogParsingTests : CombatLogParsingTestBase
     [InlineData(typeof(SpellDamage), @"11/28 19:32:46.738  SPELL_DAMAGE,Player-3725-0BF357DA,""Koriz-Frostmourne"",0x514,0x0,Creature-0-5047-2450-26923-175730-0000234859,""Fatescribe Roh-Kalo"",0x10a48,0x0,285452,""Lava Burst"",0x4,Creature-0-5047-2450-26923-175730-0000234859,0000000000000000,18216931,20164970,0,0,1071,0,3,0,100,0,64.06,-904.28,2001,1.9476,63,8215,3816,-1,4,0,0,0,1,nil,nil")]
     public void Test_DamageSuffix(Type eventType, string input)
     {
-        var @CombatLogEventComponent = EventGenerator.GetCombatLogEvent<CombatLogEvent>(input);
-        @CombatLogEventComponent.GetType().Should().Be(eventType);
+        var combatLogEvent = EventGenerator.GetCombatLogEvent<CombatLogEvent>(input);
+        combatLogEvent.GetType().Should().Be(eventType);
+
+        switch (combatLogEvent)
+        {
+            case SpellDamage spellDamage:
+                spellDamage.Destination.Name.Should().Be("Fatescribe Roh-Kalo");
+                break;
+            case SpellPeriodicDamage spellPeriodicDamage:
+                spellPeriodicDamage.Source.Name.Should().Be("Fatescribe Roh-Kalo");
+                break;
+        }
     }
 }
