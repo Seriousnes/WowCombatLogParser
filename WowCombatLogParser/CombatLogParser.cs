@@ -1,6 +1,5 @@
-﻿using System.IO;
-using System.Threading.Tasks;
-using System;
+﻿using System;
+using System.IO;
 using WoWCombatLogParser.Utility;
 
 namespace WoWCombatLogParser;
@@ -24,19 +23,27 @@ public class CombatLogParser : ICombatLogParser
 
     public IEnumerable<Segment> GetSegments(string filename)
     {
-        using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-        using var sr = new StreamReader(fs);
-        var content = sr.ReadToEnd();
-
-        int i = -1;
-        while ((i = content.IndexOf("ENCOUNTER_START", i + 1, IndexMode.LineStart)) >= 0)
+        using var stream = new FileStream(filename, new FileStreamOptions
         {
-            var endPosition = content.IndexOf("ENCOUNTER_END", i, IndexMode.LineEnd);
+            Mode = FileMode.Open,
+            Access = FileAccess.Read,
+            Share = FileShare.ReadWrite,
+            BufferSize = StreamExtensions.GetBufferSize(filename),
+            Options = FileOptions.RandomAccess
+        });
+        //using var sr = new StreamReader(fs);        
+        //var content = sr.ReadToEnd();
+        //string content;
+
+        long i = -1;
+        while ((i = stream.IndexOf("ENCOUNTER_START", i + 1, IndexMode.LineStart)) >= 0)
+        {
+            var endPosition = stream.IndexOf("ENCOUNTER_END", i, IndexMode.LineEnd);
             if (endPosition >= 0)
             {
-                yield return new Segment(content.Substring(i, endPosition - i)) { ParserContext = ParserContext };
+                yield return new Segment(filename, i, endPosition - i) { ParserContext = ParserContext };
             }
-            i = content.IndexOf(Environment.NewLine, i, IndexMode.LineEnd);
+            i = stream.IndexOf(Environment.NewLine, i, IndexMode.LineEnd);
         }
     }
 

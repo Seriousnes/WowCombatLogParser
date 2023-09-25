@@ -39,24 +39,6 @@ public static class Extensions
         return properties;
     }
 
-    public static (bool Success, IEnumerator<ICombatLogDataField> Enumerator, bool EndOfParent, bool Dispose) GetEnumeratorForProperty(this IEnumerator<ICombatLogDataField> data)
-    {
-        if (data.Current is CombatLogDataFieldCollection groupData)
-        {
-            if (groupData.Children.Count > 0)
-            {
-                var enumerator = groupData.Children.GetEnumerator();
-                return (enumerator.MoveNext() && enumerator.Current != null, enumerator, !data.MoveNext(), true);
-            }
-            else
-            {
-                return (true, null, !data.MoveNext(), false);
-            }                
-        }
-
-        return (true, data, false, false);
-    }
-
     public static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
     {
         if (!dictionary.ContainsKey(key))

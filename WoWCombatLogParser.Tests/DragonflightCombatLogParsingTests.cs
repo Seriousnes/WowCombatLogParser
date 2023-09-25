@@ -10,6 +10,7 @@ using System.Diagnostics.Tracing;
 using System.IO;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace WoWCombatLogParser.Tests;
 
@@ -26,6 +27,7 @@ public class DragonflightCombatLogParsingTests : CombatLogParsingTestBase
     {
         var segment = CombatLogParser.GetSegments(fileName).FirstOrDefault();
         segment.Should().NotBeNull();
+        segment.Parse();
         if (lines > 0) segment.Content.Count.Should().Be(lines);
         if (eventCount > 0)
         {
@@ -50,11 +52,11 @@ public class DragonflightCombatLogParsingTests : CombatLogParsingTestBase
         const int BUFFER_SIZE = 4096;
         List<CombatLogEvent> events = new();
         var sw = new Stopwatch();
-
+        var filename = @"TestLogs/Dragonflight/WoWCombatLog.txt";
         // using stream reader
-        using (var fs = new FileStream(@"TestLogs/Dragonflight/WoWCombatLog.txt", FileMode.Open, FileAccess.Read, FileShare.ReadWrite, BUFFER_SIZE, FileOptions.SequentialScan))
+        using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, StreamExtensions.GetBufferSize(filename), FileOptions.SequentialScan))
         using (var sr = new StreamReader(fs))
-        {
+        {            
             int count = 0;
             string line;
             
@@ -143,16 +145,15 @@ public class DragonflightCombatLogParsingTests : CombatLogParsingTestBase
             .Take(1)
             .SingleOrDefault();
         segment.Should().NotBeNull();
-        //OutputEncounterSumary(encounter);
     }
 
     [Fact]
     public void Test_ScanMultipleFights()
     {
-        //CombatLogParser.Filename = @"TestLogs/Dragonflight/WoWCombatLog.txt";
-        //var encounters = CombatLogParser.Scan(quickScan: true).ToList();
-        //encounters.Should().NotBeNull();
-        //encounters.ForEach(e => OutputEncounterSumary(e));
+        var segments = CombatLogParser
+            .GetSegments(@"TestLogs/Dragonflight/WoWCombatLog.txt")
+            .ToList();
+        segments.Should().NotBeNull();
     }
 
     [Theory]

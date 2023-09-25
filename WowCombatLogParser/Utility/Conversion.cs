@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using WoWCombatLogParser.Common.Models;
@@ -10,7 +8,7 @@ namespace WoWCombatLogParser.Common.Utility;
 public static class Conversion
 {
     private static readonly Regex isNumber = new Regex(@"^([0-9]+|0x[0-9a-f]+)$", RegexOptions.Compiled);
-    private static readonly Dictionary<Type, Func<string, object>> _convertableTypes = new Dictionary<Type, Func<string, object>>()
+    private static readonly Dictionary<Type, Func<string, object>> _convertableTypes = new()
     {
         { typeof(WowGuid), value => new WowGuid(value) },
         { typeof(DateTime), value => DateTime.ParseExact(value, "M/d HH:mm:ss.fff", CultureInfo.InvariantCulture) },
@@ -31,33 +29,15 @@ public static class Conversion
         }
         else if (type.IsEnum)
         {
-            return ConvertToEnum((string)value, type);
+            return ConvertToEnum(value, type);
         }
         var result = Convert.ChangeType(value, type);
 
         return result;
     }
 
-    public static T GetValue<T>(string value)
-    {
-        return (T)GetValue(value, typeof(T));
-    }
-
+    public static T GetValue<T>(string value) =>  (T)GetValue(value, typeof(T));
     public static object GetValue(ICombatLogDataField value, Type type) => GetValue(value.ToString(), type);
-
     private static int ConvertToInt(string value) => Convert.ToInt32(value, value.StartsWith("0x") ? 16 : 10);
-
-    private static object ConvertToEnum(string value, Type type)
-    {
-        if (isNumber.IsMatch(value))
-        {
-            return Enum.ToObject(type, ConvertToInt(value));
-        }
-        else
-        {
-            return EnumExtensions.FromDescription(value, type);
-        }
-    }
-
-    public static Stopwatch Stopwatch { get; } = new Stopwatch();
+    private static object ConvertToEnum(string value, Type type) =>  isNumber.IsMatch(value) ? Enum.ToObject(type, ConvertToInt(value)) : EnumExtensions.FromDescription(value, type);
 }

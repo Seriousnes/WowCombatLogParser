@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using WoWCombatLogParser.Common.Models;
@@ -29,18 +30,18 @@ public static class Extensions
     {
     }
 
-    public static int IndexOfAny(this string _string, IndexMode mode, int startIndex, params string[] values)
+    public static long IndexOfAny(this Stream _string, IndexMode mode, long startIndex, params string[] values)
     {
-        IList<int> results = Array.Empty<int>();
+        IList<long> results = Array.Empty<long>();
         foreach (var value in values)
         {
-            var index = _string.IndexOf(value, results.Any() ? results.Min() : startIndex, StringComparison.Ordinal);
+            var index = _string.IndexOf(value, results.Any() ? results.Min() : startIndex);
             if (index >= 0)
             {
                 var indexOfLinebreak = mode switch
                 {
-                    IndexMode.LineStart => _string.LastIndexOf(Environment.NewLine, index, StringComparison.Ordinal) + Environment.NewLine.Length,
-                    IndexMode.LineEnd => _string.IndexOf(Environment.NewLine, index, StringComparison.Ordinal) + Environment.NewLine.Length,
+                    IndexMode.LineStart => _string.LastIndexOf(Environment.NewLine, index) + Environment.NewLine.Length,
+                    IndexMode.LineEnd => _string.IndexOf(Environment.NewLine, index) + Environment.NewLine.Length,
                     _ => -1
                 };
                 if (indexOfLinebreak >= 0)
@@ -50,18 +51,26 @@ public static class Extensions
         return results.Any() ? results.Min() : -1;
     }
 
-    public static int IndexOf(this string _string, string value, int startIndex, IndexMode mode)
+    public static long IndexOf(this Stream stream, string value, long startIndex, IndexMode mode)
     {
-        var index = _string.IndexOf(value, startIndex, StringComparison.Ordinal);
+        var index = stream.IndexOf(value, startIndex);
         if (index >= 0)
         {
             return mode switch
             {
-                IndexMode.LineStart => _string.LastIndexOf(Environment.NewLine, index - 1, StringComparison.Ordinal) + Environment.NewLine.Length,
-                IndexMode.LineEnd => _string.IndexOf(Environment.NewLine, index + 1, StringComparison.Ordinal)
+                IndexMode.LineStart => stream.LastIndexOf(Environment.NewLine, index - 1) + Environment.NewLine.Length,
+                IndexMode.LineEnd => stream.IndexOf(Environment.NewLine, index + 1)
             };
         }
         return -1;
+    }
+
+    public static IEnumerable<string> GetLines(this string str)
+    {
+        using var sr = new StringReader(str);
+        string? line;
+        while ((line = sr.ReadLine()) != null)
+            yield return line;
     }
 
     public static IFight? GetFight(this IFightStart start)
