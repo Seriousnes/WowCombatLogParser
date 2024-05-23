@@ -30,10 +30,10 @@ jobs:
       run: dotnet restore
       
     - name: Build
-      run: dotnet build WoWCombatLogParser --configuration Release --no-restore
+      run: dotnet build --configuration Release --no-restore
       
     - name: Pack
-      run: dotnet pack WoWCombatLogParser --configuration Release /p:Version=${{ env.PACKAGE_VERSION }} --no-build --output .
+      run: dotnet pack --configuration Release /p:Version=${{ env.PACKAGE_VERSION }} --no-build --output .
     
     - name: Publish Package
       run: nuget push WoWCombatLogParser.${{ env.PACKAGE_VERSION }}.nupkg -Source 'https://nuget.pkg.github.com/Seriousnes/index.json' -ApiKey '${{ secrets.GITHUB_TOKEN }}'
