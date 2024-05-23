@@ -1,7 +1,6 @@
 name: Publish Package
 
 on:
-  workflow_dispatch:    
   push:
     branches: [ "main " ]      
 
@@ -23,9 +22,6 @@ jobs:
       with:
         dotnet-version: 8.0.x
         
-    - name: Set PACKAGE_VERSION variable
-      run: echo "PACKAGE_VERSION=${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
-      
     - name: Build
       run: dotnet build WoWCombatLogParser --configuration Release
       
