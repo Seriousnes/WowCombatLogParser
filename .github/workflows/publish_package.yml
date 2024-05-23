@@ -32,8 +32,5 @@ jobs:
     - name: Build
       run: dotnet build WoWCombatLogParser --configuration Release --no-restore
       
-    - name: Pack
-      run: dotnet pack WoWCombatLogParser --configuration Release /p:Version=${{ env.PACKAGE_VERSION }} --no-build --output .
-    
     - name: Publish Package
       run: nuget push *.nupkg -Source 'https://nuget.pkg.github.com/Seriousnes/index.json' -ApiKey '${{ secrets.GITHUB_TOKEN }}'
