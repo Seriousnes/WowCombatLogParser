@@ -1,9 +1,9 @@
 name: Publish Package
 
 on:
-  push:
-    branches: [ "main " ]    
   workflow_dispatch:    
+  push:
+    branches: [ "main " ]      
 
 permissions:
   contents: read
@@ -26,11 +26,8 @@ jobs:
     - name: Set PACKAGE_VERSION variable
       run: echo "PACKAGE_VERSION=${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
       
-    - name: Restore dependencies
-      run: dotnet restore
-      
     - name: Build
-      run: dotnet build WoWCombatLogParser --configuration Release --no-restore
+      run: dotnet build WoWCombatLogParser --configuration Release
       
     - name: Publish Package
-      run: nuget push *.nupkg -Source 'https://nuget.pkg.github.com/Seriousnes/index.json' -ApiKey '${{ secrets.GITHUB_TOKEN }}'
+      run: dotnet nuget add source --username Seriousnes --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/Seriousnes/index.json"
