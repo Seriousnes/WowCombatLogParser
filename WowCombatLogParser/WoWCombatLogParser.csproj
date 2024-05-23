@@ -10,6 +10,9 @@
 
 	<PropertyGroup>
 		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+		<Title>WoWCombatLogParser</Title>
+		<PackageProjectUrl>https://github.com/Seriousnes/WowCombatLogParser</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Seriousnes/WowCombatLogParser</RepositoryUrl>
 	</PropertyGroup>
 
 	<ItemGroup>
