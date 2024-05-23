@@ -21,8 +21,8 @@ public interface ICombatantInfo
 /// </summary>
 public interface IAction
 {
-    Unit Source { get; set; }
-    Unit Destination { get; set; }
+    Actor Source { get; set; }
+    Actor Destination { get; set; }
 }
 
 public interface IAbility
@@ -100,4 +100,9 @@ public interface ICast
 public interface IKey
 {
     bool EqualsKey(IKey key);
+}
+
+public interface IEmpowerFinish
+{
+    int Stage { get; }
 }

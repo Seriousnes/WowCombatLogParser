@@ -264,6 +264,18 @@ public enum RaidFlag : uint
     RaidTargetMask = 0xff
 }
 
+public enum WorldMarker
+{
+    Square = 1,
+    Triangle,
+    Diamond,
+    Cross,
+    Star,
+    Circle,
+    Moon,
+    Skull
+}
+
 public enum Soulbind
 {
     Niya = 1,

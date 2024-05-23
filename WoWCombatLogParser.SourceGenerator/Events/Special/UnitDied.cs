@@ -9,5 +9,5 @@ public class UnitDied
     public bool UnconsciousOnDeath { get; set; }
     public object UnusedField1 { get; set; }
     public object UnusedField2 { get; set; }
-    public Unit Unit { get; set; } = new Unit();
+    public Actor Unit { get; set; } = new Actor();
 }

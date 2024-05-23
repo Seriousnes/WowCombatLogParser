@@ -32,6 +32,8 @@ public class CombatLogTextField : ICombatLogDataField
         _text.Append(value);
     }
 
+    public virtual bool IsFinalised => _text is null;
+
     public virtual void Finalise()
     {
         data = _text.ToString().AsMemory();
@@ -58,7 +60,7 @@ public class QuotedCombatLogTextField : CombatLogTextField
 [DebuggerDisplay("{ToString()}")]
 public class CombatLogDataFieldCollection : ICombatLogDataField
 {
-    private static readonly Dictionary<char, char> bracketPairs = new Dictionary<char, char>()
+    private static readonly Dictionary<char, char> bracketPairs = new()
     {
         { '(', ')' },
         { '[', ']' },
@@ -66,7 +68,7 @@ public class CombatLogDataFieldCollection : ICombatLogDataField
     };
 
     private char openingBracket;
-    public IList<ICombatLogDataField> Children { get; } = new List<ICombatLogDataField>();
+    public List<ICombatLogDataField> Children { get; } = [];
 
     public virtual char OpeningBracket
     {
@@ -74,7 +76,7 @@ public class CombatLogDataFieldCollection : ICombatLogDataField
         set
         {
             openingBracket = value;
-            ClosingBracket = bracketPairs.TryGetValue(value, out char closingBracket) ? closingBracket : throw new ArgumentOutOfRangeException();
+            ClosingBracket = bracketPairs.TryGetValue(value, out char closingBracket) ? closingBracket : throw new ArgumentOutOfRangeException(nameof(value));
         }
     }
     public virtual char ClosingBracket { get; private set; }

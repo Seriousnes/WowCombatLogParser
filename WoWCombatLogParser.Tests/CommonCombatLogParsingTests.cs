@@ -44,10 +44,4 @@ public class CommonCombatLogParsingTests : CombatLogParsingTestBase
     {
         EventGenerator.GetRegisteredEventHandlers().ForEach(x => output.WriteLine(x));
     }
-
-    [Fact]
-    public void Test_RegisteredClassMaps()
-    {
-        EventGenerator.GetRegisteredClassMaps().ForEach(x => output.WriteLine(x));
-    }
 }

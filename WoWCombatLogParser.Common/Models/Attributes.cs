@@ -14,7 +14,7 @@ public class AffixAttribute : Attribute
     public string Name { get; private set; }
 }
 
-[AttributeUsage(AttributeTargets.Class)]
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
 public class PrefixAttribute : AffixAttribute
 {
     public PrefixAttribute(string value) : base(value)
@@ -38,7 +38,7 @@ public class SuffixAllowedAttribute : Attribute
         Suffixes.AddRange(suffix);
     }
 
-    public List<Type> Suffixes { get; } = new List<Type>();
+    public List<Type> Suffixes { get; } = [];
 }
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
@@ -49,7 +49,7 @@ public class SuffixNotAllowedAttribute : Attribute
         Suffixes.AddRange(suffix);
     }
 
-    public List<Type> Suffixes { get; } = new List<Type>();
+    public List<Type> Suffixes { get; } = [];
 }
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property)]
@@ -103,3 +103,6 @@ public class CombatLogVersionAttribute : Attribute
 
     public CombatLogVersion Value { get; }
 }
+
+[AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+public class OptionalAttribute : Attribute { }

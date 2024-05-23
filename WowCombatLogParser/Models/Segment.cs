@@ -10,11 +10,11 @@ namespace WoWCombatLogParser.Models;
 
 public class Segment
 {
-    private readonly object _lock = new object();
-    private string filename;
-    private long start;
-    private long length;
-    private List<string> lines;
+    private readonly object _lock = new();
+    private readonly string filename;
+    private readonly long start;
+    private readonly long length;
+    private List<string>? lines;
 
     public Segment(string filename, long start, long length)
     {        
@@ -23,14 +23,14 @@ public class Segment
         this.length = length;
     }
 
-    internal IParserContext ParserContext { get; set; }
+    internal IParserContext? ParserContext { get; set; }
 
     public List<string> Content
     {
         get
         {
             Parse();
-            return lines;
+            return lines ?? [];
         }
     }
 
@@ -41,7 +41,7 @@ public class Segment
             if (lines != null) return;
             using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, StreamExtensions.GetBufferSize(filename), FileOptions.RandomAccess);
             fs.Seek(start, SeekOrigin.Begin);
-            Span<byte> memory = new Span<byte>(new byte[(int)length]);
+            Span<byte> memory = new(new byte[(int)length]);
             fs.Read(memory);
             lines = Encoding.UTF8.GetString(memory.ToArray()).GetLines().ToList();
         }

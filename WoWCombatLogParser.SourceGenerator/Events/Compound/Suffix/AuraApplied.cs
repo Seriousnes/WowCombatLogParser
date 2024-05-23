@@ -8,5 +8,6 @@ namespace WoWCombatLogParser.Common.Events;
 public class AuraApplied : CombatLogEventComponent, IAura
 {
     public AuraType AuraType { get; set; }
+    [Optional]
     public decimal Amount { get; set; }
 }

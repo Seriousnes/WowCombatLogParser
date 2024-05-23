@@ -10,7 +10,7 @@ public class EquippedItem : CombatLogEventComponent
     [IsSingleDataField]
     public ItemEnchants Enchantments { get; set; } = new();
     [IsSingleDataField]
-    public List<BonusId> BonusIds { get; set; } = new();
+    public List<BonusId> BonusIds { get; set; } = [];
     [IsSingleDataField]
-    public List<Gem> Gems { get; set; } = new();
+    public List<Gem> Gems { get; set; } = [];
 }

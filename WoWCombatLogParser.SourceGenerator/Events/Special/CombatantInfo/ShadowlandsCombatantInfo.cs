@@ -32,15 +32,15 @@ public class ShadowlandsCombatantInfo : CombatantInfo, ICombatantInfo
     public int Armor { get; set; }
     public int CurrentSpecID { get; set; }
     [IsSingleDataField]
-    public List<Talent> ClassTalents { get; set; } = new();
+    public List<Talent> ClassTalents { get; set; } = [];
     [IsSingleDataField]
-    public List<Talent> PvPTalents { get; set; } = new();
+    public List<Talent> PvPTalents { get; set; } = [];
     [IsSingleDataField]
     public Powers Powers { get; set; } = new Powers();
     [IsSingleDataField]
-    public List<EquippedItem> EquippedItems { get; set; } = new();
+    public List<EquippedItem> EquippedItems { get; set; } = [];
     [IsSingleDataField]
-    public List<InterestingAura> InterestingAuras { get; set; } = new();
+    public List<InterestingAura> InterestingAuras { get; set; } = [];
     public PvPStats PvPStats { get; set; } = new PvPStats();
 }
 
@@ -49,11 +49,11 @@ public class Powers : CombatLogEventComponent
     public Soulbind Soulbind { get; set; }
     public Covenant Covenant { get; set; }
     [IsSingleDataField]
-    public List<AnimaPower> AnimaPowers { get; set; } = new();
+    public List<AnimaPower> AnimaPowers { get; set; } = [];
     [IsSingleDataField]
-    public List<SoulbindTrait> SoulbindTraits { get; set; } = new();
+    public List<SoulbindTrait> SoulbindTraits { get; set; } = [];
     [IsSingleDataField]
-    public List<Conduit> Conduits { get; set; } = new();
+    public List<Conduit> Conduits { get; set; } = [];
 }
 
 [DebuggerDisplay("{Id} @ {Count} (Maw Power ID: {MawPowerId})")]

@@ -6,8 +6,8 @@ namespace WoWCombatLogParser.SourceGenerator.Events.Special;
 [Affix("ENVIRONMENTAL_DAMAGE")]
 public class EnvironmentalDamage : CombatLogEventComponent, IDamage, IAdvancedLoggingDetails
 {
-    public Unit Source { get; set; } = new();
-    public Unit Destination { get; set; } = new();
+    public Actor Source { get; set; } = new();
+    public Actor Destination { get; set; } = new();
     public AdvancedLoggingDetails AdvancedLoggingDetails { get; } = new();
     public EnvironmentalType EnvironmentalType { get; set; }
     public decimal Amount { get; set; }

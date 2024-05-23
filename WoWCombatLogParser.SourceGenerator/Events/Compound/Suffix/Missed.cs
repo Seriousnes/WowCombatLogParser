@@ -8,7 +8,10 @@ namespace WoWCombatLogParser.Common.Events;
 public class Missed : CombatLogEventComponent
 {
     public MissType MissType { get; set; }
+    [Optional]
     public bool IsOffHand { get; set; }
+    [Optional]
     public decimal AmountMissed { get; set; }
+    [Optional]
     public bool Critical { get; set; }
 }

@@ -11,6 +11,7 @@ public class Start : CombatLogEventComponent
 }
 
 [Suffix("_END")]
-public class End : CombatLogEventComponent
+public class End : CombatLogEventComponent, IEmpowerFinish
 {
+    public int Stage { get; set; }
 }

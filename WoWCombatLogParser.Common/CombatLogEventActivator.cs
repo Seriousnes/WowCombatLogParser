@@ -9,7 +9,12 @@ public delegate object ObjectActivator(params object[] args);
 
 public static class CombatLogEventActivator
 {
-    public static ObjectActivator GetActivator<T>(ConstructorInfo ctor)
+    public static ObjectActivator GetActivator(Type type)
+    {
+        return GetActivator(type.GetConstructor([]));
+    }
+
+    public static ObjectActivator GetActivator(ConstructorInfo ctor)
     {
         Type type = ctor.DeclaringType;
         ParameterInfo[] paramsInfo = ctor.GetParameters();

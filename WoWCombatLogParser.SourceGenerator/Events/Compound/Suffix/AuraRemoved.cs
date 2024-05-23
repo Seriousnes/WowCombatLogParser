@@ -4,9 +4,10 @@ using WoWCombatLogParser.Common.Models;
 namespace WoWCombatLogParser.Common.Events;
 
 [Suffix("_AURA_REMOVED")]
-[DebuggerDisplay("{AuraType} {Amount}")]
+[DebuggerDisplay("{AuraType}")]
 public class AuraRemoved : CombatLogEventComponent, IAura
 {
     public AuraType AuraType { get; set; }
-    public decimal Amount { get; set; }
+    [Optional]
+    public int Amount { get; set; }
 }

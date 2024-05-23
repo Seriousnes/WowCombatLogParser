@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using WoWCombatLogParser.Common.Events;
 using WoWCombatLogParser.Common.Models;
 using WoWCombatLogParser.Common.Utility;
@@ -18,7 +20,7 @@ namespace WoWCombatLogParser.SourceGenerator.Events;
 [Generator]
 public class EventSourceGenerator : ISourceGenerator
 {
-    private static Dictionary<Type, IList<string>> defaultInheritance = new Dictionary<Type, IList<string>>
+    private readonly static Dictionary<Type, IList<string>> defaultInheritance = new()
     {
         { typeof(CompoundEventSection), new[] { "CombatLogEvent", "ICombatLogEvent", "IAction" }},
         { typeof(CombatLogEventComponent), new[] { "CombatLogEvent", "ICombatLogEvent" }}
@@ -48,12 +50,12 @@ public class EventSourceGenerator : ISourceGenerator
                         .ToList()
                         .ForEach(suffix =>
                         {
-                            var generatedItem = GenerateSourceText<CompoundEventSection>(
-                                    types: new[] { affix.EventType, suffix.EventType },
+                            var (name, source) = GenerateSourceText<CompoundEventSection>(
+                                    types: [affix.EventType, suffix.EventType],
                                     @namespace: "WoWCombatLogParser.Events",
-                                    usings: new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Sections" });
+                                    usings: ["WoWCombatLogParser.Models", "WoWCombatLogParser.Sections"]);
 
-                            context.AddSource(generatedItem.name, generatedItem.source);
+                            context.AddSource(name, source);
                         });
                 }
                 else
@@ -62,16 +64,16 @@ public class EventSourceGenerator : ISourceGenerator
                     if (affix.EventType.IsSubclassOf(typeof(PredefinedBase)))
                     {
                         generatedItem = GenerateSourceText<CompoundEventSection>(
-                                    types: new[] { affix.EventType },
+                                    types: [affix.EventType],
                                     @namespace: "WoWCombatLogParser.Events",
-                                    usings: new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Sections" });
+                                    usings: ["WoWCombatLogParser.Models", "WoWCombatLogParser.Sections"]);
                     }
                     else
                     {
                         generatedItem = GenerateSourceText<CombatLogEventComponent>(
-                            types: new[] { affix.EventType },
+                            types: [affix.EventType],
                             @namespace: "WoWCombatLogParser.Events",
-                            usings: new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Sections" });
+                            usings: ["WoWCombatLogParser.Models", "WoWCombatLogParser.Sections"]);
                     }
 
                     context.AddSource(generatedItem.name, generatedItem.source);
@@ -82,8 +84,12 @@ public class EventSourceGenerator : ISourceGenerator
             .ToList()
             .ForEach(s =>
             {
-                var generatedItem = GenerateSourceText(new[] { s }, null, "WoWCombatLogParser.Sections", new[] { "WoWCombatLogParser.Models", "WoWCombatLogParser.Events" }, new[] { "CombatLogEventComponent" }, false);
-                context.AddSource(generatedItem.name, generatedItem.source);
+                var (name, source) = GenerateSourceText([s], null, "WoWCombatLogParser.Sections", ["WoWCombatLogParser.Models", "WoWCombatLogParser.Events"], ["CombatLogEventComponent"], false);
+                var sourceText = CSharpSyntaxTree.ParseText(source, new(LanguageVersion.Latest, DocumentationMode.Diagnose))
+                    .GetRoot()
+                    .NormalizeWhitespace()
+                    .ToFullString();
+                context.AddSource(name, sourceText);
             });
     }
 
@@ -99,10 +105,9 @@ public class EventSourceGenerator : ISourceGenerator
 
     private (string name, SourceText source) GenerateSourceText(IList<Type> types, IList<PropertyInfo> baseProperties, string @namespace, IList<string> usings, IList<string> inheritsFrom = null, bool generateAdditionalConstructor = true)
     {
-        if (inheritsFrom == null)
-            inheritsFrom = defaultInheritance.TryGetValue(null, out var values) ? values : new List<string>();
+        inheritsFrom ??= defaultInheritance.TryGetValue(null, out var values) ? values : [];
         var className = string.Join("", types.Select(x => x.Name));
-        return ($"{className}.cs", SourceText.From($@"{GetUsings(usings.ToArray())}
+        return ($"{className}.cs", SourceText.From($@"{GetUsings([.. usings])}
 
 namespace {@namespace}
 {{
@@ -117,12 +122,12 @@ namespace {@namespace}
 
     private string GetInheritance(IList<Type> types, IList<string> predefined)
     {        
-        if (predefined == null)
-            predefined = new List<string>();
-        List<string> inheritance = new List<string>();
-
-        inheritance.AddRange(types.SelectMany(x => x.GetInterfaces().Select(i => i.Name)));            
-        inheritance.AddRange(types.Where(x => x.BaseType?.IsGenericType ?? false).SelectMany(x => x.BaseType?.GetGenericArguments().Where(x => !x.IsSealed).SelectMany(g => g.GetInterfaces())?.Select(i => i.Name)));
+        predefined ??= [];
+        List<string> inheritance =
+        [
+            .. types.SelectMany(x => x.GetInterfaces().Select(i => i.Name)),
+            .. types.Where(x => x.BaseType?.IsGenericType ?? false).SelectMany(x => x.BaseType?.GetGenericArguments().Where(x => !x.IsSealed).SelectMany(g => g.GetInterfaces())?.Select(i => i.Name)),
+        ];
 
         var value = string.Join(", ", predefined.Union(inheritance.Distinct()));
         return !string.IsNullOrEmpty(value) ? $" : {value}" : "";
@@ -146,7 +151,7 @@ using WoWCombatLogParser.Common.Events;
 
     private string GetApplicableCombatLogVersion(IList<Type> types)
     {
-        var versions = types.SelectMany(x => x.GetCustomAttributes<CombatLogVersionAttribute>()).Select(x => x.Value) ?? new[] { CombatLogVersion.Any };
+        var versions = types.SelectMany(x => x.GetCustomAttributes<CombatLogVersionAttribute>()).Select(x => x.Value) ?? [CombatLogVersion.Any];
         return string.Join(Environment.NewLine, versions.Select(x => $"[CombatLogVersion(CombatLogVersion.{x})]"));
     }
 
@@ -170,7 +175,7 @@ using WoWCombatLogParser.Common.Events;
 
     private string GetClassData(string className, IList<Type> types, IList<string> inheritsFrom, IList<PropertyInfo> baseProperties, bool generateAdditionalConstructor)
     {
-        return $@"{ConsolidateAttributes(1, 
+        return $@"{ConsolidateAttributes(
             GetAffix(types), 
             GetApplicableCombatLogVersion(types),    
             GetDataFieldAttributes(types))}
@@ -180,7 +185,7 @@ using WoWCombatLogParser.Common.Events;
         {{
         }}
 
-{(baseProperties?.Count > 0 ? string.Join(Environment.NewLine, baseProperties.ToList().Select(x => x.GetProperty(2))) : "")}
+{(baseProperties?.Count > 0 ? string.Join(Environment.NewLine, baseProperties.ToList().Select(x => x.GetProperty())) : "")}
 {GetProperties(types)}
     }}";
     }
@@ -188,16 +193,19 @@ using WoWCombatLogParser.Common.Events;
     private string GetProperties(IList<Type> types)
     {
         var sb = new StringBuilder();
+        var predefinedBaseTypes = new List<Type>();
         if (types.Count == 1 && types[0].IsSubclassOf(typeof(PredefinedBase)))
         {
-            types = types[0].BaseType.GenericTypeArguments;
+            predefinedBaseTypes.AddRange(types[0].BaseType.GenericTypeArguments);
         }
+
+        types = [.. predefinedBaseTypes, .. types];
 
         foreach (var type in types)
         {
             foreach (var prop in type.GetTypePropertyInfo())
             {
-                sb.AppendLine($"{prop.GetProperty(2)}");
+                sb.AppendLine($"{prop.GetProperty()}");
             }
         }
 
@@ -207,7 +215,7 @@ using WoWCombatLogParser.Common.Events;
 
 public static class EventSourceGeneratorExtensions
 {        
-    public static string GetProperty(this PropertyInfo property, int indentation = 0)
+    public static string GetProperty(this PropertyInfo property)
     {
         string propertyType;
         if (property.PropertyType.GenericTypeArguments.Any())
@@ -221,11 +229,12 @@ public static class EventSourceGeneratorExtensions
         }
 
         var attributes = new List<string>();
-        if (property.HasCustomAttribute<IsSingleDataFieldAttribute>())
-            attributes.Add("[IsSingleDataField]");
-        if (property.HasCustomAttribute<KeyValuePairAttribute>())
-            attributes.Add("[KeyValuePair]");
-        var value = @$"{ConsolidateAttributes(indentation, attributes.ToArray())}
+        foreach (var attribute in property.CustomAttributes.Select(x => x.AttributeType))
+        {
+            var attributeName = Regex.Replace(attribute.Name, @"^(.*?)Attribute$", @"$1");
+            attributes.Add($"[{attributeName}]");
+        }
+        var value = @$"{ConsolidateAttributes([.. attributes])}
         public {propertyType} {property.Name}";
 
         if (property.CanRead || property.CanWrite)
@@ -241,12 +250,10 @@ public static class EventSourceGeneratorExtensions
         return value;
     }
 
-    public static string ConsolidateAttributes(int indentation, params string[] attributes)
+    public static string ConsolidateAttributes(params string[] attributes)
     {
-        return string.Join($"{indentation.Indent()}{Environment.NewLine}", attributes.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => $"{a}"));
+        return string.Join($"{Environment.NewLine}", attributes.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => $"{a}"));
     }
-
-    internal static string Indent(this int indentation) => new string(' ', 4 * indentation);
 
     public static string GetNameWithoutGenericArity(this Type t)
     {

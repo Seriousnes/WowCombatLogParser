@@ -4,7 +4,7 @@ namespace WoWCombatLogParser.IO;
 
 public sealed class CombatLogLineData
 {
-    public CombatLogLineData(IList<ICombatLogDataField> data)
+    public CombatLogLineData(List<ICombatLogDataField> data)
     {
         EventType = data[1].ToString();
         data.RemoveAt(1);
@@ -12,5 +12,5 @@ public sealed class CombatLogLineData
     }
 
     public string EventType { get; set; }
-    public IList<ICombatLogDataField> Data { get; set; }
+    public List<ICombatLogDataField> Data { get; set; }
 }

@@ -6,6 +6,6 @@ namespace WoWCombatLogParser.Common.Events;
 [DebuggerDisplay("{Timestamp} {CombatLogEventComponent} {Source} {Destination}")]
 public partial class CompoundEventSection : CombatLogEventComponent
 {
-    public Unit Source { get; set; } = new();
-    public Unit Destination { get; set; } = new();
+    public Actor Source { get; set; } = new();
+    public Actor Destination { get; set; } = new();
 }

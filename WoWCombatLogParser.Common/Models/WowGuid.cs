@@ -6,7 +6,7 @@ namespace WoWCombatLogParser.Common.Models;
 [DebuggerDisplay("{Value}")]
 public readonly struct WowGuid : IEquatable<WowGuid>
 {
-    public static readonly WowGuid Empty = new WowGuid("0000000000000000");
+    public static readonly WowGuid Empty = new("0000000000000000");
     public string Value { get; }
     public bool IsEmpty => Value == Empty.Value;
     public bool IsPlayer => Value.StartsWith("Player-");

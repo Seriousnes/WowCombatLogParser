@@ -7,9 +7,3 @@ namespace WoWCombatLogParser.Common.Events;
 public class Spell : PrefixAbilityBase, IAbility
 {        
 }
-
-[Prefix("SPELL_EMPOWER")]
-[SuffixAllowed(typeof(Start), typeof(End), typeof(Interrupt))]
-public class SpellEmpower : Spell
-{
-}

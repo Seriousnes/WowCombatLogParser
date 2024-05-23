@@ -11,7 +11,7 @@ public class ChallengeModeStart : CombatLogEventComponent, IFightStart
     public int ChallengeModeId { get; set; }
     public int KeystoneLevel { get; set; }
     [IsSingleDataField]
-    public List<ChallengeModeAffix> Affixes { get; set; } = new();
+    public List<ChallengeModeAffix> Affixes { get; set; } = [];
 }
 
 [Affix("CHALLENGE_MODE_END")]

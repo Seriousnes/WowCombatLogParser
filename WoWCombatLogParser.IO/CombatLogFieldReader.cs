@@ -5,20 +5,22 @@ namespace WoWCombatLogParser.IO;
 
 public static class CombatLogFieldReader
 {
-    private static readonly HashSet<char> openingBrackets = new() { '(', '[', '{' };
-    private static char[] delimiters = new[] { ',' };
-    private static bool hasFieldsEnclosedInQuotes = true;
-    private static char SPACE = (char)0x20;
+    private static readonly HashSet<char> openingBrackets = ['(', '[', '{'];
+    private static readonly char[] delimiters = [','];
+    private static readonly bool hasFieldsEnclosedInQuotes = true;
+    private static readonly char SPACE = (char)0x20;
 
-    private static IList<ICombatLogDataField> ReadFields(StringReader sr)
+    private static List<ICombatLogDataField> ReadFields(StringReader sr)
     {
         var content = new List<ICombatLogDataField>();
         ICombatLogDataField currentField = null;
         int character;
+        char last = '\0';
         while ((character = sr.Read()) != -1)
-        {
+        {            
             char c = (char)character;
 
+            // two spaces in a row is the delimiter between timestamp and event type
             if (c == SPACE && sr.Peek() == SPACE && sr.Read() > 0)
                 c = ',';
 
@@ -43,7 +45,10 @@ public static class CombatLogFieldReader
                 }
                 else
                 {
-                    if (openingBrackets.Contains(c))
+                    // EMOTE events don't have quotes to indicate single field, but all grouped collections will begin with the sequence ,[
+                    var ignoreThisBracketDelmiter = c == '[' && last != ',';
+
+                    if (openingBrackets.Contains(c) && !ignoreThisBracketDelmiter)
                     {
                         var bracketField = AddFieldToResults<CombatLogDataFieldCollection>(currentField, content);
                         bracketField.OpeningBracket = c;
@@ -78,6 +83,14 @@ public static class CombatLogFieldReader
                     }
                 }
             }
+
+            last = c;
+        }
+        if (currentField is CombatLogTextField finalField && !finalField.IsFinalised)
+        {
+            finalField.Finalise();
+            if (!content.Contains(finalField))
+                content.Add(finalField);
         }
 
         return content;
@@ -89,7 +102,7 @@ public static class CombatLogFieldReader
         return new CombatLogLineData(ReadFields(sr));
     }
 
-    private static T AddFieldToResults<T>(ICombatLogDataField parent, IList<ICombatLogDataField> results) where T : ICombatLogDataField, new()
+    private static T AddFieldToResults<T>(ICombatLogDataField parent, List<ICombatLogDataField> results) where T : ICombatLogDataField, new()
     {
         T field = new();
         if (parent is CombatLogDataFieldCollection bracketField)

@@ -24,7 +24,7 @@ public abstract partial class Fight<TStart, TEnd> : IFight
 {
     protected TStart _start;
     protected TEnd _end;
-    protected List<CombatLogEvent> _events = new();
+    protected List<CombatLogEvent> _events = [];
 
     public Fight(TStart start)
     {
@@ -40,7 +40,7 @@ public abstract partial class Fight<TStart, TEnd> : IFight
         return combatLogEvent;
     }
 
-    public virtual void Sort() => _events = _events.OrderBy(x => x.Id).ToList();
+    public virtual void Sort() => _events = [.. _events.OrderBy(x => x.Id)];
     public IList<CombatLogEvent> GetEvents() => _events;
     public virtual FightDescription GetDetails() => new(Name, Duration, _start.Timestamp, Result);
     public virtual bool IsEndEvent(IFightEnd @CombatLogEventComponent) => typeof(TEnd).IsAssignableFrom(@CombatLogEventComponent.GetType());
@@ -97,7 +97,7 @@ public class Boss : Fight<EncounterStart, EncounterEnd>
     public override string Name => _start.Name;
     public override string Result => _end is EncounterEnd endOfFight && endOfFight.Success ? "Kill" : "Wipe";
     public override bool IsSuccess => Result == "Kill";
-    public virtual List<ICombatantInfo> Combatants { get; } = new();
+    public virtual List<ICombatantInfo> Combatants { get; } = [];
 }
 
 public class Trash : IFight
@@ -106,9 +106,9 @@ public class Trash : IFight
 
     protected CombatLogEvent _start;
     protected CombatLogEvent _end;
-    protected List<CombatLogEvent> _events = new();
+    protected List<CombatLogEvent> _events = [];
 
-    public void Sort() => _events = _events.OrderBy(x => x.Id).ToList();
+    public void Sort() => _events = [.. _events.OrderBy(x => x.Id)];
     public IList<CombatLogEvent> GetEvents() => _events;
     public virtual FightDescription GetDetails() => new(Name, Duration, _start.Timestamp, Result);
     public bool IsEndEvent(IFightEnd @CombatLogEventComponent) => @CombatLogEventComponent is IFightEnd;

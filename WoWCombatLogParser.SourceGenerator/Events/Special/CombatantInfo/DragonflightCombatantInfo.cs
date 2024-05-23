@@ -32,14 +32,14 @@ public class DragonflightCombatantInfo : CombatantInfo, ICombatantInfo
     public int Armor { get; set; }
     public int CurrentSpecID { get; set; }
     [IsSingleDataField]
-    public List<DragonflightTalent> ClassTalents { get; set; } = new();
+    public List<DragonflightTalent> ClassTalents { get; set; } = [];
     [IsSingleDataField]
-    public List<Talent> PvPTalents { get; set; } = new();
+    public List<Talent> PvPTalents { get; set; } = [];
     [IsSingleDataField]
-    public List<EquippedItem> EquippedItems { get; set; } = new();
+    public List<EquippedItem> EquippedItems { get; set; } = [];
     [IsSingleDataField]
     [KeyValuePair]
-    public List<InterestingAura> InterestingAuras { get; set; } = new();
+    public List<InterestingAura> InterestingAuras { get; set; } = [];
     public PvPStats PvPStats { get; set; } = new PvPStats();
 }
 
