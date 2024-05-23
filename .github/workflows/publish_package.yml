@@ -2,8 +2,7 @@ name: Publish Package
 
 on:
   push:
-    branches:
-    - main
+    branches: [ "main " ]    
   workflow_dispatch:    
 
 permissions:
@@ -18,13 +17,23 @@ jobs:
     steps:
     - name: Check out repository
       uses: actions/checkout@v4.1.5
+      
+    - name: Setup .NET
+      uses: action/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        
     - name: Set PACKAGE_VERSION variable
       run: echo "PACKAGE_VERSION=$(date +'%Y.%-m.%-d').${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
+      
     - name: Restore dependencies
       run: dotnet restore
+      
     - name: Build
       run: dotnet build WoWCombatLogParser --configuration Release --no-restore
+      
     - name: Pack
       run: dotnet pack WoWCombatLogParser --configuration Release /p:Version=${{ env.PACKAGE_VERSION }} --no-build --output .
+    
     - name: Publish Package
       run: nuget push WoWCombatLogParser.${{ env.PACKAGE_VERSION }}.nupkg -Source 'https://nuget.pkg.github.com/Seriousnes/index.json' -ApiKey '${{ secrets.GITHUB_TOKEN }}'
