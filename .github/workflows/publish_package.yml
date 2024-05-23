@@ -24,7 +24,7 @@ jobs:
         dotnet-version: 8.0.x
         
     - name: Set PACKAGE_VERSION variable
-      run: echo "PACKAGE_VERSION=$(date +'%Y.%-m.%-d').${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
+      run: echo "PACKAGE_VERSION=${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
       
     - name: Restore dependencies
       run: dotnet restore
@@ -36,4 +36,4 @@ jobs:
       run: dotnet pack WoWCombatLogParser --configuration Release /p:Version=${{ env.PACKAGE_VERSION }} --no-build --output .
     
     - name: Publish Package
-      run: nuget push WoWCombatLogParser.${{ env.PACKAGE_VERSION }}.nupkg -Source 'https://nuget.pkg.github.com/Seriousnes/index.json' -ApiKey '${{ secrets.GITHUB_TOKEN }}'
+      run: nuget push *.nupkg -Source 'https://nuget.pkg.github.com/Seriousnes/index.json' -ApiKey '${{ secrets.GITHUB_TOKEN }}'
