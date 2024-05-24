@@ -1,7 +1,7 @@
 ﻿using System;
-using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.Events;
 
 public abstract class BaseCombatLogEvent : CombatLogEventComponent, ICombatLogEvent
 {
@@ -9,12 +9,12 @@ public abstract class BaseCombatLogEvent : CombatLogEventComponent, ICombatLogEv
 
     public BaseCombatLogEvent()
     {
-        Id = ++_count;
+        Id = _count++;
     }
 
-    [NonData]
-    public int Id { get; init; }
+    [SourceGenerator.Models.NonData]
+    public int Id { get; private set; }
     public DateTime Timestamp { get; set; }
-    [NonData]
+    [SourceGenerator.Models.NonData]
     public string EventName => GetType().Name;
 }

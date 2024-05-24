@@ -1,7 +1,6 @@
 ﻿using System;
-using WoWCombatLogParser.Common.Events;
 
-namespace WoWCombatLogParser.Common.Models;
+namespace WoWCombatLogParser.Models;
 
 public interface ICombatLogEvent : ICombatLogEventComponent
 {

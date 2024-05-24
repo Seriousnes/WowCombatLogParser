@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace WoWCombatLogParser.Common.Models;
+namespace WoWCombatLogParser.Models;
 
 [DebuggerDisplay("{UnitType} {Ownership} {Reaction} {Affiliation} {Special}")]
 public readonly struct UnitFlag

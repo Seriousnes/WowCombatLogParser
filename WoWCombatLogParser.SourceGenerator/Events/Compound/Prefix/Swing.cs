@@ -1,9 +1,10 @@
-﻿using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
+using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Prefix;
 
 [Prefix("SWING")]
 [SuffixAllowed(typeof(Damage), typeof(DamageLanded), typeof(Missed))]
-public class Swing : CombatLogEventComponent
+internal class Swing : CombatLogEventComponent
 {
 }

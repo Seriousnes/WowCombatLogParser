@@ -1,27 +1,28 @@
 ﻿using System.Diagnostics;
-using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.Models;
+using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
 
-public abstract class Cast : CombatLogEventComponent
+internal abstract class Cast : CombatLogEventComponent
 {
 }
 
 [Suffix("_CAST_START")]
 [DebuggerDisplay("Started")]
-public class CastStart : Cast, ICast
+internal class CastStart : Cast, ICast
 {
 }
 
 [Suffix("_CAST_SUCCESS")]
 [DebuggerDisplay("Success")]
-public class CastSuccess : Cast, ICast
+internal class CastSuccess : Cast, ICast
 {
 }
 
 [Suffix("_CAST_FAILED")]
 [DebuggerDisplay("Failed ({FailedType})")]
-public class CastFailed : Cast, ICast
+internal class CastFailed : Cast, ICast
 {
     public string FailedType { get; set; }
 }

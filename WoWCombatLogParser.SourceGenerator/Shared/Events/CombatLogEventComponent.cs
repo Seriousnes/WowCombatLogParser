@@ -1,4 +1,4 @@
-﻿namespace WoWCombatLogParser.Common.Events;
+﻿namespace WoWCombatLogParser.Events;
 
 public interface ICombatLogEventComponent
 {

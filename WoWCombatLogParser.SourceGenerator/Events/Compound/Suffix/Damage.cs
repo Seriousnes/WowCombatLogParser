@@ -1,11 +1,12 @@
 ﻿using System.Diagnostics;
-using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.Models;
+using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
 
 [Suffix("_DAMAGE")]
 [DebuggerDisplay("{Amount} {UnmitigatedAmount} {IsOverkill} {School} {Resisted} {Blocked} {Absorbed} {Critical} {Crushing} {IsOffHand}")]
-public class Damage : AdvancedLoggingDetailsBase, IDamage, IAdvancedLoggingDetails
+internal class Damage : AdvancedLoggingDetailsBase, IDamage, IAdvancedLoggingDetails
 {
     public decimal UnmitigatedAmount { get; set; }
     public bool IsOverkill { get; set; }
@@ -24,7 +25,7 @@ public class Damage : AdvancedLoggingDetailsBase, IDamage, IAdvancedLoggingDetai
 /// </remarks>
 [Suffix("_DAMAGE_LANDED")]
 [DebuggerDisplay("{Amount} {UnmitigatedAmount} {IsOverkill} {School} {Resisted} {Blocked} {Absorbed} {Critical} {Crushing} {IsOffHand}")]
-public class DamageLanded : AdvancedLoggingDetailsBase, IDamage, IDamageOrHealing, IAdvancedLoggingDetails
+internal class DamageLanded : AdvancedLoggingDetailsBase, IDamage, IDamageOrHealing, IAdvancedLoggingDetails
 {
     public decimal UnmitigatedAmount { get; set; }
     public decimal IsOverkill { get; set; }

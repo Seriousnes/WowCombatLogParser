@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Xml.Linq;
-using WoWCombatLogParser.Common.Events;
+using WoWCombatLogParser.Events;
+using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Models;
+namespace WoWCombatLogParser.Models;
 
 [DebuggerDisplay("{Id} {UnitName} {Flags} {RaidFlags}")]
 public class Actor : Unit
@@ -12,10 +12,10 @@ public class Actor : Unit
     public RaidFlag RaidFlags { get; set; }
 }
 
-public class Unit : CombatLogEventComponent, IKey
+public class Unit : CombatLogEventComponent
 {
-    private string _name;
-    private string _server;
+    private string? _name;
+    private string? _server;
     public WowGuid Id { get; set; }
     public string UnitName
     {
@@ -41,12 +41,14 @@ public class Unit : CombatLogEventComponent, IKey
     }
 
     [NonData]
-    public string Name => _name;
+    public string Name => _name ?? string.Empty;
     [NonData]
-    public string Server => _server;
+    public string Server => _server ?? string.Empty;
 
-    public bool EqualsKey(IKey key)
+    public override bool Equals(object? obj)
     {
-        return key is Unit unit && Id == unit.Id;
+        return obj is Unit unit && unit.Id == Id;
     }
+
+    public override int GetHashCode() => base.GetHashCode();
 }

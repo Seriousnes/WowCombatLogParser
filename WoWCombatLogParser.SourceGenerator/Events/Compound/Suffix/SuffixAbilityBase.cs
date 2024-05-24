@@ -1,8 +1,8 @@
-﻿using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
 
-public abstract class SuffixAbilityBase : CombatLogEventComponent
+internal abstract class SuffixAbilityBase : CombatLogEventComponent
 {
     public Ability ExtraSpell { get; set; } = new();
 }

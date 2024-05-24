@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
 
 [Suffix("_START")]
-public class Start : CombatLogEventComponent
+internal class Start : CombatLogEventComponent
 {
 }
 
 [Suffix("_END")]
-public class End : CombatLogEventComponent, IEmpowerFinish
+internal class End : CombatLogEventComponent, IEmpowerFinish
 {
     public int Stage { get; set; }
 }

@@ -1,11 +1,12 @@
 ﻿using System.Diagnostics;
-using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.Models;
+using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
 
 [Suffix("_AURA_APPLIED")]
 [DebuggerDisplay("{AuraType} {Amount}")]
-public class AuraApplied : CombatLogEventComponent, IAura
+internal class AuraApplied : CombatLogEventComponent, IAura
 {
     public AuraType AuraType { get; set; }
     [Optional]

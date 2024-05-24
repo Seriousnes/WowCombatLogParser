@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Sections;
 
 [DebuggerDisplay("({PermanentEnchantId}) ({TempEnchantId}) ({OnUseSpellEnchantId})")]
-public class ItemEnchants : CombatLogEventComponent
+internal class ItemEnchants : CombatLogEventComponent
 {
     public int PermanentEnchantId { get; set; }
     public int TempEnchantId { get; set; }

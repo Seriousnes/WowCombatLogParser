@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.SourceGenerator.Events.Sections;
+using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Special.CombatantInfoEvents;
 
 [CombatLogVersion(CombatLogVersion.Shadowlands)]
 [Affix("COMBATANT_INFO")]
 [DebuggerDisplay("{PlayerGuid} {Faction} {Strength} {Agility} {Stamina} {Intelligence} {Dodge} {Parry} {Block} {CritMelee} {CritRanged} {CritSpell} {Speed} {Lifesteel} {HasteMelee} {HasteRanged} {HasteSpell} {Avoidance} {Mastery} {VersatilityDamageDone} {VersatilityHealingDone} {VersatilityDamageTaken} {Armor} {CurrentSpecID} ")]
-public class ShadowlandsCombatantInfo : CombatantInfo, ICombatantInfo
+internal class ShadowlandsCombatantInfo : CombatantInfo, ICombatantInfo
 {
     public int Strength { get; set; }
     public int Agility { get; set; }
@@ -44,7 +45,7 @@ public class ShadowlandsCombatantInfo : CombatantInfo, ICombatantInfo
     public PvPStats PvPStats { get; set; } = new PvPStats();
 }
 
-public class Powers : CombatLogEventComponent
+internal class Powers : CombatLogEventComponent
 {
     public Soulbind Soulbind { get; set; }
     public Covenant Covenant { get; set; }
@@ -57,19 +58,19 @@ public class Powers : CombatLogEventComponent
 }
 
 [DebuggerDisplay("{Id} @ {Count} (Maw Power ID: {MawPowerId})")]
-public class AnimaPower : CombatLogEventComponent
+internal class AnimaPower : CombatLogEventComponent
 {
     public int Id { get; set; }
     public int MawPowerId { get; set; }
     public int Count { get; set; }
 }
 
-public class SoulbindTrait : IdPart<int>
+internal class SoulbindTrait : IdPart<int>
 {
 }
 
 [DebuggerDisplay("{Id} (Ilvl: {ItemLevel})")]
-public class Conduit : IdPart<int>
+internal class Conduit : IdPart<int>
 {
     public int ItemLevel { get; set; }
 }

@@ -1,9 +1,11 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
-using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.SourceGenerator.Models;
 
 namespace WoWCombatLogParser.Utility;
 
@@ -15,6 +17,79 @@ public enum IndexMode
 
 public static class Extensions
 {
+    public static bool MoveBy<T>(this IEnumerator<T> enumerator, int steps = 1)
+    {
+        var moveResult = true;
+        while (moveResult && steps > 0)
+        {
+            moveResult = enumerator.MoveNext();
+            steps--;
+        }
+        return moveResult;
+    }
+
+    public static void Forget(this Task task)
+    {
+    }
+
+    public static bool In<T>(this T obj, params T[] objects)
+    {
+        return objects.Contains(obj);
+    }
+
+    public static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value) where TKey : notnull
+    {
+        if (!dictionary.ContainsKey(key))
+        {
+            dictionary.Add(key, value);
+            return true;
+        }
+
+        return false;
+    }
+
+    public static bool HasCustomAttribute<T>(this Type type) where T : Attribute => type.GetCustomAttribute<T>() != null;
+
+    public static bool IsGenericList(this PropertyInfo prop)
+    {
+        var type = prop.PropertyType;
+        return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
+    }
+
+    public static Type GetGenericListType(this PropertyInfo prop)
+    {
+        return prop.PropertyType.GetGenericArguments()[0];
+    }
+
+    public static string GetDescription(this Enum element)
+    {
+        var type = element.GetType();
+        var memberInfo = type.GetMember(element.ToString());
+
+        if (memberInfo.Length > 0)
+        {
+            var attributes = memberInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
+            if (attributes.Length > 0)
+            {
+                return ((DescriptionAttribute)attributes[0]).Description;
+            }
+        }
+        return element.ToString();
+    }
+
+    public static object FromDescription(string value, Type type)
+    {
+        foreach (Enum @enum in Enum.GetValues(type))
+        {
+            if (@enum.GetDescription().Equals(value, StringComparison.OrdinalIgnoreCase))
+            {
+                return @enum;
+            }
+        }
+
+        throw new ArgumentException($"{value} isn't a member of {type.Name}");
+    }
+
     public static (bool Success, IEnumerator<ICombatLogDataField> Enumerator, bool EndOfParent, bool Dispose) GetEnumeratorForProperty(this IEnumerator<ICombatLogDataField> data)
     {
         if (data.Current is CombatLogDataFieldCollection groupData)
@@ -24,10 +99,6 @@ public static class Extensions
         }
 
         return (true, data, false, false);
-    }
-
-    public static void Forget(this Task _)
-    {
     }
 
     public static long IndexOfAny(this Stream _string, IndexMode mode, long startIndex, params string[] values)

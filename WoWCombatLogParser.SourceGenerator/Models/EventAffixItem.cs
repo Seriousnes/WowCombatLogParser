@@ -4,10 +4,10 @@ using System.Linq;
 using System.Reflection;
 using System.Diagnostics;
 
-namespace WoWCombatLogParser.Common.Models;
+namespace WoWCombatLogParser.SourceGenerator.Models;
 
 [DebuggerDisplay("{DebuggerValue}")]
-public class EventAffixItem
+internal class EventAffixItem
 {
     private string DebuggerValue => $"{EventType.Name} ({(IsSpecial ? "Special" : IsPrefix ? "Prefix" : "Suffix")})";
 

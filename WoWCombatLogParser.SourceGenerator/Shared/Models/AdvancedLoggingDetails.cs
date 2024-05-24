@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
-using WoWCombatLogParser.Common.Events;
+using WoWCombatLogParser.Events;
 
-namespace WoWCombatLogParser.Common.Models;
+namespace WoWCombatLogParser.Models;
 
 [DebuggerDisplay("{InfoGuid} {OwnerGuid} {UnitInfo} {Location} {Level}")]
 public class AdvancedLoggingDetails : CombatLogEventComponent, IAdvancedDetails

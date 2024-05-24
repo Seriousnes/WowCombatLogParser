@@ -1,9 +1,10 @@
-﻿using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.Models;
+using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Special;
 
 [Affix("ARENA_MATCH_START")]
-public class ArenaMatchStart : CombatLogEventComponent, IFightStart
+internal class ArenaMatchStart : CombatLogEventComponent, IFightStart
 {
     public int InstanceId { get; set; }
     public object UnknownProperty1 { get; set; }
@@ -12,7 +13,7 @@ public class ArenaMatchStart : CombatLogEventComponent, IFightStart
 }
 
 [Affix("ARENA_MATCH_END")]
-public class ArenaMatchEnd : CombatLogEventComponent, IFightEnd
+internal class ArenaMatchEnd : CombatLogEventComponent, IFightEnd
 {
     public int WinningTeam { get; set; }
     public int Duration { get; set; }

@@ -1,9 +1,10 @@
-﻿using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.Models;
+using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
 
 [Suffix("_AURA_REFRESH")]
-public class AuraRefreshed : CombatLogEventComponent, IAura
+internal class AuraRefreshed : CombatLogEventComponent, IAura
 {
     public AuraType AuraType { get; set; }
 }

@@ -1,8 +1,8 @@
-﻿using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Special;
 
-public abstract class CombatantInfo : CombatLogEventComponent
+internal abstract class CombatantInfo : CombatLogEventComponent
 {
     public WowGuid PlayerGuid { get; set; }
     public Faction Faction { get; set; }

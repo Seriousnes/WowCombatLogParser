@@ -1,8 +1,8 @@
-﻿using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Prefix;
 
-public abstract class PrefixAbilityBase : CombatLogEventComponent
+internal abstract class PrefixAbilityBase : CombatLogEventComponent
 {
     public Ability Spell { get; set; } = new();
 }

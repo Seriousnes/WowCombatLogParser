@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Sections;
 
-public class EquippedItem : CombatLogEventComponent
+internal class EquippedItem : CombatLogEventComponent
 {
     public int ItemId { get; set; }
     public int ItemLevel { get; set; }

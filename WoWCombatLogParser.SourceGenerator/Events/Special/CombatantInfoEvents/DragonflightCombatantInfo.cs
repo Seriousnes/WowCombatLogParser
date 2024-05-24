@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.SourceGenerator.Events.Sections;
+using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Special.CombatantInfoEvents;
 
 [CombatLogVersion(CombatLogVersion.Dragonflight)]
 [Affix("COMBATANT_INFO")]
 [DebuggerDisplay("{PlayerGuid} {Faction} {Strength} {Agility} {Stamina} {Intelligence} {Dodge} {Parry} {Block} {CritMelee} {CritRanged} {CritSpell} {Speed} {Lifesteel} {HasteMelee} {HasteRanged} {HasteSpell} {Avoidance} {Mastery} {VersatilityDamageDone} {VersatilityHealingDone} {VersatilityDamageTaken} {Armor} {CurrentSpecID} ")]
-public class DragonflightCombatantInfo : CombatantInfo, ICombatantInfo
+internal class DragonflightCombatantInfo : CombatantInfo, ICombatantInfo
 {
     public int Strength { get; set; }
     public int Agility { get; set; }
@@ -43,7 +44,7 @@ public class DragonflightCombatantInfo : CombatantInfo, ICombatantInfo
     public PvPStats PvPStats { get; set; } = new PvPStats();
 }
 
-public class DragonflightTalent : CombatLogEventComponent
+internal class DragonflightTalent : CombatLogEventComponent
 {
     public int Id { get; set; }
     public int Unknown { get; set; }

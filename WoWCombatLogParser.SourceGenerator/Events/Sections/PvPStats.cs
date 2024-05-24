@@ -1,6 +1,6 @@
-﻿namespace WoWCombatLogParser.Common.Events;
+﻿namespace WoWCombatLogParser.SourceGenerator.Events.Sections;
 
-public class PvPStats : CombatLogEventComponent
+internal class PvPStats : CombatLogEventComponent
 {
     public int HonorLevel { get; set; }
     public int Season { get; set; }

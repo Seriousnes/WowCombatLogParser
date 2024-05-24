@@ -1,23 +1,22 @@
 ﻿using System.Diagnostics;
-using WoWCombatLogParser.Common.Events;
 
-namespace WoWCombatLogParser.Common.Models;
+namespace WoWCombatLogParser.SourceGenerator.Events.Sections;
 
 [DebuggerDisplay("{Id}")]
-public abstract class IdPart<T> : CombatLogEventComponent
+internal abstract class IdPart<T> : CombatLogEventComponent
 {
     public T Id { get; set; }
 }
 
 [DebuggerDisplay("{Id}")]
-public class Talent : IdPart<int>
+internal class Talent : IdPart<int>
 {
 }
 
-public class BonusId : IdPart<int>
+internal class BonusId : IdPart<int>
 {
 }
 
-public class Gem : IdPart<int>
+internal class Gem : IdPart<int>
 {
 }

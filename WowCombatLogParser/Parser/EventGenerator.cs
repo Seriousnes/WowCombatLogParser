@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using WoWCombatLogParser.Common.Models;
-using WoWCombatLogParser.Common.Utility;
-using WoWCombatLogParser.Common.Events;
 using static WoWCombatLogParser.IO.CombatLogFieldReader;
-using System.Threading.Tasks;
 using WoWCombatLogParser.IO;
 using System.Diagnostics.CodeAnalysis;
 

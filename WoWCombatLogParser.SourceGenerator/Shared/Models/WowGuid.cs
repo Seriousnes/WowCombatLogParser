@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace WoWCombatLogParser.Common.Models;
+namespace WoWCombatLogParser.Models;
 
 [DebuggerDisplay("{Value}")]
 public readonly struct WowGuid : IEquatable<WowGuid>

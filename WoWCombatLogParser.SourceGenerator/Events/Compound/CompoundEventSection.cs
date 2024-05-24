@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
-using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound;
 
 [DebuggerDisplay("{Timestamp} {CombatLogEventComponent} {Source} {Destination}")]
-public partial class CompoundEventSection : CombatLogEventComponent
+internal partial class CompoundEventSection : CombatLogEventComponent
 {
     public Actor Source { get; set; } = new();
     public Actor Destination { get; set; } = new();

@@ -3,19 +3,19 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using System;
 using System.Collections.Generic;
-#if DEBUG
 using System.Diagnostics;
-#endif
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using WoWCombatLogParser.Common.Events;
-using WoWCombatLogParser.Common.Models;
-using WoWCombatLogParser.Common.Utility;
-using static WoWCombatLogParser.SourceGenerator.Events.EventSourceGeneratorExtensions;
+using WoWCombatLogParser.SourceGenerator.Events;
+using WoWCombatLogParser.SourceGenerator.Events.Compound;
+using WoWCombatLogParser.SourceGenerator.Events.Compound.Predefined;
+using WoWCombatLogParser.SourceGenerator.Models;
+using WoWCombatLogParser.Utility;
+using static WoWCombatLogParser.SourceGenerator.EventSourceGeneratorExtensions;
 
-namespace WoWCombatLogParser.SourceGenerator.Events;
+namespace WoWCombatLogParser.SourceGenerator;
 
 [Generator]
 public class EventSourceGenerator : ISourceGenerator
@@ -53,7 +53,7 @@ public class EventSourceGenerator : ISourceGenerator
                             var (name, source) = GenerateSourceText<CompoundEventSection>(
                                     types: [affix.EventType, suffix.EventType],
                                     @namespace: "WoWCombatLogParser.Events",
-                                    usings: ["WoWCombatLogParser.Models", "WoWCombatLogParser.Sections"]);
+                                    usings: []);
 
                             context.AddSource(name, source);
                         });
@@ -66,14 +66,14 @@ public class EventSourceGenerator : ISourceGenerator
                         generatedItem = GenerateSourceText<CompoundEventSection>(
                                     types: [affix.EventType],
                                     @namespace: "WoWCombatLogParser.Events",
-                                    usings: ["WoWCombatLogParser.Models", "WoWCombatLogParser.Sections"]);
+                                    usings: []);
                     }
                     else
                     {
                         generatedItem = GenerateSourceText<CombatLogEventComponent>(
                             types: [affix.EventType],
                             @namespace: "WoWCombatLogParser.Events",
-                            usings: ["WoWCombatLogParser.Models", "WoWCombatLogParser.Sections"]);
+                            usings: []);
                     }
 
                     context.AddSource(generatedItem.name, generatedItem.source);
@@ -84,7 +84,7 @@ public class EventSourceGenerator : ISourceGenerator
             .ToList()
             .ForEach(s =>
             {
-                var (name, source) = GenerateSourceText([s], null, "WoWCombatLogParser.Sections", ["WoWCombatLogParser.Models", "WoWCombatLogParser.Events"], ["CombatLogEventComponent"], false);
+                var (name, source) = GenerateSourceText([s], null, "WoWCombatLogParser.Sections", [], ["CombatLogEventComponent"], false);
                 var sourceText = CSharpSyntaxTree.ParseText(source, new(LanguageVersion.Latest, DocumentationMode.Diagnose))
                     .GetRoot()
                     .NormalizeWhitespace()
@@ -121,7 +121,7 @@ namespace {@namespace}
     }
 
     private string GetInheritance(IList<Type> types, IList<string> predefined)
-    {        
+    {
         predefined ??= [];
         List<string> inheritance =
         [
@@ -136,8 +136,6 @@ namespace {@namespace}
     private string GetUsings(params string[] usings)
     {
         return $@"using System;
-using WoWCombatLogParser.Common.Models;
-using WoWCombatLogParser.Common.Events;
 {string.Join(Environment.NewLine, usings?.Select(x => $"using {x};"))}";
     }
 
@@ -163,7 +161,7 @@ using WoWCombatLogParser.Common.Events;
         }
         return string.Empty;
     }
-    
+
     private string GetKeyValuePairAttributes(IList<Type> types)
     {
         if (types.Any(x => x.GetCustomAttribute<KeyValuePairAttribute>() != null))
@@ -176,8 +174,8 @@ using WoWCombatLogParser.Common.Events;
     private string GetClassData(string className, IList<Type> types, IList<string> inheritsFrom, IList<PropertyInfo> baseProperties, bool generateAdditionalConstructor)
     {
         return $@"{ConsolidateAttributes(
-            GetAffix(types), 
-            GetApplicableCombatLogVersion(types),    
+            GetAffix(types),
+            GetApplicableCombatLogVersion(types),
             GetDataFieldAttributes(types))}
     public partial class {className}{GetInheritance(types, inheritsFrom)}
     {{
@@ -214,7 +212,7 @@ using WoWCombatLogParser.Common.Events;
 }
 
 public static class EventSourceGeneratorExtensions
-{        
+{
     public static string GetProperty(this PropertyInfo property)
     {
         string propertyType;
@@ -242,7 +240,7 @@ public static class EventSourceGeneratorExtensions
             value += $" {{{(property.CanRead ? " get;" : "")}{(property.CanWrite ? " set;" : "")} }}";
         }
 
-        if (property.PropertyType.IsSubclassOf(typeof(CombatLogEventComponent)) || (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>)))
+        if (property.PropertyType.IsSubclassOf(typeof(CombatLogEventComponent)) || property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
         {
             value += " = new();";
         }

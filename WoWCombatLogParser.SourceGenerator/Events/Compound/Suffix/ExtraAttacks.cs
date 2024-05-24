@@ -1,9 +1,9 @@
-﻿using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
 
 [Suffix("_EXTRA_ATTACKS")]
-public class ExtraAttacks : CombatLogEventComponent
+internal class ExtraAttacks : CombatLogEventComponent
 {
     public int Amount { get; set; }
 }

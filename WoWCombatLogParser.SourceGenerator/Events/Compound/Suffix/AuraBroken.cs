@@ -1,15 +1,16 @@
-﻿using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.Models;
+using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
 
 [Suffix("_AURA_BROKEN")]
-public class AuraBroken : CombatLogEventComponent, IAura
+internal class AuraBroken : CombatLogEventComponent, IAura
 {
     public AuraType AuraType { get; set; }
 }
 
 [Suffix("_AURA_BROKEN_SPELL")]
-public class AuraBrokenSpell : SuffixAbilityBase, IAura
+internal class AuraBrokenSpell : SuffixAbilityBase, IAura
 {
     public AuraType AuraType { get; set; }
 }

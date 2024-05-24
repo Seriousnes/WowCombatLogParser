@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
-using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Special;
 
-public abstract class EncounterFragment : CombatLogEventComponent
+internal abstract class EncounterFragment : CombatLogEventComponent
 {
     public int EncounterId { get; set; }
     public string Name { get; set; }
@@ -14,21 +14,21 @@ public abstract class EncounterFragment : CombatLogEventComponent
 
 [DebuggerDisplay("Encounter \"{Name}\" ({Id}) starting")]
 [Affix("ENCOUNTER_START")]
-public class EncounterStart : EncounterFragment, IFightStart
+internal class EncounterStart : EncounterFragment, IFightStart
 {
     public int InstanceId { get; set; }
 }
 
 [DebuggerDisplay("Encounter \"{Name}\" ({Id}) ended")]
 [Affix("ENCOUNTER_END")]
-public class EncounterEnd : EncounterFragment, IFightEnd, IFightEndSuccess
+internal class EncounterEnd : EncounterFragment, IFightEnd, IFightEndSuccess
 {
     public bool Success { get; set; }
     public int Duration { get; set; }
 }
 
 
-public abstract class LocationChange : CombatLogEventComponent
+internal abstract class LocationChange : CombatLogEventComponent
 {
     public int LocationId { get; set; }
     public string Name { get; set; }
@@ -36,13 +36,13 @@ public abstract class LocationChange : CombatLogEventComponent
 
 [DebuggerDisplay("Loaded into map \"{Name}\" ({Id})")]
 [Affix("MAP_CHANGE")]
-public class MapChange : LocationChange
+internal class MapChange : LocationChange
 {
 }
 
 [DebuggerDisplay("Loaded into zone \"{Name}\" ({Id})")]
 [Affix("ZONE_CHANGE")]
-public class ZoneChange : LocationChange
+internal class ZoneChange : LocationChange
 {
     public int DifficultyId { get; set; }
 }

@@ -1,10 +1,11 @@
-﻿using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
+using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Prefix;
 
 [Prefix("RANGE")]
 [SuffixAllowed(typeof(Damage), typeof(Missed))]
 [SuffixNotAllowed(typeof(DamageLanded))]
-public class Range : PrefixAbilityBase, IAbility
-{        
+internal class Range : PrefixAbilityBase, IAbility
+{
 }

@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using WoWCombatLogParser.Common.Models;
+﻿using System.Linq;
+using WoWCombatLogParser.Utility;
 
-namespace WoWCombatLogParser.Common.Utility;
+namespace WoWCombatLogParser.Utility;
 
 public static class SpellSchoolExtensions
 {

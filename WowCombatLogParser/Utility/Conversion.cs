@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Utility;
+namespace WoWCombatLogParser.Utility;
 
 public static class Conversion
 {

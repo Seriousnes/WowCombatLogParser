@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
-using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.SourceGenerator.Events.Sections;
+using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Special;
 
 [Affix("CHALLENGE_MODE_START")]
-public class ChallengeModeStart : CombatLogEventComponent, IFightStart
+internal class ChallengeModeStart : CombatLogEventComponent, IFightStart
 {
     public string ZoneName { get; set; }
     public int InstanceId { get; set; }
@@ -15,7 +16,7 @@ public class ChallengeModeStart : CombatLogEventComponent, IFightStart
 }
 
 [Affix("CHALLENGE_MODE_END")]
-public class ChallengeModeEnd : CombatLogEventComponent, IFightEnd, IFightEndSuccess
+internal class ChallengeModeEnd : CombatLogEventComponent, IFightEnd, IFightEndSuccess
 {
     public int InstanceId { get; set; }
     public bool Success { get; set; }
@@ -23,6 +24,6 @@ public class ChallengeModeEnd : CombatLogEventComponent, IFightEnd, IFightEndSuc
     public int Duration { get; set; }
 }
 
-public class ChallengeModeAffix : IdPart<ChallengeModeAffixEnum>
+internal class ChallengeModeAffix : IdPart<ChallengeModeAffixEnum>
 {
 }
