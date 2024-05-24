@@ -378,7 +378,7 @@ public class DragonflightCombatLogParsingTests : CombatLogParsingTestBase
     [InlineData(typeof(SpellDamage), @"11/28 19:32:46.738  SPELL_DAMAGE,Player-3725-0BF357DA,""Koriz-Frostmourne"",0x514,0x0,Creature-0-5047-2450-26923-175730-0000234859,""Fatescribe Roh-Kalo"",0x10a48,0x0,285452,""Lava Burst"",0x4,Creature-0-5047-2450-26923-175730-0000234859,0000000000000000,18216931,20164970,0,0,1071,0,3,0,100,0,64.06,-904.28,2001,1.9476,63,8215,3816,-1,4,0,0,0,1,nil,nil")]
     public void Test_DamageSuffix(Type eventType, string input)
     {
-        var combatLogEvent = EventGenerator.GetCombatLogEventAsync(input).Result;
+        var combatLogEvent = EventGenerator.GetCombatLogEvent(input);
         combatLogEvent.GetType().Should().Be(eventType);
     }
 

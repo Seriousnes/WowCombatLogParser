@@ -3,13 +3,15 @@
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<DebugType>portable</DebugType>
-		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>		
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
-
+	
 	<PropertyGroup>
 		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+	</PropertyGroup>
+	
+	<PropertyGroup>		
 		<Title>WoWCombatLogParser</Title>
 		<PackageProjectUrl>https://github.com/Seriousnes/WowCombatLogParser</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/Seriousnes/WowCombatLogParser</RepositoryUrl>
@@ -25,9 +27,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\WoWCombatLogParser.Common\WoWCombatLogParser.Common.csproj" />
 		<ProjectReference Include="..\WoWCombatLogParser.IO\WoWCombatLogParser.IO.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\WoWCombatLogParser.SourceGenerator\WoWCombatLogParser.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 </Project>

@@ -21,8 +21,6 @@ public partial interface IEventGenerator
     CombatLogEvent? GetCombatLogEvent(CombatLogLineData line);
     T? GetCombatLogEvent<T>(string line) where T : CombatLogEvent;
     T? GetCombatLogEvent<T>(CombatLogLineData line) where T : CombatLogEvent;
-    Task<CombatLogEvent?> GetCombatLogEventAsync(CombatLogLineData line);
-    Task<CombatLogEvent?> GetCombatLogEventAsync(string input);
 }
 
 
@@ -45,37 +43,15 @@ public class EventGenerator : IEventGenerator
 
     public IParserContext ParserContext { get; set; }
 
-    public CombatLogEvent? GetCombatLogEvent(string line)
-    {
-        return GetCombatLogEventAsync(ReadFields(line))?.GetAwaiter().GetResult();
-    }
-
-    public CombatLogEvent? GetCombatLogEvent(CombatLogLineData line)
-    {
-        return GetCombatLogEventAsync(line)?.GetAwaiter().GetResult();
-    }
-
-    public T? GetCombatLogEvent<T>(string line) where T : CombatLogEvent
-    {
-        return (T?)GetCombatLogEvent(ReadFields(line));
-    }
-
+    public CombatLogEvent? GetCombatLogEvent(string line) => GetCombatLogEvent<CombatLogEvent>(line);
+    public CombatLogEvent? GetCombatLogEvent(CombatLogLineData line) => GetCombatLogEvent<CombatLogEvent>(line);
+    public T? GetCombatLogEvent<T>(string line) where T : CombatLogEvent => GetCombatLogEvent<T>(ReadFields(line));
     public T? GetCombatLogEvent<T>(CombatLogLineData line) where T : CombatLogEvent
-    {
-        return (T?)GetCombatLogEventAsync(line).GetAwaiter().GetResult();
-    }
-
-    public async Task<CombatLogEvent?> GetCombatLogEventAsync(string line)
-    {
-        return await GetCombatLogEventAsync(ReadFields(line));
-    }
-
-    public async Task<CombatLogEvent?> GetCombatLogEventAsync(CombatLogLineData line)
     {
         var result = GetInstanceOf(line.EventType);
         if (result is { })
-            await Task.Run(() => mapper[result.GetType()]!(result, line.Data, 0));
-        return result;
+            mapper[result.GetType()]!(result, line.Data, 0);
+        return (T?)result;
     }
 
     private CombatLogEvent GetInstanceOf(string eventType)
