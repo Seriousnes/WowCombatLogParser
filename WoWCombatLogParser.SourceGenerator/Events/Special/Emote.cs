@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Models;
 
 namespace WoWCombatLogParser.SourceGenerator.Events.Special;
 
 [Affix("EMOTE")]
-public class Emote
+internal class Emote
 {
     public Unit Source { get; set; } = new();
     public Unit Destination { get; set; } = new();

@@ -1,13 +1,10 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
-using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using System;
 using System.IO;
-using System.Net.Mime;
-using WoWCombatLogParser.IO;
 using Xunit;
 
 namespace WoWCombatLogParser.Tests;

@@ -1,11 +1,10 @@
-﻿using System.Diagnostics;
-using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
 
 [Suffix("_HEAL")]
 [DebuggerDisplay("{Amount} {Overhealing} {Absorbed} {Critical}")]
-public class Healing : AdvancedLoggingDetailsBase, IHealing, IDamageOrHealing, IAdvancedLoggingDetails
+internal class Healing : AdvancedLoggingDetailsBase, IHealing, IDamageOrHealing, IAdvancedLoggingDetails
 {
     public int Overhealing { get; set; }
     public int Absorbed { get; set; }

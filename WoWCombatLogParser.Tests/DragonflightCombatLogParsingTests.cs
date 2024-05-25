@@ -2,18 +2,13 @@ using FluentAssertions;
 using System;
 using WoWCombatLogParser.Events;
 using WoWCombatLogParser.Models;
-using WoWCombatLogParser.Common.Models;
 using Xunit;
 using Xunit.Abstractions;
 using System.Linq;
-using System.Diagnostics.Tracing;
 using System.IO;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using WoWCombatLogParser.IO;
-using WoWCombatLogParser.Common.Events;
-using WoWCombatLogParser.Sections;
 using System.Collections.Concurrent;
 
 namespace WoWCombatLogParser.Tests;

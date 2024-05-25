@@ -1,13 +1,13 @@
-﻿namespace WoWCombatLogParser.Common.Events;
+﻿namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Predefined;
 
-public abstract class PredefinedBase : CombatLogEventComponent
+internal abstract class PredefinedBase : CombatLogEventComponent
 {
 }
 
-public abstract class Predefined<T1> : PredefinedBase
+internal abstract class Predefined<T1> : PredefinedBase
 {
 }
 
-public abstract class Predefined<T1, T2> : PredefinedBase
+internal abstract class Predefined<T1, T2> : PredefinedBase
 {
 }

@@ -1,8 +1,10 @@
-﻿using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Events.Compound.Prefix;
+using WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
+using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Predefined;
 
 [Affix("DAMAGE_SPLIT")]
-public class DamageSplit : Predefined<Spell, Damage>
+internal class DamageSplit : Predefined<Spell, Damage>
 {
 }

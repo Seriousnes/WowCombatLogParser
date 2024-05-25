@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser;
 

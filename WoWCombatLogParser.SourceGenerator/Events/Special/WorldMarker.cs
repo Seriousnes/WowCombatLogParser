@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Models;
 
 namespace WoWCombatLogParser.SourceGenerator.Events.Special;
 
 [Affix("WORLD_MARKER_PLACED")]
-public class WorldMarkerPlaced
+internal class WorldMarkerPlaced
 {
     public int MapId { get; set; }
     public WorldMarker Marker { get; set; }
@@ -15,7 +12,7 @@ public class WorldMarkerPlaced
 }
 
 [Affix("WORLD_MARKER_REMOVED")]
-public class WorldMarkerRemoved
+internal class WorldMarkerRemoved
 {
     public WorldMarker Marker { get; set; }
 }

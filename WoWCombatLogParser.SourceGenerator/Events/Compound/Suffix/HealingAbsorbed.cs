@@ -1,11 +1,10 @@
-﻿using System.Diagnostics;
-using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
 
 [Suffix("_HEAL_ABSORBED")]
 [DebuggerDisplay("{ExtraUnit} {ExtraSpell} {ExtraAmount}")]
-public class HealingAbsorbed
+internal class HealingAbsorbed
 {
     public Unit ExtraUnit { get; set; } = new Unit();
     public Ability ExtraSpell { get; set; } = new Ability();

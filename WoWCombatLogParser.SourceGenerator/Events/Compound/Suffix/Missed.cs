@@ -1,11 +1,10 @@
-﻿using System.Diagnostics;
-using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
 
 [Suffix("_MISSED")]
 [DebuggerDisplay("{MissType} {IsOffHand} {AmountMissed} {Critical}")]
-public class Missed : CombatLogEventComponent
+internal class Missed : CombatLogEventComponent
 {
     public MissType MissType { get; set; }
     [Optional]

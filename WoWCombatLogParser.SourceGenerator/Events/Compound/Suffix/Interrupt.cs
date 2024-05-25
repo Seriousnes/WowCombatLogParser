@@ -1,8 +1,8 @@
-﻿using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
 
 [Suffix("_INTERRUPT")]
-public class Interrupt : SuffixAbilityBase
+internal class Interrupt : SuffixAbilityBase
 {
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using WoWCombatLogParser.Common.Models;
-using WoWCombatLogParser.Common.Utility;
+using WoWCombatLogParser.SourceGenerator.Models;
+
 
 namespace WoWCombatLogParser.Events;
 
@@ -12,10 +12,10 @@ public partial class CombatLogVersionEvent : CombatLogEvent
     public CombatLogVersionEvent(string line) : this()
     {
         var m = _eventTypeExpr.Match(line).Groups;
-        Timestamp = Conversion.GetValue<DateTime>(m["timestamp"].Value);
-        Version = Conversion.GetValue<CombatLogVersion>(m["version"].Value);
-        AdvancedLogEnabled = Conversion.GetValue<bool>(m["advancedlogenabled"].Value);
+        Timestamp = GetValue<DateTime>(m["timestamp"].Value);
+        Version = GetValue<CombatLogVersion>(m["version"].Value);
+        AdvancedLogEnabled = GetValue<bool>(m["advancedlogenabled"].Value);
         BuildVersion = m["buildversion"].Value;
-        ProjectId = Conversion.GetValue<int>(m["projectid"].Value);
+        ProjectId = GetValue<int>(m["projectid"].Value);
     }
 }
