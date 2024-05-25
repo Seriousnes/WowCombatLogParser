@@ -18,21 +18,13 @@ jobs:
   
     - name: build
       run: dotnet build -c Release
+      
+    - name: pack WoWCombatLogParser
+      run: dotnet pack WoWCombatLogParser -p:PackageVersion=$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm")) -c Release --output .\packages --no-build
 
-  pack:
-    runs-on: windows-latest
-    needs: build
-    strategy:
-      matrix:
-        project: [ "WoWCombatLogParser", "WoWCombatLogParser.SourceGenerator" ]
-    steps:
-    - name: package
-      run: dotnet pack ${{ matrix.project }} -p:PackageVersion=$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm")) -c Release --output .\packages --no-build
+    - name: pack WoWCombatLogParser.SourceGenerator
+      run: dotnet pack WoWCombatLogParser.SourceGenerator -p:PackageVersion=$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm")) -c Release --output .\packages --no-build  
   
-  deploy:
-    runs-on: windows-latest
-    needs: pack
-    steps:
     - name: authenticate
       run: dotnet nuget add source --username Seriousnes --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/Seriousnes/index.json"
     
