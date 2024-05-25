@@ -1,5 +1,4 @@
 ﻿using System;
-using WoWCombatLogParser.Common.Events;
 
 namespace WoWCombatLogParser.Parser.EventMapping;
 

@@ -1,9 +1,5 @@
-﻿using WoWCombatLogParser.Common.Models;
+﻿namespace WoWCombatLogParser.SourceGenerator.Events.Sections;
 
-namespace WoWCombatLogParser.Common.Events;
-
-public class InterestingAura : CombatLogEventComponent
+internal abstract class InterestingAura
 {
-    public WowGuid PlayerId { get; set; }
-    public int AuraId { get; set; }
 }

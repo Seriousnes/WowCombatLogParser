@@ -1,10 +1,9 @@
-﻿using WoWCombatLogParser.Common.Events;
-using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Models;
 
 namespace WoWCombatLogParser.SourceGenerator.Events.Special;
 
 [Affix("ENVIRONMENTAL_DAMAGE")]
-public class EnvironmentalDamage : CombatLogEventComponent, IDamage, IAdvancedLoggingDetails
+internal class EnvironmentalDamage : CombatLogEventComponent, IDamage, IAdvancedLoggingDetails
 {
     public Actor Source { get; set; } = new();
     public Actor Destination { get; set; } = new();

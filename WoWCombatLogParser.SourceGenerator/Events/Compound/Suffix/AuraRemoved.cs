@@ -1,11 +1,10 @@
-﻿using System.Diagnostics;
-using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
 
 [Suffix("_AURA_REMOVED")]
 [DebuggerDisplay("{AuraType}")]
-public class AuraRemoved : CombatLogEventComponent, IAura
+internal class AuraRemoved : CombatLogEventComponent, IAura
 {
     public AuraType AuraType { get; set; }
     [Optional]

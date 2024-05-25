@@ -1,4 +1,4 @@
-using WoWCombatLogParser.Common.Models;
+using WoWCombatLogParser.Models;
 using Xunit;
 using Xunit.Abstractions;
 

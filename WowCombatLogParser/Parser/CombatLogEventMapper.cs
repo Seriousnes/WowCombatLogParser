@@ -5,11 +5,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using WoWCombatLogParser.Common.Events;
-using WoWCombatLogParser.Common.Models;
-using WoWCombatLogParser.Common.Utility;
+using WoWCombatLogParser.Utility;
+using WoWCombatLogParser.Parser;
 using WoWCombatLogParser.Parser.EventMapping;
+using WoWCombatLogParser.SourceGenerator.Events;
 using static System.Linq.Expressions.Expression;
+using WoWCombatLogParser.SourceGenerator.Models;
 
 namespace WoWCombatLogParser;
 
@@ -48,20 +49,6 @@ public class CombatLogEventMapper : ICombatLogEventMapper
             .Where(x => x.IsSubclassOf(typeof(EventProfile)))
             .Select(x => (EventProfile)Activator.CreateInstance(x)!)
             .ToDictionary(key => key.EventType, value => value.GetMapping(this));        
-    }
-
-    private void Setup()
-    {
-        var types = GetTypesWhere(i =>
-            i.GetCustomAttribute<AffixAttribute>() == null &&
-            i.IsSubclassOf(typeof(CombatLogEventComponent)) &&
-            !i.IsAbstract &&
-            !i.IsGenericType);
-
-        foreach (var t in types)
-        {
-            BuildDelegateForType(t);
-        }
     }
 
     public CombatLogEventMapping? BuildDelegateForType(Type type)
@@ -348,8 +335,8 @@ public class CombatLogEventMapper : ICombatLogEventMapper
 
     private static IEnumerable<Type> GetTypesWhere(Func<Type, bool> expr)
     {
-        foreach (var type in Assembly.Load("WoWCombatLogParser.Common").GetTypes().Where(expr))
-            yield return type;
+        //foreach (var type in Assembly.Load("WoWCombatLogParser.Common").GetTypes().Where(expr))
+        //    yield return type;
         foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(expr))
             yield return type;
     }

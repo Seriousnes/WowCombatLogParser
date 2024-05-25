@@ -1,12 +1,12 @@
-﻿using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Special;
 
 [Affix("COMBAT_LOG_VERSION")]
-public class CombatLogVersionEvent : BaseCombatLogEvent
-{    
+internal class CombatLogVersionEvent : BaseCombatLogEvent
+{
     public CombatLogVersion Version { get; set; }
     public bool AdvancedLogEnabled { get; set; }
     public string BuildVersion { get; set; }
-    public int ProjectId { get; set; }    
+    public int ProjectId { get; set; }
 }

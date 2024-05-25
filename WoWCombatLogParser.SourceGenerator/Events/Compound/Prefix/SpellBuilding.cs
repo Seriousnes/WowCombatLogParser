@@ -1,9 +1,10 @@
-﻿using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
+using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Prefix;
 
 [Prefix("SPELL_BUILDING")]
 [SuffixAllowed(typeof(Damage), typeof(Healing))]
-public class SpellBuilding : PrefixAbilityBase, IAbility
+internal class SpellBuilding : PrefixAbilityBase, IAbility
 {
 }

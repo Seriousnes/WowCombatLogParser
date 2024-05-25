@@ -1,5 +1,4 @@
-﻿using System.Linq;
-//using WoWCombatLogParser.Sections;
+﻿//using WoWCombatLogParser.Sections;
 
 namespace WoWCombatLogParser.Utility;
 

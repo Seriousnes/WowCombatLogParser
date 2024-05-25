@@ -1,15 +1,15 @@
-﻿using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Common.Events;
+namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
 
 [Suffix("_DISPEL")]
-public class Dispel : SuffixAbilityBase, IAura
+internal class Dispel : SuffixAbilityBase, IAura
 {
     public AuraType AuraType { get; set; }
 }
 
 [Suffix("_STOLEN")]
-public class Stolen : SuffixAbilityBase, IAura
+internal class Stolen : SuffixAbilityBase, IAura
 {
     public AuraType AuraType { get; set; }
 }

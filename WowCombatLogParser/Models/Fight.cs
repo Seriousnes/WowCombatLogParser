@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Linq;
-using WoWCombatLogParser.Common.Events;
-using WoWCombatLogParser.Common.Models;
 
 namespace WoWCombatLogParser.Models;
 

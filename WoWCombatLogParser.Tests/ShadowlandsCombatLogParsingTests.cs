@@ -2,7 +2,6 @@ using FluentAssertions;
 using System;
 using WoWCombatLogParser.Events;
 using WoWCombatLogParser.Models;
-using WoWCombatLogParser.Common.Models;
 using Xunit;
 using Xunit.Abstractions;
 

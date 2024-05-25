@@ -10,18 +10,14 @@
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\WoWCombatLogParser.Common\WoWCombatLogParser.Common.csproj" />
-	</ItemGroup>
-
-	<PropertyGroup>
+	<!--<PropertyGroup>
 		<GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
 	</PropertyGroup>
 	
 	<Target Name="GetDependencyTargetPaths">
 		<ItemGroup>
-			<TargetPathWithTargetPlatformMoniker Include="..\WoWCombatLogParser.Common\bin\$(Configuration)\$(TargetFramework)\WowCombatLogParser.Common.dll" IncludeRuntimeDependency="false" />
+			<TargetPathWithTargetPlatformMoniker Include="..\WoWCombatLogParser\bin\$(Configuration)\$(TargetFramework)\WowCombatLogParser.dll" IncludeRuntimeDependency="false" />
 		</ItemGroup>
-	</Target>
+	</Target>-->
 
 </Project>

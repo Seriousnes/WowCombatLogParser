@@ -1,13 +1,8 @@
 using FluentAssertions;
+using WoWCombatLogParser.Models;
 using Xunit;
 using Xunit.Abstractions;
-using WoWCombatLogParser.Common.Models;
-using WoWCombatLogParser.Common.Utility;
-using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading.Tasks;
+using WoWCombatLogParser.Utility;
 
 namespace WoWCombatLogParser.Tests;
 

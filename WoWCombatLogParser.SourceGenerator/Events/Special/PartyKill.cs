@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using WoWCombatLogParser.Common.Events;
-using WoWCombatLogParser.Common.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Events.Compound;
+using WoWCombatLogParser.SourceGenerator.Models;
 
 namespace WoWCombatLogParser.SourceGenerator.Events.Special;
 
 [Affix("PARTY_KILL")]
-public class PartyKill : CompoundEventSection
+internal class PartyKill : CompoundEventSection
 {
     public int OverkillAmount { get; set; }
 }
