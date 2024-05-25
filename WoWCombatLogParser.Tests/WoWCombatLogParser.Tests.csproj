@@ -1,69 +1,40 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-	  <TargetFramework>net8.0</TargetFramework>
-	  <LangVersion>latest</LangVersion>
-	  <OutputType>Library</OutputType>
-	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<OutputType>Library</OutputType>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="TestLogs\Dragonflight\EchoOfNeltharion_CombatantInfoOnly.txt" />
-    <None Remove="TestLogs\Dragonflight\EchoOfNeltharion_Wipe.txt" />
-    <None Remove="TestLogs\Dragonflight\WoWCombatLog.txt" />
-    <None Remove="TestLogs\SingleFightCombatLog.txt" />
-    <None Remove="TestLogs\WoWCombatLog-112821_193218.txt" />
-    <None Remove="TestLogs\WoWCombatLog.txt" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' != 'Release'">
+		<Content Include="TestLogs\Dragonflight\EchoOfNeltharion_CombatantInfoOnly.txt" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="TestLogs\Dragonflight\EchoOfNeltharion_Wipe.txt" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="TestLogs\Shadowlands\SingleFightCombatLog.txt" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="TestLogs\Shadowlands\WoWCombatLog-112821_193218.txt" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="TestLogs\Shadowlands\WoWCombatLog.txt" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="TestLogs\Dragonflight\WoWCombatLog.txt" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="TestLogs\WotlkClassic\Naxxramas.txt" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Content Include="TestLogs\Dragonflight\EchoOfNeltharion_CombatantInfoOnly.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestLogs\Dragonflight\EchoOfNeltharion_Wipe.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestLogs\Shadowlands\SingleFightCombatLog.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestLogs\Shadowlands\WoWCombatLog-112821_193218.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestLogs\Shadowlands\WoWCombatLog.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="BenchmarkDotNet" Version="0.13.8" />
+		<PackageReference Include="ByteSize" Version="2.1.1" />
+		<PackageReference Include="FluentAssertions" Version="6.3.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+		<PackageReference Include="xunit" Version="2.4.1" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="coverlet.collector" Version="1.3.0">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.8" />
-    <PackageReference Include="ByteSize" Version="2.1.1" />
-    <PackageReference Include="FluentAssertions" Version="6.3.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="1.3.0">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\WoWCombatLogParser\WoWCombatLogParser.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="TestLogs\Dragonflight\WoWCombatLog.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="TestLogs\WotlkClassic\Naxxramas.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\WoWCombatLogParser\WoWCombatLogParser.csproj" />
+	</ItemGroup>
 
 </Project>
