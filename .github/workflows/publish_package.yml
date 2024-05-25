@@ -10,17 +10,31 @@ permissions:
   packages: write
   id-token: write
 jobs:
-  pack_and_push:
+  build:
     runs-on: windows-latest
     steps:
     - name: Check out repository
       uses: actions/checkout@v4.1.5  
+  
+    - name: Build
+      run: dotnet build -c Release
 
-    - name: Build Source Generator
-      run: dotnet pack WoWCombatLogParser.SourceGenerator -p:PackageVersion=$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm")) -c Release --output .
-      
-    - name: Build Parser
-      run: dotnet pack WoWCombatLogParser -p:PackageVersion=$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm")) -c Release --output .
-      
+  pack:
+    runs-on: windows-latest
+    needs: build
+    strategy:
+      matrix:
+        project: [ "WoWCombatLogParser", "WoWCombatLogParser.SourceGenerator" ]
+    steps:
+    - name: package
+      run: dotnet pack ${{ matrix.project }} -p:PackageVersion=$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm")) -c Release --output .\packages --no-build
+  
+  deploy:
+    runs-on: windows-latest
+    needs: pack
+    steps:
+    - name: Authenticate to Github Packages
+      run: dotnet nuget add source --username Seriousnes --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/Seriousnes/index.json"
+    
     - name: Publish Package
-      run: dotnet nuget push *.nupkg --api-key ${{ secrets.GITHUB_TOKEN }}
+      run: dotnet nuget push .\packages\*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} -s "github"
