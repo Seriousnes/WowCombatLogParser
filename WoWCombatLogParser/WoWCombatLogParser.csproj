@@ -25,7 +25,6 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<ProjectReference Include="..\WoWCombatLogParser.IO\WoWCombatLogParser.IO.csproj" />
 		<ProjectReference Include="..\WoWCombatLogParser.SourceGenerator\WoWCombatLogParser.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
 	</ItemGroup>
 </Project>

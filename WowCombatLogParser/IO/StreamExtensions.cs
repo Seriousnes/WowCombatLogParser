@@ -2,7 +2,7 @@
 
 namespace System.IO;
 
-public static class StreamExtensions
+internal static class StreamExtensions
 {
     private static readonly int NOT_FOUND_INDEX = -1;   
     

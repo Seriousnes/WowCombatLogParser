@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWCombatLogParser", "WoWCo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWCombatLogParser.Tests", "WoWCombatLogParser.Tests\WoWCombatLogParser.Tests.csproj", "{6B3C9320-17C2-4E11-8A06-4FC039D81F1E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWCombatLogParser.IO", "WoWCombatLogParser.IO\WoWCombatLogParser.IO.csproj", "{74F02D4B-8783-4796-B824-87F3669E2913}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWCombatLogParser.SourceGenerator", "WoWCombatLogParser.SourceGenerator\WoWCombatLogParser.SourceGenerator.csproj", "{F801E147-4371-4D68-88CA-7935D2A7F081}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WowCombatLogParser.Console", "WowCombatLogParser.Console\WowCombatLogParser.Console.csproj", "{4EB25EE5-65CA-4C13-915D-0E10E26F81B7}"
@@ -27,10 +25,6 @@ Global
 		{6B3C9320-17C2-4E11-8A06-4FC039D81F1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B3C9320-17C2-4E11-8A06-4FC039D81F1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B3C9320-17C2-4E11-8A06-4FC039D81F1E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{74F02D4B-8783-4796-B824-87F3669E2913}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{74F02D4B-8783-4796-B824-87F3669E2913}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{74F02D4B-8783-4796-B824-87F3669E2913}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{74F02D4B-8783-4796-B824-87F3669E2913}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F801E147-4371-4D68-88CA-7935D2A7F081}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F801E147-4371-4D68-88CA-7935D2A7F081}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F801E147-4371-4D68-88CA-7935D2A7F081}.Release|Any CPU.ActiveCfg = Release|Any CPU
