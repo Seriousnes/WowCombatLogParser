@@ -16,7 +16,7 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v4.1.5  
   
-    - name: Build
+    - name: build
       run: dotnet build -c Release
 
   pack:
@@ -33,8 +33,8 @@ jobs:
     runs-on: windows-latest
     needs: pack
     steps:
-    - name: Authenticate to Github Packages
+    - name: authenticate
       run: dotnet nuget add source --username Seriousnes --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/Seriousnes/index.json"
     
-    - name: Publish Package
+    - name: publish
       run: dotnet nuget push .\packages\*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} -s "github"
