@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using WoWCombatLogParser.Models;
-using WoWCombatLogParser.SourceGenerator.Models;
+﻿using WoWCombatLogParser.SourceGenerator.Models;
 
 namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
 

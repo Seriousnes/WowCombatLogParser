@@ -1,6 +1,4 @@
-﻿using WoWCombatLogParser.Models;
-
-namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
+﻿namespace WoWCombatLogParser.SourceGenerator.Events.Compound.Suffix;
 
 internal class Absorbed
 {

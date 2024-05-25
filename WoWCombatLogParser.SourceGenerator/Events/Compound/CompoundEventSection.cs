@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using WoWCombatLogParser.Models;
-
-namespace WoWCombatLogParser.SourceGenerator.Events.Compound;
+﻿namespace WoWCombatLogParser.SourceGenerator.Events.Compound;
 
 [DebuggerDisplay("{Timestamp} {CombatLogEventComponent} {Source} {Destination}")]
 internal partial class CompoundEventSection : CombatLogEventComponent

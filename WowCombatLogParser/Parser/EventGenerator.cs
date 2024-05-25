@@ -23,7 +23,7 @@ public partial interface IEventGenerator
 public class EventGenerator : IEventGenerator
 {
     private static readonly CombatLogVersionedDictionary<string, ObjectActivator> _ctors = new();
-    private static readonly Assembly _assembly = Assembly.Load("WoWCombatLogParser.Common");
+    //private static readonly Assembly _assembly = Assembly.Load("WoWCombatLogParser.Common");
     private static readonly CombatLogEventMapper mapper = new();
 
     static EventGenerator()
@@ -66,16 +66,16 @@ public class EventGenerator : IEventGenerator
     
     private static void SetupCombatLogEvents()
     {
-        GetTypesWhere(i => i.GetCustomAttribute<AffixAttribute>() != null)
+        GetTypesWhere(i => i.GetCustomAttribute<DiscriminatorAttribute>() != null)
             .ToList()
             .ConvertAll(i => new EventAffixItem(i))
-            .ForEach(p => AddType(p.Affix.Name, p.EventType));
+            .ForEach(p => AddType(p.Affix.Value, p.EventType));
     }
 
     private static void AddType(string name, Type type)
     {
         var constructor = type.GetConstructors().First();
-        var activator = CombatLogEventActivator.GetActivator(constructor);
+        var activator = GetActivator(constructor);
 
         var applicableCombatLogVersions = type
             .GetCustomAttributes<CombatLogVersionAttribute>()
@@ -92,8 +92,8 @@ public class EventGenerator : IEventGenerator
 
     private static IEnumerable<Type> GetTypesWhere(Func<Type, bool> expr)
     {
-        foreach (var type in _assembly.GetTypes().Where(expr))
-            yield return type;
+        //foreach (var type in _assembly.GetTypes().Where(expr))
+        //    yield return type;
         foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(expr))
             yield return type;
     }

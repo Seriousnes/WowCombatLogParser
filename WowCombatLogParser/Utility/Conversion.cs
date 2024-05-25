@@ -50,5 +50,5 @@ public static class Conversion
     public static T GetValue<T>(ICombatLogDataField value) => (T)GetValue(value, typeof(T));
     public static object GetValue(ICombatLogDataField value, Type type) => GetValue(value.ToString(), type);
     private static int ConvertToInt(string value) => Convert.ToInt32(value, value.StartsWith("0x") ? 16 : 10);
-    private static object ConvertToEnum(string value, Type type) =>  isNumber.IsMatch(value) ? Enum.ToObject(type, ConvertToInt(value)) : EnumExtensions.FromDescription(value, type);
+    private static object ConvertToEnum(string value, Type type) =>  isNumber.IsMatch(value) ? Enum.ToObject(type, ConvertToInt(value)) : type.FromDescription(value);
 }

@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using WoWCombatLogParser.SourceGenerator.Events;
 using WoWCombatLogParser.SourceGenerator.Events.Compound;
 using WoWCombatLogParser.SourceGenerator.Events.Compound.Predefined;
 using WoWCombatLogParser.SourceGenerator.Models;
@@ -28,9 +27,9 @@ public class EventSourceGenerator : ISourceGenerator
 
     public void Execute(GeneratorExecutionContext context)
     {
-        var sections = Assembly.GetExecutingAssembly()
-            .GetTypes()
-            .Where(x => x.IsSubclassOf(typeof(CombatLogEventComponent)) && !x.IsAbstract/* && !x.IsGenericType*/);
+        //var sections = Assembly.GetExecutingAssembly()
+        //    .GetTypes()
+        //    .Where(x => x.IsSubclassOf(typeof(CombatLogEventComponent)) && !x.IsAbstract/* && !x.IsGenericType*/);
 
         var events = Assembly.GetExecutingAssembly()
             .GetTypes()
@@ -55,7 +54,7 @@ public class EventSourceGenerator : ISourceGenerator
                                     @namespace: "WoWCombatLogParser.Events",
                                     usings: []);
 
-                            context.AddSource(name, source);
+                            AddSource(context, name, source);
                         });
                 }
                 else
@@ -76,21 +75,34 @@ public class EventSourceGenerator : ISourceGenerator
                             usings: []);
                     }
 
-                    context.AddSource(generatedItem.name, generatedItem.source);
+                    AddSource(context, generatedItem.name, generatedItem.source);
                 }
             });
 
-        sections.Where(x => !events.Any(e => e.EventType == x))
-            .ToList()
-            .ForEach(s =>
-            {
-                var (name, source) = GenerateSourceText([s], null, "WoWCombatLogParser.Sections", [], ["CombatLogEventComponent"], false);
-                var sourceText = CSharpSyntaxTree.ParseText(source, new(LanguageVersion.Latest, DocumentationMode.Diagnose))
-                    .GetRoot()
-                    .NormalizeWhitespace()
-                    .ToFullString();
-                context.AddSource(name, sourceText);
-            });
+        //sections.Where(x => !events.Any(e => e.EventType == x))
+        //    .ToList()
+        //    .ForEach(s =>
+        //    {
+        //        var (name, source) = GenerateSourceText([s], null, "WoWCombatLogParser.Sections", [], ["CombatLogEventComponent"], false);
+        //        var sourceText = CSharpSyntaxTree.ParseText(source, new(LanguageVersion.Latest, DocumentationMode.Diagnose))
+        //            .GetRoot()
+        //            .NormalizeWhitespace()
+        //            .ToFullString();
+        //        context.AddSource(name, sourceText);
+        //    });
+    }
+
+    private void AddSource(GeneratorExecutionContext context, string fileName, SourceText content) => AddSource(context, fileName, content.ToString());
+    private void AddSource(GeneratorExecutionContext context, string fileName, string content)
+    {
+        context.AddSource(
+            fileName,
+            CSharpSyntaxTree.ParseText(
+                content,
+                new(LanguageVersion.Latest, DocumentationMode.Diagnose))
+            .GetRoot()
+            .NormalizeWhitespace()
+            .ToFullString());
     }
 
     public void Initialize(GeneratorInitializationContext context)
@@ -143,7 +155,7 @@ namespace {@namespace}
     {
         var affix = string.Join("", types.Where(x => x.GetCustomAttribute<AffixAttribute>() != null).Select(x => x.GetCustomAttribute<AffixAttribute>().Name));
         if (!string.IsNullOrEmpty(affix))
-            return $"[Affix(\"{string.Join("", types.Select(x => x.GetCustomAttribute<AffixAttribute>().Name))}\")]";
+            return $"[Discriminator(\"{string.Join("", types.Select(x => x.GetCustomAttribute<AffixAttribute>().Name))}\")]";
         return "";
     }
 

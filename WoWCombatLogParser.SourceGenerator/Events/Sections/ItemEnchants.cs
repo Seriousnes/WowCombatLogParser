@@ -1,11 +1,6 @@
-﻿using System.Diagnostics;
-
-namespace WoWCombatLogParser.SourceGenerator.Events.Sections;
+﻿namespace WoWCombatLogParser.SourceGenerator.Events.Sections;
 
 [DebuggerDisplay("({PermanentEnchantId}) ({TempEnchantId}) ({OnUseSpellEnchantId})")]
-internal class ItemEnchants : CombatLogEventComponent
+internal abstract class ItemEnchants
 {
-    public int PermanentEnchantId { get; set; }
-    public int TempEnchantId { get; set; }
-    public int OnUseSpellEnchantId { get; set; }
 }

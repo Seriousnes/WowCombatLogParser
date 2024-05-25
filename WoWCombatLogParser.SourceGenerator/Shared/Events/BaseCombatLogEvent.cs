@@ -1,5 +1,4 @@
 ﻿using System;
-using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.Events;
 
@@ -12,9 +11,9 @@ public abstract class BaseCombatLogEvent : CombatLogEventComponent, ICombatLogEv
         Id = _count++;
     }
 
-    [SourceGenerator.Models.NonData]
+    [NonData]
     public int Id { get; private set; }
     public DateTime Timestamp { get; set; }
-    [SourceGenerator.Models.NonData]
+    [NonData]
     public string EventName => GetType().Name;
 }

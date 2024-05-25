@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using WoWCombatLogParser.SourceGenerator.Events.Sections;
 using WoWCombatLogParser.SourceGenerator.Models;
 
@@ -8,7 +7,7 @@ namespace WoWCombatLogParser.SourceGenerator.Events.Special.CombatantInfoEvents;
 [CombatLogVersion(CombatLogVersion.Dragonflight)]
 [Affix("COMBATANT_INFO")]
 [DebuggerDisplay("{PlayerGuid} {Faction} {Strength} {Agility} {Stamina} {Intelligence} {Dodge} {Parry} {Block} {CritMelee} {CritRanged} {CritSpell} {Speed} {Lifesteel} {HasteMelee} {HasteRanged} {HasteSpell} {Avoidance} {Mastery} {VersatilityDamageDone} {VersatilityHealingDone} {VersatilityDamageTaken} {Armor} {CurrentSpecID} ")]
-internal class DragonflightCombatantInfo : CombatantInfo, ICombatantInfo
+internal abstract class DragonflightCombatantInfo : CombatantInfo, ICombatantInfo
 {
     public int Strength { get; set; }
     public int Agility { get; set; }
@@ -33,20 +32,13 @@ internal class DragonflightCombatantInfo : CombatantInfo, ICombatantInfo
     public int Armor { get; set; }
     public int CurrentSpecID { get; set; }
     [IsSingleDataField]
-    public List<DragonflightTalent> ClassTalents { get; set; } = [];
+    public List<DragonflightTalent> ClassTalents { get; set; }
     [IsSingleDataField]
-    public List<Talent> PvPTalents { get; set; } = [];
+    public List<Sections.Talent> PvPTalents { get; set; }
     [IsSingleDataField]
-    public List<EquippedItem> EquippedItems { get; set; } = [];
+    public List<Sections.EquippedItem> EquippedItems { get; set; }
     [IsSingleDataField]
     [KeyValuePair]
-    public List<InterestingAura> InterestingAuras { get; set; } = [];
-    public PvPStats PvPStats { get; set; } = new PvPStats();
-}
-
-internal class DragonflightTalent : CombatLogEventComponent
-{
-    public int Id { get; set; }
-    public int Unknown { get; set; }
-    public int Ranks { get; set; }
+    public List<Sections.InterestingAura> InterestingAuras { get; set; }
+    public Sections.PvPStats PvPStats { get; set; }
 }

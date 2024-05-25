@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
 using WoWCombatLogParser.Events;
-using WoWCombatLogParser.SourceGenerator.Models;
 
 namespace WoWCombatLogParser.Models;
 

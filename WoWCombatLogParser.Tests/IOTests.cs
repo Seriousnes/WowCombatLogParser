@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using WoWCombatLogParser.IO;
 using Xunit;
 using Xunit.Abstractions;
 

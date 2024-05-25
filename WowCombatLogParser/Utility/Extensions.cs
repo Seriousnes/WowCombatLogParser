@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using WoWCombatLogParser.SourceGenerator.Models;
 
 namespace WoWCombatLogParser.Utility;
 
@@ -77,7 +76,7 @@ public static class Extensions
         return element.ToString();
     }
 
-    public static object FromDescription(string value, Type type)
+    public static object FromDescription(this Type type, string value)
     {
         foreach (Enum @enum in Enum.GetValues(type))
         {

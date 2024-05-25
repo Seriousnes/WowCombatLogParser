@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using WoWCombatLogParser.SourceGenerator.Events.Sections;
 using WoWCombatLogParser.SourceGenerator.Models;
 
@@ -8,7 +7,7 @@ namespace WoWCombatLogParser.SourceGenerator.Events.Special.CombatantInfoEvents;
 [CombatLogVersion(CombatLogVersion.Shadowlands)]
 [Affix("COMBATANT_INFO")]
 [DebuggerDisplay("{PlayerGuid} {Faction} {Strength} {Agility} {Stamina} {Intelligence} {Dodge} {Parry} {Block} {CritMelee} {CritRanged} {CritSpell} {Speed} {Lifesteel} {HasteMelee} {HasteRanged} {HasteSpell} {Avoidance} {Mastery} {VersatilityDamageDone} {VersatilityHealingDone} {VersatilityDamageTaken} {Armor} {CurrentSpecID} ")]
-internal class ShadowlandsCombatantInfo : CombatantInfo, ICombatantInfo
+internal abstract class ShadowlandsCombatantInfo : CombatantInfo, ICombatantInfo
 {
     public int Strength { get; set; }
     public int Agility { get; set; }
@@ -33,44 +32,15 @@ internal class ShadowlandsCombatantInfo : CombatantInfo, ICombatantInfo
     public int Armor { get; set; }
     public int CurrentSpecID { get; set; }
     [IsSingleDataField]
-    public List<Talent> ClassTalents { get; set; } = [];
+    public List<Sections.Talent> ClassTalents { get; set; }
     [IsSingleDataField]
-    public List<Talent> PvPTalents { get; set; } = [];
+    public List<Sections.Talent> PvPTalents { get; set; }
     [IsSingleDataField]
-    public Powers Powers { get; set; } = new Powers();
+    public Powers Powers { get; set; }
     [IsSingleDataField]
-    public List<EquippedItem> EquippedItems { get; set; } = [];
+    public List<Sections.EquippedItem> EquippedItems { get; set; }
     [IsSingleDataField]
-    public List<InterestingAura> InterestingAuras { get; set; } = [];
-    public PvPStats PvPStats { get; set; } = new PvPStats();
+    public List<Sections.InterestingAura> InterestingAuras { get; set; }
+    public Sections.PvPStats PvPStats { get; set; }
 }
 
-internal class Powers : CombatLogEventComponent
-{
-    public Soulbind Soulbind { get; set; }
-    public Covenant Covenant { get; set; }
-    [IsSingleDataField]
-    public List<AnimaPower> AnimaPowers { get; set; } = [];
-    [IsSingleDataField]
-    public List<SoulbindTrait> SoulbindTraits { get; set; } = [];
-    [IsSingleDataField]
-    public List<Conduit> Conduits { get; set; } = [];
-}
-
-[DebuggerDisplay("{Id} @ {Count} (Maw Power ID: {MawPowerId})")]
-internal class AnimaPower : CombatLogEventComponent
-{
-    public int Id { get; set; }
-    public int MawPowerId { get; set; }
-    public int Count { get; set; }
-}
-
-internal class SoulbindTrait : IdPart<int>
-{
-}
-
-[DebuggerDisplay("{Id} (Ilvl: {ItemLevel})")]
-internal class Conduit : IdPart<int>
-{
-    public int ItemLevel { get; set; }
-}

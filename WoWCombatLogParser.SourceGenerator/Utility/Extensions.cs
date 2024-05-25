@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using WoWCombatLogParser.SourceGenerator.Events;
 using WoWCombatLogParser.SourceGenerator.Models;
 
 namespace WoWCombatLogParser.Utility;

@@ -2,27 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Diagnostics;
 
 namespace WoWCombatLogParser.SourceGenerator.Models;
 
-[DebuggerDisplay("{DebuggerValue}")]
-internal class EventAffixItem
+internal class EventAffixItem(Type type)
 {
-    private string DebuggerValue => $"{EventType.Name} ({(IsSpecial ? "Special" : IsPrefix ? "Prefix" : "Suffix")})";
-
-    public EventAffixItem(Type type)
-    {
-        EventType = type;
-    }
-
-    public Type EventType { get; }
-    public string Name => Affix != null ? Affix.Name : EventType.Name;
+    public Type EventType { get; } = type;
     public AffixAttribute Affix => EventType.GetCustomAttribute<AffixAttribute>();
-    public bool IsSpecial => !IsPrefix && !IsSuffix;
     public bool IsPrefix => Affix is PrefixAttribute;
     public bool IsSuffix => Affix is SuffixAttribute;
     public bool HasRestrictedSuffixes => RestrictedSuffixes?.Count() > 0;
+
     public IEnumerable<EventAffixItem> RestrictedSuffixes => EventType
             .GetCustomAttributes(typeof(SuffixAllowedAttribute))
             .Cast<SuffixAllowedAttribute>()
