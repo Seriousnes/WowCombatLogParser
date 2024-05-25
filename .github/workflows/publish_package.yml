@@ -16,14 +16,11 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v4.1.5  
 
-    - name: Build Solution
-      run: dotnet build -c Release
-        
     - name: Build Source Generator
-      run: dotnet pack WoWCombatLogParser.SourceGenerator -p:PackageVersion=$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm")) --no-build
+      run: dotnet pack WoWCombatLogParser.SourceGenerator -p:PackageVersion=$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm")) -c Release --output .
       
     - name: Build Parser
-      run: dotnet pack WoWCombatLogParser -p:PackageVersion=$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm")) --configuration Release --output . --no-build
+      run: dotnet pack WoWCombatLogParser -p:PackageVersion=$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm")) -c Release --output .
       
     - name: Publish Package
       run: dotnet nuget push *.nupkg --api-key ${{ secrets.GITHUB_TOKEN }}
