@@ -1,6 +1,4 @@
-﻿using WoWCombatLogParser.Events;
-
-namespace WoWCombatLogParser.Models;
+﻿namespace WoWCombatLogParser;
 
 [DebuggerDisplay("{InfoGuid} {OwnerGuid} {UnitInfo} {Location} {Level}")]
 public class AdvancedLoggingDetails : CombatLogEventComponent, IAdvancedDetails

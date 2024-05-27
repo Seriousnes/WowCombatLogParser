@@ -129,7 +129,8 @@ public static class Extensions
             return mode switch
             {
                 IndexMode.LineStart => stream.LastIndexOf(Environment.NewLine, index - 1) + Environment.NewLine.Length,
-                IndexMode.LineEnd => stream.IndexOf(Environment.NewLine, index + 1)
+                IndexMode.LineEnd => stream.IndexOf(Environment.NewLine, index + 1),
+                _ => throw new NotImplementedException()
             };
         }
         return -1;

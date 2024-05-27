@@ -9,38 +9,38 @@ namespace WoWCombatLogParser;
 
 public interface ICombatLogDataField
 {
-    ICombatLogDataField Parent { get; set; }
+    ICombatLogDataField? Parent { get; set; }
 }
 
 
 [DebuggerDisplay("{ToString()}")]
-public class CombatLogTextField : ICombatLogDataField
+internal class CombatLogTextField : ICombatLogDataField
 {
-    private ReadOnlyMemory<char> data;
-    private StringBuilder _text = new();
+    private ReadOnlyMemory<char>? data;
+    private StringBuilder? _text = new();
 
     public virtual string Content => ToString();
 
-    public ICombatLogDataField Parent { get; set; }
+    public ICombatLogDataField? Parent { get; set; }
 
-    public virtual void Append(string value) => _text.Append(value);
+    public virtual void Append(string value) => _text?.Append(value);
 
     public virtual void Append(char value)
     {
         if (value.In('{', '}'))
-            _text.Append(value);
-        _text.Append(value);
+            _text?.Append(value);
+        _text?.Append(value);
     }
 
     public virtual bool IsFinalised => _text is null;
 
     public virtual void Finalise()
     {
-        data = _text.ToString().AsMemory();
+        data = _text?.ToString().AsMemory();
         _text = null;
     }
 
-    public override string ToString() => data.ToString();
+    public override string ToString() => data?.ToString() ?? throw new InvalidOperationException($"Attempt to call ToString() before Finalise()", new NullReferenceException());
 
     public static implicit operator string(CombatLogTextField field)
     {
@@ -49,7 +49,7 @@ public class CombatLogTextField : ICombatLogDataField
 }
 
 [DebuggerDisplay("{ToString()}")]
-public class QuotedCombatLogTextField : CombatLogTextField
+internal class QuotedCombatLogTextField : CombatLogTextField
 {
     public override string ToString()
     {
@@ -58,7 +58,7 @@ public class QuotedCombatLogTextField : CombatLogTextField
 }
 
 [DebuggerDisplay("{ToString()}")]
-public class CombatLogDataFieldCollection : ICombatLogDataField
+internal class CombatLogDataFieldCollection : ICombatLogDataField
 {
     private static readonly Dictionary<char, char> bracketPairs = new()
     {
@@ -80,7 +80,7 @@ public class CombatLogDataFieldCollection : ICombatLogDataField
         }
     }
     public virtual char ClosingBracket { get; private set; }
-    public ICombatLogDataField Parent { get; set; }
+    public ICombatLogDataField? Parent { get; set; }
 
     public virtual void AddChild(ICombatLogDataField child)
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WoWCombatLogParser.Events;
+namespace WoWCombatLogParser;
 
 public abstract class BaseCombatLogEvent : CombatLogEventComponent, ICombatLogEvent
 {

@@ -1,4 +1,4 @@
-﻿namespace WoWCombatLogParser.Models;
+﻿namespace WoWCombatLogParser;
 
 [DebuggerDisplay("{UnitType} {Ownership} {Reaction} {Affiliation} {Special}")]
 public readonly struct UnitFlag

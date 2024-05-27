@@ -1,16 +1,16 @@
-﻿using WoWCombatLogParser.Events;
+﻿namespace WoWCombatLogParser;
 
-namespace WoWCombatLogParser.Models;
-
+#nullable enable
 public class Ability : CombatLogEventComponent
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string? Name { get; set; }
     public SpellSchool School { get; set; }
-    public override bool Equals(object? obj)
+    public override bool Equals(object obj)
     {
         return obj is Ability ability && Id == ability.Id;
     }
 
     public override int GetHashCode() => base.GetHashCode();
 }
+#nullable restore

@@ -5,9 +5,12 @@ using WoWCombatLogParser.SourceGenerator.Models;
 
 namespace WoWCombatLogParser.Utility;
 
-public static class Conversion
+internal static partial class Conversion
 {
-    private static readonly Regex isNumber = new(@"^([0-9]+|0x[0-9a-f]+)$", RegexOptions.Compiled);
+    [GeneratedRegex(@"^([0-9]+|0x[0-9a-f]+)$", RegexOptions.Compiled)]
+    private static partial Regex IsNumber();
+
+    private static readonly Regex isNumber = IsNumber();
     private static readonly Dictionary<Type, Func<string, object>> _convertableTypes = new()
     {
         { typeof(WowGuid), value => new WowGuid(value) },
@@ -33,9 +36,9 @@ public static class Conversion
     {
         if (value.In("", "nil")) return _defaultValues[type];
 
-        if (_convertableTypes.ContainsKey(type))
+        if (_convertableTypes.TryGetValue(type, out var conversionFunc))
         {
-            return _convertableTypes[type]((string)value);
+            return conversionFunc(value);
         }
         else if (type.IsEnum)
         {
@@ -48,7 +51,7 @@ public static class Conversion
 
     public static T GetValue<T>(string value) =>  (T)GetValue(value, typeof(T));
     public static T GetValue<T>(ICombatLogDataField value) => (T)GetValue(value, typeof(T));
-    public static object GetValue(ICombatLogDataField value, Type type) => GetValue(value.ToString(), type);
+    public static object GetValue(ICombatLogDataField value, Type type) => GetValue(value.ToString()!, type);
     private static int ConvertToInt(string value) => Convert.ToInt32(value, value.StartsWith("0x") ? 16 : 10);
-    private static object ConvertToEnum(string value, Type type) =>  isNumber.IsMatch(value) ? Enum.ToObject(type, ConvertToInt(value)) : type.FromDescription(value);
+    private static object ConvertToEnum(string value, Type type) =>  isNumber.IsMatch(value) ? Enum.ToObject(type, ConvertToInt(value)) : type.FromDescription(value);    
 }

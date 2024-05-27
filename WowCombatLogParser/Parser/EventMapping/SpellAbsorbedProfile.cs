@@ -2,7 +2,7 @@
 
 namespace WoWCombatLogParser.Parser.EventMapping;
 
-public class SpellAbsorbedProfile : EventProfile
+internal class SpellAbsorbedProfile : EventProfile
 {
     public override Type EventType => typeof(SpellAbsorbed);
 
@@ -10,11 +10,11 @@ public class SpellAbsorbedProfile : EventProfile
     {
         return (c, d, i) =>
         {
-            var component = (SpellAbsorbed)c;
+            SpellAbsorbed component = (SpellAbsorbed)c;
 
-            component.Timestamp = Conversion.GetValue<DateTime>(d[i++]);
-            i = mapper.MapFlatProperty(component.Source, d, i);
-            i = mapper.MapFlatProperty(component.Destination, d, i);
+            component.Timestamp = GetValue<DateTime>(d[i++]);
+            i = mapper.MapComponentAsProperties(component.Source!, d, i);
+            i = mapper.MapComponentAsProperties(component.Destination!, d, i);
 
             /**
              * If there is additional spell info, i.e. the spell that was absorbed, the combatlog event line will 
@@ -22,18 +22,18 @@ public class SpellAbsorbedProfile : EventProfile
              */
             if (d.Count == 22)
             {
-                i = mapper.MapFlatProperty(component.ExtraSpell, d, i);
+                i = mapper.MapComponentAsProperties(component.ExtraSpell!, d, i);
             }
             else
             {
                 component.ExtraSpell = null;
             }
 
-            i = mapper.MapFlatProperty(component.AbsorbedBy, d, i);
-            i = mapper.MapFlatProperty(component.Spell, d, i);
+            i = mapper.MapComponentAsProperties(component.AbsorbedBy!, d, i);
+            i = mapper.MapComponentAsProperties(component.Spell!, d, i);
 
-            component.AbsorbedAmount = Conversion.GetValue<int>(d[i++]);
-            component.UnmitigatedAmount = Conversion.GetValue<int>(d[i++]);
+            component.AbsorbedAmount = GetValue<int>(d[i++]);
+            component.UnmitigatedAmount = GetValue<int>(d[i++]);
 
             return i;
         };

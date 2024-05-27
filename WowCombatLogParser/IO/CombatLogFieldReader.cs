@@ -3,7 +3,7 @@ using System.IO;
 
 namespace WoWCombatLogParser.IO;
 
-public static class CombatLogFieldReader
+internal static class CombatLogFieldReader
 {
     private static readonly HashSet<char> openingBrackets = ['(', '[', '{'];
     private static readonly char[] delimiters = [','];
@@ -13,7 +13,7 @@ public static class CombatLogFieldReader
     private static List<ICombatLogDataField> ReadFields(StringReader sr)
     {
         var content = new List<ICombatLogDataField>();
-        ICombatLogDataField currentField = null;
+        ICombatLogDataField? currentField = null;
         int character;
         char last = '\0';
         while ((character = sr.Read()) != -1)
@@ -56,11 +56,15 @@ public static class CombatLogFieldReader
                     }
                     else if (currentField is CombatLogDataFieldCollection bracketField && bracketField.ClosingBracket == c)
                     {
-                        currentField = bracketField.Parent;
+                        if (currentField is CombatLogTextField textField)
+                            textField.Finalise();
+                        currentField = bracketField.Parent;                        
                     }
                     else if (currentField is CombatLogTextField && currentField.Parent is CombatLogDataFieldCollection textFieldParent && textFieldParent.ClosingBracket == c)
                     {
-                        currentField = textFieldParent.Parent;
+                        if (currentField is CombatLogTextField textField)
+                            textField.Finalise();
+                        currentField = textFieldParent.Parent;                        
                     }
                     else
                     {
@@ -102,7 +106,7 @@ public static class CombatLogFieldReader
         return new CombatLogLineData(ReadFields(sr));
     }
 
-    private static T AddFieldToResults<T>(ICombatLogDataField parent, List<ICombatLogDataField> results) where T : ICombatLogDataField, new()
+    private static T AddFieldToResults<T>(ICombatLogDataField? parent, List<ICombatLogDataField> results) where T : ICombatLogDataField, new()
     {
         T field = new();
         if (parent is CombatLogDataFieldCollection bracketField)

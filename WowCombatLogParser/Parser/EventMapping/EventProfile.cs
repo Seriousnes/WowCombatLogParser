@@ -9,7 +9,7 @@ namespace WoWCombatLogParser.Parser.EventMapping;
 /// <remarks>
 /// Can be implemented for any type that inherits from <see cref="CombatLogEventComponent"/>.
 /// </remarks>
-public abstract class EventProfile
+internal abstract class EventProfile
 {
     /// <summary>
     /// The type of the combat log event this mapping profile refers to
@@ -19,7 +19,7 @@ public abstract class EventProfile
     /// <summary>
     /// Custom mapping for the specifed component.
     /// </summary>
-    /// <param name="mapper">Instance of an <see cref="CombatLogEventMapper"/></param>    
+    /// <param name="mapper">Instance of an <see cref="ICombatLogEventMapper"/></param>    
     /// <returns>Returns the value of the last data field accessed.</returns>
     public virtual CombatLogEventMapping GetMapping(CombatLogEventMapper mapper)
     {

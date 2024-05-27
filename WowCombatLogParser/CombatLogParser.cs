@@ -7,35 +7,42 @@ namespace WoWCombatLogParser;
 
 public interface ICombatLogParser
 {
-    IParserContext? ParserContext { get; set; }
     IEnumerable<Segment> GetSegments(string filename);
-    CombatLogEvent? ParseLine(string text);
+    CombatLogEvent? GetCombatLogEvent(string text);
+    T? GetCombatLogEvent<T>(string line) where T : CombatLogEvent;
     IEnumerable<CombatLogEvent> ParseSegment(Segment segment);
     Dictionary<string, List<ParserError>> Errors { get; }
 }
 
 public class CombatLogParser : ICombatLogParser
 {
-    public IParserContext? ParserContext { get; set; }
+    private readonly CombatLogEventMapper mapper = new();    
+
+    public CombatLogParser(CombatLogVersion combatLogVersion = CombatLogVersion.Dragonflight)
+    {
+        mapper.SetCombatLogVersion(combatLogVersion);
+    }
+
     public Dictionary<string, List<ParserError>> Errors { get; } = [];
 
-    public CombatLogEvent? ParseLine(string line)
+    public CombatLogEvent? GetCombatLogEvent(string line) => GetCombatLogEvent<CombatLogEvent>(line);
+
+    public T? GetCombatLogEvent<T>(string line) where T: CombatLogEvent
     {
-        var data = CombatLogFieldReader.ReadFields(line);
-        try
-        {
-            return ParserContext?.EventGenerator.GetCombatLogEvent<CombatLogEvent>(data);
-        }
-        catch (Exception exception)
-        {
-            var eventType = exception is CombatLogParserException parserException ? parserException.EventType : data.EventType;
-            if (!Errors.TryGetValue(eventType, out var errors))
-            {
-                Errors[eventType] = errors = [];
-            }
-            errors.Add(new(exception, line));
-            return null;
-        }
+        //try
+        //{
+            return mapper.GetCombatLogEvent<T>(line);
+        //}
+        //catch (Exception exception)
+        //{
+        //    var eventType = exception is CombatLogParserException parserException ? parserException.EventType : CombatLogFieldReader.ReadFields(line).EventType;
+        //    if (!Errors.TryGetValue(eventType, out var errors))
+        //    {
+        //        Errors[eventType] = errors = [];
+        //    }
+        //    errors.Add(new(exception, line));
+        //    return null;
+        //}
     }
 
     public IEnumerable<Segment> GetSegments(string filename)
@@ -58,7 +65,7 @@ public class CombatLogParser : ICombatLogParser
             var endPosition = stream.IndexOf("ENCOUNTER_END", i, IndexMode.LineEnd);
             if (endPosition >= 0)
             {
-                yield return new Segment(filename, i, endPosition - i) { ParserContext = ParserContext };
+                yield return new Segment(filename, i, endPosition - i);
             }
             i = stream.IndexOf(Environment.NewLine, i, IndexMode.LineEnd);
         }
@@ -68,7 +75,7 @@ public class CombatLogParser : ICombatLogParser
     {
         foreach (var line in segment.Content)
         {
-            var combatLogEvent = ParseLine(line);
+            var combatLogEvent = GetCombatLogEvent(line);
             if (combatLogEvent is { })
                 yield return combatLogEvent;
         }

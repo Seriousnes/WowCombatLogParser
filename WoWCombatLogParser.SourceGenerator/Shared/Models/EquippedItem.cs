@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace WoWCombatLogParser.Models;
+namespace WoWCombatLogParser;
 
 public class EquippedItem : CombatLogEventComponent
 {

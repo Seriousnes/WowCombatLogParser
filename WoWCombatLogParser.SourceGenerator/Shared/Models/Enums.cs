@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace WoWCombatLogParser.Models;
+namespace WoWCombatLogParser;
 
 public enum FieldIndex
 {

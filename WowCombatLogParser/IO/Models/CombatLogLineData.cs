@@ -2,11 +2,11 @@
 
 namespace WoWCombatLogParser.IO;
 
-public sealed class CombatLogLineData
+internal class CombatLogLineData
 {
     public CombatLogLineData(List<ICombatLogDataField> data)
     {
-        EventType = data[1].ToString();
+        EventType = data[1].ToString()!;
         data.RemoveAt(1);
         Data = data;
     }

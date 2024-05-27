@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace WoWCombatLogParser.Models;
+namespace WoWCombatLogParser;
 
 public interface IFight
 {
@@ -10,8 +10,8 @@ public interface IFight
     IList<CombatLogEvent> GetEvents();
     CombatLogEvent AddEvent(CombatLogEvent combatLogEvent);
     (long Start, long End) Range { get; }
-    bool IsEndEvent(IFightEnd type);
-    string Name { get; }
+    bool IsEndEvent(CombatLogEvent type);
+    string? Name { get; }
     bool IsSuccess { get; }
 }
 
@@ -21,7 +21,7 @@ public abstract partial class Fight<TStart, TEnd> : IFight
     where TEnd : CombatLogEvent, IFightEnd
 {
     protected TStart _start;
-    protected TEnd _end;
+    protected TEnd? _end;
     protected List<CombatLogEvent> _events = [];
 
     public Fight(TStart start)
@@ -41,7 +41,7 @@ public abstract partial class Fight<TStart, TEnd> : IFight
     public virtual void Sort() => _events = [.. _events.OrderBy(x => x.Id)];
     public IList<CombatLogEvent> GetEvents() => _events;
     public virtual FightDescription GetDetails() => new(Name, Duration, _start.Timestamp, Result);
-    public virtual bool IsEndEvent(IFightEnd @CombatLogEventComponent) => typeof(TEnd).IsAssignableFrom(@CombatLogEventComponent.GetType());
+    public virtual bool IsEndEvent(CombatLogEvent combatLogEvent) => combatLogEvent is TEnd;
     public virtual TimeSpan Duration => _end is null ? (_events.Last().Timestamp - _start.Timestamp) : TimeSpan.FromMilliseconds(_end.Duration);
     public abstract string Name { get; }
     public abstract string Result { get; }
@@ -50,20 +50,12 @@ public abstract partial class Fight<TStart, TEnd> : IFight
 }
 
 [DebuggerDisplay("{Description} ({Result}) {Duration} {Time}")]
-public class FightDescription
+public class FightDescription(string description, TimeSpan duration, DateTime time, string result)
 {
-    public FightDescription(string description, TimeSpan duration, DateTime time, string result)
-    {
-        Description = description;
-        Duration = $"{duration:m\\:ss}";
-        Time = time;
-        Result = result;
-    }
-
-    public string Description { get; set; }
-    public string Duration { get; set; }
-    public string Result { get; set; }
-    public DateTime Time { get; set; }
+    public string Description { get; set; } = description;
+    public string Duration { get; set; } = $"{duration:m\\:ss}";
+    public string Result { get; set; } = result;
+    public DateTime Time { get; set; } = time;
     public override string ToString()
     {
         return $"{Description} ({Result}) {Duration} {Time:h:mm tt}";
@@ -71,14 +63,8 @@ public class FightDescription
 }
 
 
-public class Boss : Fight<EncounterStart, EncounterEnd>
+public class Boss(EncounterStart start) : Fight<EncounterStart, EncounterEnd>(start)
 {
-    private List<ICombatantInfo> _combatants;
-
-    public Boss(EncounterStart start) : base(start)
-    {
-    }
-
     public override CombatLogEvent AddEvent(CombatLogEvent combatLogEvent)
     {
         base.AddEvent(combatLogEvent);
@@ -92,7 +78,7 @@ public class Boss : Fight<EncounterStart, EncounterEnd>
         return combatLogEvent;
     }
 
-    public override string Name => _start.Name;
+    public override string Name => _start.Name ?? "Unknown";
     public override string Result => _end is EncounterEnd endOfFight && endOfFight.Success ? "Kill" : "Wipe";
     public override bool IsSuccess => Result == "Kill";
     public virtual List<ICombatantInfo> Combatants { get; } = [];
@@ -100,18 +86,21 @@ public class Boss : Fight<EncounterStart, EncounterEnd>
 
 public class Trash : IFight
 {
-    public Trash() { }
+    public Trash(CombatLogEvent start) 
+    {
+        _events.Add(_start = start);
+    }
 
     protected CombatLogEvent _start;
-    protected CombatLogEvent _end;
+    protected CombatLogEvent? _end;
     protected List<CombatLogEvent> _events = [];
 
     public void Sort() => _events = [.. _events.OrderBy(x => x.Id)];
     public IList<CombatLogEvent> GetEvents() => _events;
-    public virtual FightDescription GetDetails() => new(Name, Duration, _start.Timestamp, Result);
-    public bool IsEndEvent(IFightEnd @CombatLogEventComponent) => @CombatLogEventComponent is IFightEnd;
+    public virtual FightDescription GetDetails() => new(Name ?? "Unknown", Duration, _start.Timestamp, Result);
+    public bool IsEndEvent(CombatLogEvent combatLogEvent) => combatLogEvent is IFightEnd;
     public TimeSpan Duration => _end is null ? (_events.Last().Timestamp - _start.Timestamp) : TimeSpan.Zero;
-    public string Name { get; set; }
+    public string? Name { get; set; }
     public string Result { get; } = string.Empty;
     public (long Start, long End) Range { get; set; }
     public bool IsSuccess => true;
@@ -122,24 +111,16 @@ public class Trash : IFight
     }
 }
 
-public class ChallengeMode : Fight<ChallengeModeStart, ChallengeModeEnd>
+public class ChallengeMode(ChallengeModeStart start) : Fight<ChallengeModeStart, ChallengeModeEnd>(start)
 {
-    public ChallengeMode(ChallengeModeStart start) : base(start)
-    {
-    }
-
-    public override string Name => $"{_start.InstanceId} Level {_start.KeystoneLevel} (Affixes: {string.Join(',', _start.Affixes?.Select(x => x.Id.ToString()))})";
+    public override string Name => $"{_start.InstanceId} Level {_start.KeystoneLevel} (Affixes: {string.Join(',', _start.Affixes?.Select(x => x.Id.ToString()) ?? [])})";
     public override string Result => _end is ChallengeModeEnd endOfFight && endOfFight.Success ? "Timed" : "Not timed";
     public override bool IsSuccess => Result == "Timed";
 
 }
 
-public class ArenaMatch : Fight<ArenaMatchStart, ArenaMatchEnd>
+public class ArenaMatch(ArenaMatchStart start) : Fight<ArenaMatchStart, ArenaMatchEnd>(start)
 {
-    public ArenaMatch(ArenaMatchStart start) : base(start)
-    {
-    }
-
     public override string Name => _start.InstanceId.ToString();
     public override string Result => _end is ArenaMatchEnd endOfFight ? $"Team {endOfFight.WinningTeam} wins. New ratings: Team1 = {endOfFight.NewRatingTeam1}, Team2 = {endOfFight.NewRatingTeam2}" : "";
     public override bool IsSuccess => Result.Contains("wins", StringComparison.InvariantCultureIgnoreCase);

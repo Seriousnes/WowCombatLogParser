@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using WoWCombatLogParser.Utility;
 
-namespace WoWCombatLogParser.Models;
+namespace WoWCombatLogParser;
 
 public class Segment
 {
@@ -21,18 +21,16 @@ public class Segment
         this.length = length;
     }
 
-    internal IParserContext? ParserContext { get; set; }
-
     public List<string> Content
     {
         get
         {
-            Parse();
+            Load();
             return lines ?? [];
         }
     }
 
-    public void Parse()
+    public void Load()
     {
         lock(_lock)
         {

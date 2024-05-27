@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WoWCombatLogParser.Models;
+namespace WoWCombatLogParser;
 
 public class CombatLogParseException : Exception
 {

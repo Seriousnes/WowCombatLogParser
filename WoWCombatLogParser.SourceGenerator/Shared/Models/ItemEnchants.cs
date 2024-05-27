@@ -1,4 +1,4 @@
-﻿namespace WoWCombatLogParser.Models;
+﻿namespace WoWCombatLogParser;
 
 [DebuggerDisplay("({PermanentEnchantId}) ({TempEnchantId}) ({OnUseSpellEnchantId})")]
 public class ItemEnchants : CombatLogEventComponent

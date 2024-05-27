@@ -5,30 +5,74 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using WoWCombatLogParser.Utility;
 using WoWCombatLogParser.Parser;
 using WoWCombatLogParser.Parser.EventMapping;
 using WoWCombatLogParser.SourceGenerator.Events;
-using static System.Linq.Expressions.Expression;
+
 using WoWCombatLogParser.SourceGenerator.Models;
+using WoWCombatLogParser.IO;
+using static WoWCombatLogParser.IO.CombatLogFieldReader;
+using static System.Linq.Expressions.Expression;
 
 namespace WoWCombatLogParser;
 
-/// <summary>
-/// Maps the data to the specified component.
-/// </summary>
-/// <param name="component">Instance of a <see cref="CombatLogEventComponent"/></param>
-/// <param name="data"></param>
-/// <returns>The last accessed index of <paramref name="data"/>.</returns>
-public delegate int CombatLogEventMapping(CombatLogEventComponent component, List<ICombatLogDataField> data, int startIndex = 0);
-
-public class CombatLogEventMapper : ICombatLogEventMapper
+public interface ICombatLogEventMapper
 {
+    CombatLogEvent? GetCombatLogEvent(string line);
+    T? GetCombatLogEvent<T>(string line) where T : CombatLogEvent;
+    void SetCombatLogVersion(string combatLogVersion);
+    void SetCombatLogVersion(CombatLogVersion combatLogVersion);
+}
+
+internal class CombatLogEventMapper : ICombatLogEventMapper
+{
+    private readonly CombatLogVersionedDictionary<string, ObjectActivator> eventConstructors = new();
     private readonly Dictionary<Type, CombatLogEventMapping> maps;
-    private readonly Dictionary<Type, ObjectActivator> constructors = [];
+    private readonly Dictionary<Type, ObjectActivator> componentConstructors = [];
+    private readonly Dictionary<string, MethodInfo> methods = new()
+    {
+        { nameof(CombatLogEventMapper.MapComponentAsProperties), typeof(CombatLogEventMapper).GetMethod(nameof(CombatLogEventMapper.MapComponentAsProperties), BindingFlags.Instance | BindingFlags.NonPublic)! },
+        { nameof(Conversion.GetValue), typeof(Conversion).GetMethod(nameof(Conversion.GetValue), [typeof(ICombatLogDataField), typeof(Type)])! }
+    };
+
+ 
+    public CombatLogEventMapper() 
+    {
+        var assemblyTypes = GetType().Assembly.GetTypes();
+        
+        // add any custom mapping overrides
+        maps = assemblyTypes
+            .Where(x => x.IsSubclassOf(typeof(EventProfile)))
+            .Select(x => (EventProfile)Activator.CreateInstance(x)!)
+            .ToDictionary(key => key.EventType, value => value.GetMapping(this));
+
+        // constructors for individual events
+        assemblyTypes
+            .Where(i => i.GetCustomAttribute<DiscriminatorAttribute>() != null)
+            .ToList()
+            .ConvertAll(i => new EventAffixItem(i))
+            .ForEach(p =>
+            {
+                // each combatlog event is expected to have a constructor with no parameters
+                var constructor = p.EventType.GetConstructor([]);
+                if (constructor is null) return;
+
+                var applicableCombatLogVersions = p.EventType
+                    .GetCustomAttributes<CombatLogVersionAttribute>()
+                    .Select(x => x.Value)
+                    .ToList();
+                if (applicableCombatLogVersions.Count == 0)
+                    applicableCombatLogVersions = [CombatLogVersion.Any];
+
+                foreach (var CombatLogVersion in applicableCombatLogVersions)
+                {
+                    eventConstructors.TryAdd(CombatLogVersion, p.Affix.Value, GetActivator(constructor));
+                }
+            });
+    }
 
     [DisallowNull]
-    public CombatLogEventMapping? this[Type index]
+    internal CombatLogEventMapping? this[Type index]
     {
         get
         {
@@ -36,22 +80,47 @@ public class CombatLogEventMapper : ICombatLogEventMapper
             {
                 map = BuildDelegateForType(index);
             }
-            return map;             
+            return map;
         }
         set => maps[index] = value;
     }
 
-    public CombatLogEventMapper()
+    internal CombatLogVersionEvent? CombatLogVersionEvent { get; private set; }
+
+    public void SetCombatLogVersion(string combatLogVersion)
     {
-        // add any custom mapping overrides
-        maps = GetType().Assembly
-            .GetTypes()
-            .Where(x => x.IsSubclassOf(typeof(EventProfile)))
-            .Select(x => (EventProfile)Activator.CreateInstance(x)!)
-            .ToDictionary(key => key.EventType, value => value.GetMapping(this));        
+        CombatLogVersionEvent = new CombatLogVersionEvent(combatLogVersion);
     }
 
-    public CombatLogEventMapping? BuildDelegateForType(Type type)
+    public void SetCombatLogVersion(CombatLogVersion combatLogVersion)
+    {
+        CombatLogVersionEvent = new CombatLogVersionEvent(combatLogVersion);
+    }
+
+    public CombatLogEvent? GetCombatLogEvent(string line) => GetCombatLogEvent<CombatLogEvent>(line);
+    public T? GetCombatLogEvent<T>(string line) where T : CombatLogEvent => GetCombatLogEvent<T>(ReadFields(line));
+    
+    private T? GetCombatLogEvent<T>(CombatLogLineData line) where T : CombatLogEvent
+    {
+        var result = GetInstanceOf(line.EventType);
+        if (result is { })
+            this[result.GetType()]!(result, line.Data, 0);
+        return result as T;
+    }
+
+    private CombatLogEvent GetInstanceOf(string eventType)
+    {
+        var constructor = eventConstructors[CombatLogVersionEvent!.Version, eventType] ??
+            throw new CombatLogParserException(eventType, new ArgumentOutOfRangeException(nameof(eventType), $"No constructor could be found for an event of type \"{eventType}\""));
+        var result = (CombatLogEvent)constructor();
+        if (result is { })
+        {
+            return result;
+        }
+        throw new CombatLogParserException(eventType, new InvalidOperationException($"Failed to instantiate an instance for an event for \"{eventType}\""));
+    }
+
+    private CombatLogEventMapping? BuildDelegateForType(Type type)
     {
         // this method is recursive and previous invocations may have already added the specified type
         if (maps.TryGetValue(type, out var existing))
@@ -99,7 +168,7 @@ public class CombatLogEventMapper : ICombatLogEventMapper
                 block.Add(
                     Call(
                         mapper,
-                        nameof(CombatLogEventMapper.MapListItems),
+                        nameof(MapComponentList),
                         [
                             member.Type.GetGenericArguments()[0],
                         ],
@@ -118,10 +187,7 @@ public class CombatLogEventMapper : ICombatLogEventMapper
                             index,
                             Call(
                                 mapper,
-                                typeof(CombatLogEventMapper).GetMethod(
-                                    nameof(CombatLogEventMapper.MapFlatProperty),
-                                    BindingFlags.Instance | BindingFlags.NonPublic
-                                )!,
+                                methods[nameof(MapComponentAsProperties)],
                                 MakeMemberAccess(component, property),
                                 MakeMemberAccess(
                                     TypeAs(
@@ -142,10 +208,7 @@ public class CombatLogEventMapper : ICombatLogEventMapper
                             index,
                             Call(
                                 mapper,
-                                typeof(CombatLogEventMapper).GetMethod(
-                                    nameof(CombatLogEventMapper.MapFlatProperty),
-                                    BindingFlags.Instance | BindingFlags.NonPublic                                    
-                                )!,
+                                methods[nameof(MapComponentAsProperties)],
                                 MakeMemberAccess(component, property),
                                 p1,
                                 index // step back the index one as it was previously access
@@ -161,7 +224,7 @@ public class CombatLogEventMapper : ICombatLogEventMapper
                         MakeMemberAccess(component, property),
                         Convert(
                             Call(
-                                typeof(Conversion).GetMethod(nameof(Conversion.GetValue), [typeof(ICombatLogDataField), typeof(Type)])!,
+                                methods[nameof(Conversion.GetValue)],
                                 field,
                                 Constant(property.PropertyType)
                             ),
@@ -200,13 +263,12 @@ public class CombatLogEventMapper : ICombatLogEventMapper
         return map;
     }
 
-    internal void MapListItems<T>(List<T> destination, ICombatLogDataField data, bool isKeyValuePair)
+    internal void MapComponentList<T>(List<T> destination, ICombatLogDataField data, bool isKeyValuePair)
         where T : CombatLogEventComponent
     {
-        if (!constructors.TryGetValue(typeof(T), out var constructor))
-        {
-            constructor = CombatLogEventActivator.GetActivator(typeof(T));
-            constructors[typeof(T)] = constructor;
+        if (!componentConstructors.TryGetValue(typeof(T), out var constructor))
+        {            
+            componentConstructors[typeof(T)] = constructor = GetActivator(typeof(T));
         }
         
         var action = this[typeof(T)] ?? throw new NullReferenceException($"No mapping for type \"{typeof(T).Name}\" could be found.");
@@ -230,7 +292,7 @@ public class CombatLogEventMapper : ICombatLogEventMapper
         }       
     }
 
-    internal int MapFlatProperty(CombatLogEventComponent component, List<ICombatLogDataField> data, int currentIndex)
+    internal int MapComponentAsProperties(CombatLogEventComponent component, List<ICombatLogDataField> data, int currentIndex)
     {
         return currentIndex < data.Count ? MapComponent(component, data[currentIndex..]) + currentIndex : currentIndex;
     }
@@ -244,7 +306,7 @@ public class CombatLogEventMapper : ICombatLogEventMapper
             : action(component, data);
     }
 
-    internal static List<ICombatLogDataField> CollateKeyValuePairs(List<ICombatLogDataField> data)
+    private static List<ICombatLogDataField> CollateKeyValuePairs(List<ICombatLogDataField> data)
     {
         return data
             .Select((x, i) => new { Index = i, Value = x })
@@ -257,92 +319,12 @@ public class CombatLogEventMapper : ICombatLogEventMapper
             })
             .ToList();
     }
-
-    public static Expression For(ParameterExpression loopVar, Expression list, Expression body)
-    {
-        var i_Assign = Assign(loopVar, Constant(0));
-        
-        var count = Variable(typeof(int));
-        var assignCount = Assign(count, MakeMemberAccess(list, list.Type.GetMember("Count")[0]));
-
-        var increment = PostIncrementAssign(loopVar);
-        var _break = Label("Break");
-        var loop = Loop(
-            IfThenElse(
-                LessThan(loopVar, count),
-                Block(
-                    typeof(void),
-                    [loopVar],
-                    body,
-                    increment
-                ),
-                Break(_break)
-            ),
-            _break
-        );
-        return Block(
-            typeof(void),
-            [loopVar, count],
-            i_Assign,
-            assignCount,
-            loop
-        );
-    }
-
-    public static Expression ForEach(Expression enumerable, ParameterExpression loopVar, Expression loopContent)
-    {
-        var elementType = loopVar.Type;
-        var enumerableType = typeof(IEnumerable<>).MakeGenericType(elementType);
-        var enumeratorType = typeof(IEnumerator<>).MakeGenericType(elementType);
-
-        var enumeratorVar = Variable(enumeratorType, "enumerator");
-        var getEnumeratorCall = Call(enumerable, enumerableType.GetMethod("GetEnumerator")!);
-        var enumeratorAssign = Assign(enumeratorVar, getEnumeratorCall);
-        var enumeratorDispose = Call(enumeratorVar, typeof(IDisposable).GetMethod("Dispose")!);
-
-        // The MoveNext method's actually on IEnumerator, not IEnumerator<T>
-        var moveNextCall = Call(enumeratorVar, typeof(IEnumerator).GetMethod("MoveNext")!);
-
-        var breakLabel = Label("LoopBreak");
-
-        var trueConstant = Constant(true);
-
-        var loop =
-            Loop(
-                IfThenElse(
-                    Equal(moveNextCall, trueConstant),
-                    Block(
-                        typeof(void),
-                        [loopVar],
-                        Assign(loopVar, Property(enumeratorVar, "Current")),
-                        loopContent),
-                    Break(breakLabel)),
-                breakLabel);
-
-        var tryFinally =
-            TryFinally(
-                loop,
-                enumeratorDispose);
-
-        var body =
-            Block(
-                [enumeratorVar],
-                enumeratorAssign,
-                tryFinally);
-
-        return body;
-    }
-
-    private static IEnumerable<Type> GetTypesWhere(Func<Type, bool> expr)
-    {
-        //foreach (var type in Assembly.Load("WoWCombatLogParser.Common").GetTypes().Where(expr))
-        //    yield return type;
-        foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(expr))
-            yield return type;
-    }
 }
 
-public interface ICombatLogEventMapper
-{
-    CombatLogEventMapping? this[Type type] { get; }
-}
+/// <summary>
+/// Maps the data to the specified component.
+/// </summary>
+/// <param name="component">Instance of a <see cref="CombatLogEventComponent"/></param>
+/// <param name="data"></param>
+/// <returns>The last accessed index of <paramref name="data"/>.</returns>
+internal delegate int CombatLogEventMapping(CombatLogEventComponent component, List<ICombatLogDataField> data, int startIndex = 0);

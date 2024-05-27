@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using WoWCombatLogParser.SourceGenerator.Models;
 
-
-namespace WoWCombatLogParser.Events;
+namespace WoWCombatLogParser;
 
 public partial class CombatLogVersionEvent : CombatLogEvent
 {
@@ -17,5 +15,10 @@ public partial class CombatLogVersionEvent : CombatLogEvent
         AdvancedLogEnabled = GetValue<bool>(m["advancedlogenabled"].Value);
         BuildVersion = m["buildversion"].Value;
         ProjectId = GetValue<int>(m["projectid"].Value);
+    }
+
+    public CombatLogVersionEvent(CombatLogVersion version) : this()
+    {
+        Version = version;
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using WoWCombatLogParser.Models;
 
 namespace WoWCombatLogParser.SourceGenerator.Models;
 

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WoWCombatLogParser.Models;
+namespace WoWCombatLogParser;
 
 [DebuggerDisplay("{Value}")]
 public readonly struct WowGuid : IEquatable<WowGuid>

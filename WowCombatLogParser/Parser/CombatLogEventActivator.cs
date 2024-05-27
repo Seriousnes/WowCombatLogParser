@@ -5,18 +5,18 @@ using System.Reflection;
 
 namespace WoWCombatLogParser.Parser;
 
-public delegate object ObjectActivator(params object[] args);
+internal delegate object ObjectActivator(params object[] args);
 
-public static class CombatLogEventActivator
+internal static class CombatLogEventActivator
 {
     public static ObjectActivator GetActivator(Type type)
     {
-        return GetActivator(type.GetConstructor([]));
+        return GetActivator(type.GetConstructor([])!);
     }
 
     public static ObjectActivator GetActivator(ConstructorInfo ctor)
     {
-        Type type = ctor.DeclaringType;
+        Type type = ctor.DeclaringType!;
         ParameterInfo[] paramsInfo = ctor.GetParameters();
 
         ParameterExpression param = Expression.Parameter(typeof(object[]), "args");

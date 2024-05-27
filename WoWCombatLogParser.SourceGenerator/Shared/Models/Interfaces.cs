@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WoWCombatLogParser.Models;
+namespace WoWCombatLogParser;
 
 public interface ICombatLogEvent : ICombatLogEventComponent
 {
@@ -104,4 +104,14 @@ public interface IKey
 public interface IEmpowerFinish
 {
     int Stage { get; }
+}
+
+public interface IHasSource
+{
+    Actor Source { get; }
+}
+
+public interface IHasDestination
+{
+    Actor Destination { get; }
 }

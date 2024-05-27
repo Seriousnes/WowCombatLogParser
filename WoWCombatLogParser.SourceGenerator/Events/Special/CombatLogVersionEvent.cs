@@ -3,7 +3,7 @@
 namespace WoWCombatLogParser.SourceGenerator.Events.Special;
 
 [Affix("COMBAT_LOG_VERSION")]
-internal class CombatLogVersionEvent : BaseCombatLogEvent
+internal class CombatLogVersionEvent
 {
     public CombatLogVersion Version { get; set; }
     public bool AdvancedLogEnabled { get; set; }

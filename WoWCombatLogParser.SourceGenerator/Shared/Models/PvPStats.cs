@@ -1,4 +1,4 @@
-﻿namespace WoWCombatLogParser.Models;
+﻿namespace WoWCombatLogParser;
 
 public class PvPStats : CombatLogEventComponent
 {

@@ -1,8 +1,7 @@
 ﻿global using System.Collections.Generic;
 global using System.Diagnostics;
 
-global using WoWCombatLogParser.Events;
-global using WoWCombatLogParser.Models;
+global using WoWCombatLogParser;
 global using WoWCombatLogParser.Sections;
 global using WoWCombatLogParser.Parser;
 global using WoWCombatLogParser.Utility;

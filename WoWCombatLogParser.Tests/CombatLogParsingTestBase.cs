@@ -2,26 +2,20 @@ using System.Linq;
 using Xunit.Abstractions;
 using Xunit;
 using System;
-using WoWCombatLogParser.Models;
-using WoWCombatLogParser.Events;
+using WoWCombatLogParser;
 
 namespace WoWCombatLogParser.Tests;
 
-public class CombatLogParsingTestBase : ParserContext
+public class CombatLogParsingTestBase
 {
-    internal readonly ITestOutputHelper output;        
+    internal readonly ITestOutputHelper output;
+
+    protected ICombatLogParser CombatLogParser;
 
     public CombatLogParsingTestBase(ITestOutputHelper output, CombatLogVersion combatLogVersion)
     {
-        CombatLogParser = new CombatLogParser();
-        EventGenerator = new EventGenerator
-        {
-            CombatLogVersionEvent = new CombatLogVersionEvent
-            {
-                AdvancedLogEnabled = true,
-                Version = combatLogVersion
-            }
-        };
+        CombatLogParser = new CombatLogParser(combatLogVersion);
+        
         this.output = output;
     }
 

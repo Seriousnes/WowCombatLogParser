@@ -11,7 +11,6 @@ using System.Text.RegularExpressions;
 using WoWCombatLogParser.SourceGenerator.Events.Compound;
 using WoWCombatLogParser.SourceGenerator.Events.Compound.Predefined;
 using WoWCombatLogParser.SourceGenerator.Models;
-using WoWCombatLogParser.Utility;
 using static WoWCombatLogParser.SourceGenerator.EventSourceGeneratorExtensions;
 
 namespace WoWCombatLogParser.SourceGenerator;
@@ -51,7 +50,7 @@ public class EventSourceGenerator : ISourceGenerator
                         {
                             var (name, source) = GenerateSourceText<CompoundEventSection>(
                                     types: [affix.EventType, suffix.EventType],
-                                    @namespace: "WoWCombatLogParser.Events",
+                                    @namespace: "WoWCombatLogParser",
                                     usings: []);
 
                             AddSource(context, name, source);
@@ -64,32 +63,20 @@ public class EventSourceGenerator : ISourceGenerator
                     {
                         generatedItem = GenerateSourceText<CompoundEventSection>(
                                     types: [affix.EventType],
-                                    @namespace: "WoWCombatLogParser.Events",
+                                    @namespace: "WoWCombatLogParser",
                                     usings: []);
                     }
                     else
                     {
                         generatedItem = GenerateSourceText<CombatLogEventComponent>(
                             types: [affix.EventType],
-                            @namespace: "WoWCombatLogParser.Events",
+                            @namespace: "WoWCombatLogParser",
                             usings: []);
                     }
 
                     AddSource(context, generatedItem.name, generatedItem.source);
                 }
             });
-
-        //sections.Where(x => !events.Any(e => e.EventType == x))
-        //    .ToList()
-        //    .ForEach(s =>
-        //    {
-        //        var (name, source) = GenerateSourceText([s], null, "WoWCombatLogParser.Sections", [], ["CombatLogEventComponent"], false);
-        //        var sourceText = CSharpSyntaxTree.ParseText(source, new(LanguageVersion.Latest, DocumentationMode.Diagnose))
-        //            .GetRoot()
-        //            .NormalizeWhitespace()
-        //            .ToFullString();
-        //        context.AddSource(name, sourceText);
-        //    });
     }
 
     private void AddSource(GeneratorExecutionContext context, string fileName, SourceText content) => AddSource(context, fileName, content.ToString());
@@ -174,30 +161,24 @@ namespace {@namespace}
         return string.Empty;
     }
 
-    private string GetKeyValuePairAttributes(IList<Type> types)
-    {
-        if (types.Any(x => x.GetCustomAttribute<KeyValuePairAttribute>() != null))
-        {
-            return "[KeyValuePair]";
-        }
-        return string.Empty;
-    }
-
     private string GetClassData(string className, IList<Type> types, IList<string> inheritsFrom, IList<PropertyInfo> baseProperties, bool generateAdditionalConstructor)
     {
-        return $@"{ConsolidateAttributes(
-            GetAffix(types),
-            GetApplicableCombatLogVersion(types),
-            GetDataFieldAttributes(types))}
-    public partial class {className}{GetInheritance(types, inheritsFrom)}
-    {{
-        public {className}() : base()
-        {{
-        }}
-
-{(baseProperties?.Count > 0 ? string.Join(Environment.NewLine, baseProperties.ToList().Select(x => x.GetProperty())) : "")}
-{GetProperties(types)}
-    }}";
+        return 
+$$"""
+{{ConsolidateAttributes(
+    GetAffix(types),
+    GetApplicableCombatLogVersion(types),
+    GetDataFieldAttributes(types))}}
+    public partial class {{className}}{{GetInheritance(types, inheritsFrom)}}
+    {
+        public {{className}}() : base()
+        {
+        }
+        
+        {{(baseProperties?.Count > 0 ? string.Join(Environment.NewLine, baseProperties.ToList().Select(x => x.GetProperty())) : "")}}
+        {{GetProperties(types)}}
+    }
+""";
     }
 
     private string GetProperties(IList<Type> types)
@@ -238,6 +219,8 @@ public static class EventSourceGeneratorExtensions
             propertyType = property.PropertyType.Name;
         }
 
+        var isReferencType = !property.PropertyType.IsValueType;
+
         var attributes = new List<string>();
         foreach (var attribute in property.CustomAttributes.Select(x => x.AttributeType))
         {
@@ -245,7 +228,7 @@ public static class EventSourceGeneratorExtensions
             attributes.Add($"[{attributeName}]");
         }
         var value = @$"{ConsolidateAttributes([.. attributes])}
-        public {propertyType} {property.Name}";
+        public {propertyType}{(isReferencType ? "?" : "")} {property.Name}";
 
         if (property.CanRead || property.CanWrite)
         {

@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 
-namespace WoWCombatLogParser.Models;
+namespace WoWCombatLogParser;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
 public class OptionalAttribute : Attribute { }

@@ -1,5 +1,5 @@
 using FluentAssertions;
-using WoWCombatLogParser.Models;
+using WoWCombatLogParser;
 using Xunit;
 using Xunit.Abstractions;
 using WoWCombatLogParser.Utility;
@@ -32,11 +32,5 @@ public class CommonCombatLogParsingTests : CombatLogParsingTestBase
     public void TestSpellSchools(SpellSchool expected, params SpellSchool[] spellSchools)
     {
         Assert.True(expected.Is(spellSchools));
-    }
-
-    [Fact]
-    public void Test_RegisteredEventHandlers()
-    {
-        EventGenerator.GetRegisteredEventHandlers().ForEach(x => output.WriteLine(x));
     }
 }

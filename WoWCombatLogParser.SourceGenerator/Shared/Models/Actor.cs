@@ -1,7 +1,6 @@
 ﻿using System;
-using WoWCombatLogParser.Events;
 
-namespace WoWCombatLogParser.Models;
+namespace WoWCombatLogParser;
 
 [DebuggerDisplay("{Id} {UnitName} {Flags} {RaidFlags}")]
 public class Actor : Unit
@@ -10,6 +9,7 @@ public class Actor : Unit
     public RaidFlag RaidFlags { get; set; }
 }
 
+#nullable enable
 public class Unit : CombatLogEventComponent
 {
     private string? _name;
@@ -50,3 +50,4 @@ public class Unit : CombatLogEventComponent
 
     public override int GetHashCode() => base.GetHashCode();
 }
+#nullable restore

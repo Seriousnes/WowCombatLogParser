@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace WoWCombatLogParser.Models;
+namespace WoWCombatLogParser;
 
 internal class EventAffixItem
 {

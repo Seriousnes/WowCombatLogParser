@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using WoWCombatLogParser.SourceGenerator.Models;
 
-namespace WoWCombatLogParser.Utility;
+namespace WoWCombatLogParser;
 
 public static class Extensions
 {

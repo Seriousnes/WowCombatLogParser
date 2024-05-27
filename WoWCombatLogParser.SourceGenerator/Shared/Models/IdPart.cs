@@ -1,4 +1,4 @@
-﻿namespace WoWCombatLogParser.Models;
+﻿namespace WoWCombatLogParser;
 
 [DebuggerDisplay("{Id}")]
 public class IdPart<T> : CombatLogEventComponent
