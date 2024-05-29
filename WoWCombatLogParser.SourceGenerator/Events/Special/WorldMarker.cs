@@ -7,7 +7,7 @@ internal class WorldMarkerPlaced
 {
     public int MapId { get; set; }
     public WorldMarker Marker { get; set; }
-    public decimal X { get; set; }  
+    public decimal X { get; set; }
     public decimal Y { get; set; }
 }
 

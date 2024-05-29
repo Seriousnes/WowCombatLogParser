@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using WoWCombatLogParser.Utility;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -46,7 +47,7 @@ and some duplicate text in the string", "\r\n", 39, 41)]
             ms.LastIndexOf(target).Should().Be(expectedIndex);
     }
 
-    private readonly List<long> expectedStreamPositions = [8238838, 45390211, 46176415, 85248769, 91475221, 108816175, 139942758, 141175852, 158074360, 166786792, 183822650, 195043065, 213229974, 220542975, 239317560, 256811855, 282797912, 287168160, 295013244];
+    private readonly List<long> expectedStreamPositions = [8238818, 45390191, 46176395, 85248749, 91475201, 108816155, 139942738, 141175832, 158074340, 166786772, 183822630, 195043045, 213229954, 220542955, 239317540, 256811835, 282797892, 287168140, 295013224];
     private readonly List<int> expectedStringPositions = [8234486, 45362942, 46148845, 85194857, 91418153, 108748573, 139855516, 141087938, 157976424, 166683070, 183709022, 194922976, 213100654, 220410125, 239175042, 256660782, 282633375, 287001464, 294842850];
 
     [Fact]
@@ -64,8 +65,12 @@ and some duplicate text in the string", "\r\n", 39, 41)]
             });
         var results = new List<long>();
         long i = -1;
-        while ((i = stream.IndexOf("ENCOUNTER_START", i + 1)) >= 0)
+        while ((i = stream.IndexOf("ENCOUNTER_START", i + 1, IndexMode.LineStart)) >= 0)
+        {
             results.Add(i);
+            i = stream.IndexOf("ENCOUNTER_START", i, IndexMode.LineEnd);
+        }
+            
         results.Count.Should().Be(expectedStreamPositions.Count);
         results.Should().BeEquivalentTo(expectedStreamPositions);       
     }
@@ -101,5 +106,26 @@ and some duplicate text in the string", "\r\n", 39, 41)]
 
         results.Count.Should().Be(expectedStringPositions.Count);
         results.Should().BeEquivalentTo(expectedStringPositions);
+    }
+
+    [Fact]
+    public void Test_StreamExtensions_IndexOfAny_On_File()
+    {
+        using var stream = new FileStream(
+            filename,
+            new FileStreamOptions
+            {
+                Access = FileAccess.Read,
+                Mode = FileMode.Open,
+                Share = FileShare.ReadWrite,
+                BufferSize = StreamExtensions.GetBufferSize(filename),
+                Options = FileOptions.RandomAccess
+            });
+        var results = new List<long>();
+        long i = -1;
+        while ((i = stream.IndexOfAny(["ENCOUNTER_START"], i + 1, IndexMode.LineStart, out var result)) >= 0)
+            results.Add(result.Position);
+        results.Count.Should().Be(expectedStreamPositions.Count);
+        results.Should().BeEquivalentTo(expectedStreamPositions);
     }
 }

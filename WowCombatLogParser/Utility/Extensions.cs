@@ -1,9 +1,12 @@
-﻿using System;
+﻿using StackExchange.Profiling;
+using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace WoWCombatLogParser.Utility;
@@ -55,9 +58,9 @@ public static class Extensions
         return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
     }
 
-    public static Type GetGenericListType(this PropertyInfo prop)
+    public static Type GetGenericListType(this MemberExpression memberExpression)
     {
-        return prop.PropertyType.GetGenericArguments()[0];
+        return memberExpression.Type.GetGenericArguments()[0];
     }
 
     public static string GetDescription(this Enum element)
@@ -89,38 +92,6 @@ public static class Extensions
         throw new ArgumentException($"{value} isn't a member of {type.Name}");
     }
 
-    public static (bool Success, IEnumerator<ICombatLogDataField> Enumerator, bool EndOfParent, bool Dispose) GetEnumeratorForProperty(this IEnumerator<ICombatLogDataField> data)
-    {
-        if (data.Current is CombatLogDataFieldCollection groupData)
-        {
-            var enumerator = groupData.Children.GetEnumerator();
-            return (enumerator.MoveNext(), enumerator, !data.MoveNext(), true);
-        }
-
-        return (true, data, false, false);
-    }
-
-    public static long IndexOfAny(this Stream _string, IndexMode mode, long startIndex, params string[] values)
-    {
-        IList<long> results = Array.Empty<long>();
-        foreach (var value in values)
-        {
-            var index = _string.IndexOf(value, results.Any() ? results.Min() : startIndex);
-            if (index >= 0)
-            {
-                var indexOfLinebreak = mode switch
-                {
-                    IndexMode.LineStart => _string.LastIndexOf(Environment.NewLine, index) + Environment.NewLine.Length,
-                    IndexMode.LineEnd => _string.IndexOf(Environment.NewLine, index) + Environment.NewLine.Length,
-                    _ => -1
-                };
-                if (indexOfLinebreak >= 0)
-                    results.Add(indexOfLinebreak);
-            }            
-        }
-        return results.Any() ? results.Min() : -1;
-    }
-
     public static long IndexOf(this Stream stream, string value, long startIndex, IndexMode mode)
     {
         var index = stream.IndexOf(value, startIndex);
@@ -130,10 +101,60 @@ public static class Extensions
             {
                 IndexMode.LineStart => stream.LastIndexOf(Environment.NewLine, index - 1) + Environment.NewLine.Length,
                 IndexMode.LineEnd => stream.IndexOf(Environment.NewLine, index + 1),
-                _ => throw new NotImplementedException()
+                _ => throw new ArgumentOutOfRangeException(nameof(mode))
             };
         }
         return -1;
+    }
+    
+    public static long IndexOfAny(this Stream stream, IEnumerable<string> values, long startIndex, IndexMode mode, out (string? Value, long Position) result)
+    {
+        result = (null, -1);
+        long next = -1;
+
+        foreach (var value in values)
+        {
+            using var step = MiniProfiler.Current.Step($"IndexOf - {value}");
+            var index = stream.IndexOf(value, startIndex);
+            if (index >= 0 && (result.Value is null || index < result.Position))             
+            {
+                result = (
+                    value,
+                    mode switch
+                    {
+                        IndexMode.LineStart => stream.LastIndexOf(Environment.NewLine, index - 1) + Environment.NewLine.Length,
+                        IndexMode.LineEnd => stream.IndexOf(Environment.NewLine, index + 1),
+                        _ => throw new ArgumentOutOfRangeException(nameof(mode)),
+                    });
+                next = result.Position;
+            }            
+        }
+
+        return next;
+    }
+
+    internal static string? GetCurrentLine(this Stream stream, ref long position, IndexMode positionType)
+    {
+        long start = positionType == IndexMode.LineStart ? position : (stream.LastIndexOf(Environment.NewLine, position - 1) + Environment.NewLine.Length);
+        long end = positionType == IndexMode.LineStart ? stream.IndexOf(Environment.NewLine, start + 1) : position;
+
+        if (start >= 0 && end >= 0)
+        {
+            stream.Seek(start, SeekOrigin.Begin);
+            Span<byte> memory = new(new byte[(int)(end - start)]);
+            stream.Read(memory);
+            stream.Seek(position, SeekOrigin.Begin);
+
+            position = positionType switch
+            {
+                IndexMode.LineStart => end + Environment.NewLine.Length,
+                IndexMode.LineEnd => start,
+                _ => position
+            };
+            return Encoding.UTF8.GetString(memory);
+        }
+
+        return null;
     }
 
     public static IEnumerable<string> GetLines(this string str)

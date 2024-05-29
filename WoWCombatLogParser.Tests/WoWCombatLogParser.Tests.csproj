@@ -8,13 +8,7 @@
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(Configuration)' != 'Release'">
-		<Content Include="TestLogs\Dragonflight\EchoOfNeltharion_CombatantInfoOnly.txt" CopyToOutputDirectory="PreserveNewest" />
-		<Content Include="TestLogs\Dragonflight\EchoOfNeltharion_Wipe.txt" CopyToOutputDirectory="PreserveNewest" />
-		<Content Include="TestLogs\Shadowlands\SingleFightCombatLog.txt" CopyToOutputDirectory="PreserveNewest" />
-		<Content Include="TestLogs\Shadowlands\WoWCombatLog-112821_193218.txt" CopyToOutputDirectory="PreserveNewest" />
-		<Content Include="TestLogs\Shadowlands\WoWCombatLog.txt" CopyToOutputDirectory="PreserveNewest" />
-		<Content Include="TestLogs\Dragonflight\WoWCombatLog.txt" CopyToOutputDirectory="PreserveNewest" />
-		<Content Include="TestLogs\WotlkClassic\Naxxramas.txt" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="TestLogs\**\*" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
 	<ItemGroup>

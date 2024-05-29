@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -15,72 +14,71 @@ using static WoWCombatLogParser.SourceGenerator.EventSourceGeneratorExtensions;
 
 namespace WoWCombatLogParser.SourceGenerator;
 
-[Generator]
-public class EventSourceGenerator : ISourceGenerator
+[Generator(LanguageNames.CSharp)]
+public sealed class EventSourceGenerator : IIncrementalGenerator
 {
-    private readonly static Dictionary<Type, IList<string>> defaultInheritance = new()
+    private static readonly Dictionary<Type, IList<string>> defaultInheritance = new()
     {
         { typeof(CompoundEventSection), new[] { "CombatLogEvent", "ICombatLogEvent", "IAction" }},
         { typeof(CombatLogEventComponent), new[] { "CombatLogEvent", "ICombatLogEvent" }}
     };
 
-    public void Execute(GeneratorExecutionContext context)
+    public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        //var sections = Assembly.GetExecutingAssembly()
-        //    .GetTypes()
-        //    .Where(x => x.IsSubclassOf(typeof(CombatLogEventComponent)) && !x.IsAbstract/* && !x.IsGenericType*/);
-
-        var events = Assembly.GetExecutingAssembly()
+        var eventsProvider = context.CompilationProvider.Select((c, _) => Assembly.GetExecutingAssembly()
             .GetTypes()
             .Where(x => x.GetCustomAttribute<AffixAttribute>() != null)
-            .ToList()
-            .ConvertAll(x => new EventAffixItem(x));
+            .Select(x => new EventAffixItem(x))
+            .ToList());
 
-        var suffixEvents = events.Where(affix => affix.IsSuffix);
-        events.Where(affix => !affix.IsSuffix)
-            .ToList()
-            .ForEach(affix =>
-            {
-                if (affix.IsPrefix)
+        context.RegisterSourceOutput(eventsProvider, (spc, events) =>
+        {
+            var suffixEvents = events.Where(affix => affix.IsSuffix);
+            events.Where(affix => !affix.IsSuffix)
+                .ToList()
+                .ForEach(affix =>
                 {
-                    var suffixes = affix.HasRestrictedSuffixes ? affix.RestrictedSuffixes : suffixEvents;
-                    suffixes.Where(suffix => !affix.CheckSuffixIsAllowed(suffix.EventType))
-                        .ToList()
-                        .ForEach(suffix =>
-                        {
-                            var (name, source) = GenerateSourceText<CompoundEventSection>(
-                                    types: [affix.EventType, suffix.EventType],
-                                    @namespace: "WoWCombatLogParser",
-                                    usings: []);
-
-                            AddSource(context, name, source);
-                        });
-                }
-                else
-                {
-                    (string name, SourceText source) generatedItem;
-                    if (affix.EventType.IsSubclassOf(typeof(PredefinedBase)))
+                    if (affix.IsPrefix)
                     {
-                        generatedItem = GenerateSourceText<CompoundEventSection>(
-                                    types: [affix.EventType],
-                                    @namespace: "WoWCombatLogParser",
-                                    usings: []);
+                        var suffixes = affix.HasRestrictedSuffixes ? affix.RestrictedSuffixes : suffixEvents;
+                        suffixes.Where(suffix => !affix.CheckSuffixIsAllowed(suffix.EventType))
+                            .ToList()
+                            .ForEach(suffix =>
+                            {
+                                var (name, source) = GenerateSourceText<CompoundEventSection>(
+                                        types: [affix.EventType, suffix.EventType],
+                                        @namespace: "WoWCombatLogParser",
+                                        usings: []);
+
+                                AddSource(spc, name, source);
+                            });
                     }
                     else
                     {
-                        generatedItem = GenerateSourceText<CombatLogEventComponent>(
-                            types: [affix.EventType],
-                            @namespace: "WoWCombatLogParser",
-                            usings: []);
-                    }
+                        (string name, SourceText source) generatedItem;
+                        if (affix.EventType.IsSubclassOf(typeof(PredefinedBase)))
+                        {
+                            generatedItem = GenerateSourceText<CompoundEventSection>(
+                                        types: [affix.EventType],
+                                        @namespace: "WoWCombatLogParser",
+                                        usings: []);
+                        }
+                        else
+                        {
+                            generatedItem = GenerateSourceText<CombatLogEventComponent>(
+                                types: [affix.EventType],
+                                @namespace: "WoWCombatLogParser",
+                                usings: []);
+                        }
 
-                    AddSource(context, generatedItem.name, generatedItem.source);
-                }
-            });
+                        AddSource(spc, generatedItem.name, generatedItem.source);
+                    }
+                });
+        });
     }
 
-    private void AddSource(GeneratorExecutionContext context, string fileName, SourceText content) => AddSource(context, fileName, content.ToString());
-    private void AddSource(GeneratorExecutionContext context, string fileName, string content)
+    private void AddSource(SourceProductionContext context, string fileName, SourceText content) => AddSource(context, fileName, content.ToString());
+    private void AddSource(SourceProductionContext context, string fileName, string content)
     {
         context.AddSource(
             fileName,
@@ -90,16 +88,6 @@ public class EventSourceGenerator : ISourceGenerator
             .GetRoot()
             .NormalizeWhitespace()
             .ToFullString());
-    }
-
-    public void Initialize(GeneratorInitializationContext context)
-    {
-//#if DEBUG
-//        if (!Debugger.IsAttached)
-//        {
-//            Debugger.Launch();
-//        }
-//#endif
     }
 
     private (string name, SourceText source) GenerateSourceText(IList<Type> types, IList<PropertyInfo> baseProperties, string @namespace, IList<string> usings, IList<string> inheritsFrom = null, bool generateAdditionalConstructor = true)
@@ -134,8 +122,7 @@ namespace {@namespace}
 
     private string GetUsings(params string[] usings)
     {
-        return $@"using System;
-{string.Join(Environment.NewLine, usings?.Select(x => $"using {x};"))}";
+        return $"using System;\n{string.Join("\n", usings?.Select(x => $"using {x};"))}";
     }
 
     private string GetAffix(IList<Type> types)
@@ -149,7 +136,7 @@ namespace {@namespace}
     private string GetApplicableCombatLogVersion(IList<Type> types)
     {
         var versions = types.SelectMany(x => x.GetCustomAttributes<CombatLogVersionAttribute>()).Select(x => x.Value) ?? [CombatLogVersion.Any];
-        return string.Join(Environment.NewLine, versions.Select(x => $"[CombatLogVersion(CombatLogVersion.{x})]"));
+        return string.Join("\n", versions.Select(x => $"[CombatLogVersion(CombatLogVersion.{x})]"));
     }
 
     private string GetDataFieldAttributes(IList<Type> types)
@@ -163,7 +150,7 @@ namespace {@namespace}
 
     private string GetClassData(string className, IList<Type> types, IList<string> inheritsFrom, IList<PropertyInfo> baseProperties, bool generateAdditionalConstructor)
     {
-        return 
+        return
 $$"""
 {{ConsolidateAttributes(
     GetAffix(types),
@@ -175,7 +162,7 @@ $$"""
         {
         }
         
-        {{(baseProperties?.Count > 0 ? string.Join(Environment.NewLine, baseProperties.ToList().Select(x => x.GetProperty())) : "")}}
+        {{(baseProperties?.Count > 0 ? string.Join("\n", baseProperties.ToList().Select(x => x.GetProperty())) : "")}}
         {{GetProperties(types)}}
     }
 """;
@@ -245,7 +232,7 @@ public static class EventSourceGeneratorExtensions
 
     public static string ConsolidateAttributes(params string[] attributes)
     {
-        return string.Join($"{Environment.NewLine}", attributes.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => $"{a}"));
+        return string.Join("\n", attributes.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => $"{a}"));
     }
 
     public static string GetNameWithoutGenericArity(this Type t)

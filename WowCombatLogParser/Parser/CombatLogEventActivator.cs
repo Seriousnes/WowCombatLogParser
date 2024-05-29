@@ -20,7 +20,7 @@ internal static class CombatLogEventActivator
         ParameterInfo[] paramsInfo = ctor.GetParameters();
 
         ParameterExpression param = Expression.Parameter(typeof(object[]), "args");
-        Expression[] argsExp = paramsInfo
+        Expression[] argsExp = [.. paramsInfo
             .ToList()
             .Select((p, i) =>
             {
@@ -30,8 +30,7 @@ internal static class CombatLogEventActivator
                 Expression paramCastExp = Expression.Convert(paramAccessorExp, paramType);
 
                 return paramCastExp;
-            })
-            .ToArray();
+            })];
 
         NewExpression newExp = Expression.New(ctor, argsExp);
         LambdaExpression lambda = Expression.Lambda(typeof(ObjectActivator), newExp, param);
