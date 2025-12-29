@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using WoWCombatLogParser.SourceGenerator.Models;
 
 namespace WoWCombatLogParser.Utility;
 
@@ -49,9 +48,9 @@ internal static partial class Conversion
         return result;
     }
 
-    public static T GetValue<T>(string value) =>  (T)GetValue(value, typeof(T));
+    public static T GetValue<T>(string value) => (T)GetValue(value, typeof(T));
     public static T GetValue<T>(ICombatLogDataField value) => (T)GetValue(value, typeof(T));
     public static object GetValue(ICombatLogDataField value, Type type) => GetValue(value.ToString()!, type);
     private static int ConvertToInt(string value) => Convert.ToInt32(value, value.StartsWith("0x") ? 16 : 10);
-    private static object ConvertToEnum(string value, Type type) =>  isNumber.IsMatch(value) ? Enum.ToObject(type, ConvertToInt(value)) : type.FromDescription(value);    
+    private static object ConvertToEnum(string value, Type type) => isNumber.IsMatch(value) ? Enum.ToObject(type, ConvertToInt(value)) : type.FromDescription(value);
 }

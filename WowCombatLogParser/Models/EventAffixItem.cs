@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace WoWCombatLogParser;
 
-internal class EventAffixItem
+internal class EventAffixItem(Type type)
 {
-    public EventAffixItem(Type type)
-    {
-        EventType = type;
-    }
-
-    public Type EventType { get; }
+    public Type EventType { get; } = type;
     public string Name => Affix != null ? Affix.Value : EventType.Name;
     public DiscriminatorAttribute Affix => EventType.GetCustomAttribute<DiscriminatorAttribute>()!;
 }

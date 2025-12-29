@@ -37,5 +37,5 @@ internal class SpellAbsorbedProfile : EventProfile
 
             return i;
         };
-    }   
+    }
 }

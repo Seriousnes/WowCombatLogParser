@@ -2,22 +2,15 @@ using System.Linq;
 using Xunit.Abstractions;
 using Xunit;
 using System;
-using WoWCombatLogParser;
+using WoWCombatLogParser.IO;
 
 namespace WoWCombatLogParser.Tests;
 
-public class CombatLogParsingTestBase
+public abstract class CombatLogParsingTestBase(ITestOutputHelper output)
 {
-    internal readonly ITestOutputHelper output;
+    internal readonly ITestOutputHelper output = output;
 
-    protected ICombatLogParser CombatLogParser;
-
-    public CombatLogParsingTestBase(ITestOutputHelper output, CombatLogVersion combatLogVersion)
-    {
-        CombatLogParser = new CombatLogParser(combatLogVersion);
-        
-        this.output = output;
-    }
+    protected ICombatLogParser CombatLogParser = new CombatLogParser(new CombatLogEventMapper(), new MemoryMappedCombatLogSegmentProvider());
 
     internal void OutputEncounterSumary(IFight fight)
     {

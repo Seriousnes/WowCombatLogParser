@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -90,6 +87,6 @@ internal class CombatLogDataFieldCollection : ICombatLogDataField
 
     public override string ToString()
     {
-        return Children.Count > 0 ? $"{OpeningBracket}{string.Join(",", Children.Select(x => x.ToString()).ToArray())}{ClosingBracket}" : "";
+        return Children.Count > 0 ? $"{OpeningBracket}{string.Join(",", [.. Children.Select(x => x.ToString())])}{ClosingBracket}" : "";
     }
 }
