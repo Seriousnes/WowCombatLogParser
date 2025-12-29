@@ -114,7 +114,7 @@ public static class Extensions
 
         foreach (var value in values)
         {
-            using var step = MiniProfiler.Current.Step($"IndexOf - {value}");
+            using var step = MiniProfiler.Current is { } profiler ? profiler.Step($"IndexOf - {value}") : null;
             var index = stream.IndexOf(value, startIndex);
             if (index >= 0 && (result.Value is null || index < result.Position))             
             {
@@ -142,7 +142,7 @@ public static class Extensions
         {
             stream.Seek(start, SeekOrigin.Begin);
             Span<byte> memory = new(new byte[(int)(end - start)]);
-            stream.Read(memory);
+            stream.ReadExactly(memory);
             stream.Seek(position, SeekOrigin.Begin);
 
             position = positionType switch

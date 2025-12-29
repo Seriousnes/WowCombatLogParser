@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using WoWCombatLogParser.SourceGenerator.Events.Sections;
 using WoWCombatLogParser.SourceGenerator.Models;
 
 namespace WoWCombatLogParser.SourceGenerator.Events.Special.CombatantInfoEvents;

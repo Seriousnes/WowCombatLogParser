@@ -1,15 +1,10 @@
 ﻿using ExpressionDebugger;
 using System;
-using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using WoWCombatLogParser.Parser;
 using WoWCombatLogParser.Parser.EventMapping;
-using WoWCombatLogParser.SourceGenerator.Events;
-using WoWCombatLogParser.Utility;
-using WoWCombatLogParser.SourceGenerator.Models;
 using WoWCombatLogParser.IO;
 using static WoWCombatLogParser.IO.CombatLogFieldReader;
 using static System.Linq.Expressions.Expression;
@@ -24,11 +19,13 @@ public interface ICombatLogEventMapper
     void SetCombatLogVersion(CombatLogVersion combatLogVersion);
 }
 
-internal class CombatLogEventMapper : ICombatLogEventMapper
+public sealed class CombatLogEventMapper : ICombatLogEventMapper
 {
     private readonly CombatLogVersionedDictionary<string, ObjectActivator> eventConstructors = new();
     private readonly Dictionary<Type, CombatLogEventMapping> maps;
     private readonly Dictionary<Type, ObjectActivator> componentConstructors = [];
+    private readonly object mapsGate = new();
+    private readonly object constructorsGate = new();
     private readonly Dictionary<string, MethodInfo> methods = new()
     {
         { nameof(CombatLogEventMapper.MapComponentAsProperties), typeof(CombatLogEventMapper).GetMethod(nameof(CombatLogEventMapper.MapComponentAsProperties), BindingFlags.Instance | BindingFlags.NonPublic)! },
@@ -76,13 +73,26 @@ internal class CombatLogEventMapper : ICombatLogEventMapper
     {
         get
         {
-            if (!maps.TryGetValue(index, out var map))
+            lock (mapsGate)
             {
-                map = BuildDelegateForType(index);
+                if (!maps.TryGetValue(index, out var map))
+                {
+                    map = BuildDelegateForType(index);
+                    if (map is { })
+                    {
+                        maps[index] = map;
+                    }
+                }
+                return map;
             }
-            return map;
         }
-        set => maps[index] = value;
+        set
+        {
+            lock (mapsGate)
+            {
+                maps[index] = value;
+            }
+        }
     }
 
     internal CombatLogVersionEvent? CombatLogVersionEvent { get; private set; }
@@ -122,9 +132,10 @@ internal class CombatLogEventMapper : ICombatLogEventMapper
 
     private CombatLogEventMapping? BuildDelegateForType(Type type)
     {
-        // this method is recursive and previous invocations may have already added the specified type
         if (maps.TryGetValue(type, out var existing))
+        {
             return existing;
+        }
 
         var mapper = Constant(this);
         var p0 = Parameter(typeof(CombatLogEventComponent), "c");
@@ -259,16 +270,20 @@ internal class CombatLogEventMapper : ICombatLogEventMapper
         map = preCompile.Compile();
 #endif
 
-        maps.TryAdd(type, map);
+        maps[type] = map;
         return map;
     }
 
     internal void MapComponentList<T>(List<T> destination, ICombatLogDataField data, bool isKeyValuePair)
         where T : CombatLogEventComponent
     {
-        if (!componentConstructors.TryGetValue(typeof(T), out var constructor))
+        ObjectActivator constructor;
+        lock (constructorsGate)
         {
-            componentConstructors[typeof(T)] = constructor = GetActivator(typeof(T));
+            if (!componentConstructors.TryGetValue(typeof(T), out constructor))
+            {
+                componentConstructors[typeof(T)] = constructor = GetActivator(typeof(T));
+            }
         }
 
         var action = this[typeof(T)] ?? throw new NullReferenceException($"No mapping for type \"{typeof(T).Name}\" could be found.");

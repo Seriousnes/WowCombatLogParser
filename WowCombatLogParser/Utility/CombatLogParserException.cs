@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Reflection;
-using static WoWCombatLogParser.IO.CombatLogFieldReader;
-using WoWCombatLogParser.IO;
-using System.Reflection.Metadata;
 
 namespace WoWCombatLogParser;
 

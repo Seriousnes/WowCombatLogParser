@@ -3,18 +3,13 @@
 namespace WoWCombatLogParser;
 
 [DebuggerDisplay("{Value}")]
-public readonly struct WowGuid : IEquatable<WowGuid>
+public readonly struct WowGuid(string value) : IEquatable<WowGuid>
 {
     public static readonly WowGuid Empty = new("0000000000000000");
-    public string Value { get; }
+    public string Value { get; } = value;
     public bool IsEmpty => Value == Empty.Value;
     public bool IsPlayer => Value.StartsWith("Player-");
     public bool IsCreature => Value.StartsWith("Creature-");
-
-    public WowGuid(string value)
-    {
-        Value = value;
-    }
 
     public bool Equals(WowGuid other)
     {

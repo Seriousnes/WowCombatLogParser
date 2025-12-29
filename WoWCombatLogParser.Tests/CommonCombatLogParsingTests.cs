@@ -1,17 +1,12 @@
 using FluentAssertions;
-using WoWCombatLogParser;
 using Xunit;
 using Xunit.Abstractions;
 using WoWCombatLogParser.Utility;
 
 namespace WoWCombatLogParser.Tests;
 
-public class CommonCombatLogParsingTests : CombatLogParsingTestBase
+public class CommonCombatLogParsingTests(ITestOutputHelper output) : CombatLogParsingTestBase(output)
 {
-    public CommonCombatLogParsingTests(ITestOutputHelper output) : base(output, Constants.DefaultCombatLogVersion)
-    {
-    }
-
     [Theory]
     [InlineData(0x1148, UnitTypeFlag.Pet, ReactionFlag.Hostile, OwnershipFlag.Player, AffiliationFlag.Outsider)]
     [InlineData(0x1248, UnitTypeFlag.Pet, ReactionFlag.Hostile, OwnershipFlag.Npc, AffiliationFlag.Outsider)]

@@ -1,6 +1,5 @@
 using FluentAssertions;
 using System;
-using WoWCombatLogParser;
 using Xunit;
 using Xunit.Abstractions;
 using System.Linq;
@@ -11,26 +10,42 @@ using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using StackExchange.Profiling;
 
+using WoWCombatLogParser.IO;
+
 namespace WoWCombatLogParser.Tests;
 
-public class DragonflightCombatLogParsingTests(ITestOutputHelper output) : CombatLogParsingTestBase(output, CombatLogVersion.Dragonflight)
+public class DragonflightCombatLogParsingTests(ITestOutputHelper output) : CombatLogParsingTestBase(output)
 {
+    [Theory]
+    [InlineData(typeof(MemoryMappedCombatLogSegmentProvider))]
+    [InlineData(typeof(FileStreamCombatLogSegmentProvider))]
+    public void Test_SegmentProvider(Type segmentProviderType)
+    {
+        ICombatLogSegmentProvider provider = (ICombatLogSegmentProvider)Activator.CreateInstance(segmentProviderType)!;
+
+        using var context = provider.Open(@"TestLogs/Dragonflight/WoWCombatLog.txt", CombatLogParser.GetCombatLogEvent);
+        context.Segments.Should().HaveCount(19);
+    }
+
     [Theory]
     [InlineData(@"TestLogs/Dragonflight/WoWCombatLog.txt", 65770, 65770)]
     [InlineData(@"TestLogs/Dragonflight/EchoOfNeltharion_Wipe.txt", 18743, 18743)]
-    public void Test_SingleEncounter(string fileName, int lines = 0, int eventCount = 0)
+    public async Task Test_SingleEncounter(string fileName, int lines = 0, int eventCount = 0)
     {
-        CombatLogParser.Errors.Clear();
-        var segment = CombatLogParser.GetSegments(fileName).FirstOrDefault();
+        CombatLogParser.SetFilePath(fileName);
+        var segment = CombatLogParser.GetSegments()[0];
         segment.Should().NotBeNull();        
         if (eventCount > 0)
         {
-            var events = CombatLogParser.ParseSegment(segment).ToList();
+            var events = await CombatLogParser.ParseSegmentAsync(segment!);
             CombatLogParser.Errors.Should().HaveCount(0);
-            events.Count.Should().Be(eventCount);            
+            events.Count.Should().Be(eventCount).And.Be(lines);
         }
-        if (lines > 0) 
-            segment.Content.Count.Should().Be(lines);
+        //if (lines > 0)
+        //{
+        //    var events = await CombatLogParser.ParseSegmentAsync(segment!).ConfigureAwait(false);
+        //    events.Count.Should().Be(lines);
+        //}
         output.WriteLine(CombatLogParser.Profiler.RenderPlainText());
     }
 
@@ -54,26 +69,30 @@ public class DragonflightCombatLogParsingTests(ITestOutputHelper output) : Comba
         //    });
         //}
 
-        var segments = CombatLogParser.GetSegments(file);
-        segments.Count().Should().Be(5);
+        CombatLogParser.SetFilePath(file);
+        var segments = CombatLogParser.GetSegments();
+        segments.Count.Should().Be(5);
     }
 
     [Fact]
-    public void Test_FullRaidCombatLog()
+    public async Task Test_FullRaidCombatLog()
     {
+        CombatLogParser.SetFilePath(@"TestLogs/Dragonflight/WoWCombatLog.txt");
         var parsedSegments = new ConcurrentBag<List<CombatLogEvent>>();
         if (Debugger.IsAttached)
         {
-            foreach (var unparsed in CombatLogParser.GetSegments(@"TestLogs/Dragonflight/WoWCombatLog.txt"))
+            foreach (var unparsed in CombatLogParser.GetSegments())
             {
-                parsedSegments.Add(CombatLogParser.ParseSegment(unparsed).ToList());
+                var events = await CombatLogParser.ParseSegmentAsync(unparsed);
+                parsedSegments.Add([.. events]);
             }
         }
         else
         {
-            Parallel.ForEach(CombatLogParser.GetSegments(@"TestLogs/Dragonflight/WoWCombatLog.txt"), (segment, _) =>
+            await Parallel.ForEachAsync(CombatLogParser.GetSegments(), async (segment, _) =>
             {
-                parsedSegments.Add(CombatLogParser.ParseSegment(segment).ToList());
+                var events = await CombatLogParser.ParseSegmentAsync(segment, _);
+                parsedSegments.Add([.. events]);
             });
         }
 
@@ -83,59 +102,6 @@ public class DragonflightCombatLogParsingTests(ITestOutputHelper output) : Comba
 
         CombatLogParser.Errors.Should().HaveCount(0);
         totalEvents.Should().Be(829910 - (parsedSegments.Count * 2));
-    }
-
-    [Fact(Skip = "Performance testing")]
-    public void ReportPerformance()
-    {
-        const int BUFFER_SIZE = 4096;
-        List<CombatLogEvent> events = [];
-        var sw = new Stopwatch();
-        var filename = @"TestLogs/Dragonflight/WoWCombatLog.txt";
-        // using stream reader
-        using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, StreamExtensions.GetBufferSize(filename), FileOptions.SequentialScan))
-        using (var sr = new StreamReader(fs))
-        {
-            int count = 0;
-            string line;
-
-            sw.Start();
-            while ((line = sr.ReadLine()) != null)
-            {
-                count++;
-                if (CombatLogParser.GetCombatLogEvent(line) is { } _event)
-                {
-                    events.Add(_event);
-                }
-            }
-            sw.Stop();
-            output.WriteLine($"Stream reader with sequential scan, buffer {BUFFER_SIZE}: {count / (sw.ElapsedMilliseconds / 1000)} / sec");
-            output.WriteLine($"Lines read: {count}");
-            output.WriteLine($"Events parsed: {events.Count}");
-            events.Clear();
-        }
-
-        output.WriteLine(new string('=', 50));
-
-        // loading file into memory first        
-        {
-            var content = File.ReadAllLines(@"TestLogs/Dragonflight/WoWCombatLog.txt");
-            int count = 0;
-            sw.Restart();
-            foreach (var line in content)
-            {
-                count++;
-                if (CombatLogParser.GetCombatLogEvent(line) is { } _event)
-                {
-                    events.Add(_event);
-                }
-            }
-            sw.Stop();
-            output.WriteLine($"File.ReadAllLines: {count / (sw.ElapsedMilliseconds / 1000)} / sec");
-            output.WriteLine($"Lines read: {count}");
-            output.WriteLine($"Events parsed: {events.Count}");
-            events.Clear();
-        }
     }
 
     [Theory]
@@ -361,8 +327,9 @@ public class DragonflightCombatLogParsingTests(ITestOutputHelper output) : Comba
     [Fact]
     public void Test_ScanMultipleFightsSelectingSecond()
     {
+        CombatLogParser.SetFilePath(@"TestLogs/Dragonflight/WoWCombatLog.txt");
         var segment = CombatLogParser
-            .GetSegments(@"TestLogs/Dragonflight/WoWCombatLog.txt")
+            .GetSegments()
             .Skip(1)
             .Take(1)
             .SingleOrDefault();
@@ -372,8 +339,9 @@ public class DragonflightCombatLogParsingTests(ITestOutputHelper output) : Comba
     [Fact]
     public void Test_ScanMultipleFights()
     {
+        CombatLogParser.SetFilePath(@"TestLogs/Dragonflight/WoWCombatLog.txt");
         var segments = CombatLogParser
-            .GetSegments(@"TestLogs/Dragonflight/WoWCombatLog.txt")
+            .GetSegments()
             .ToList();
         segments.Should().NotBeNull();
         foreach (var segment in segments)

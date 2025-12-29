@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace WoWCombatLogParser.IO;
+﻿namespace WoWCombatLogParser.IO;
 
 internal class CombatLogLineData
 {

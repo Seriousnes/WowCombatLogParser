@@ -48,7 +48,7 @@ internal static class StreamExtensions
             {
                 if (stream.Position < searchValue.Length) break;
                 long length = stream.Seek(-searchValue.Length, SeekOrigin.Current);
-                stream.Read(buffer);
+                stream.ReadExactly(buffer);
                 if (searchValue[0] == buffer[0] && buffer.SequenceEqual(searchValue))
                 {
                     return length;

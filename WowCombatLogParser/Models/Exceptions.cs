@@ -2,18 +2,11 @@
 
 namespace WoWCombatLogParser;
 
-public class CombatLogParseException : Exception
+public class CombatLogParseException(string property, Type type, string value) : Exception
 {
-    public CombatLogParseException(string property, Type type, string value)
-    {
-        Property = property;
-        TypeExpected = type;
-        Value = value;
-    }
-
-    public string Property { get; set; }
-    public Type TypeExpected { get; set; }
-    public string Value { get; set; }
+    public string Property { get; set; } = property;
+    public Type TypeExpected { get; set; } = type;
+    public string Value { get; set; } = value;
 
     public override string ToString()
     {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using WoWCombatLogParser.SourceGenerator.Models;
 
 namespace WoWCombatLogParser.Utility;
 
