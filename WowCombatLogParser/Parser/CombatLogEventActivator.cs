@@ -5,16 +5,16 @@ using System.Reflection;
 
 namespace WoWCombatLogParser.Parser;
 
-internal delegate object ObjectActivator(params object[] args);
+internal delegate object CombatLogEventConstructor(params object[] args);
 
 internal static class CombatLogEventActivator
 {
-    public static ObjectActivator GetActivator(Type type)
+    public static CombatLogEventConstructor GetCombatLogEventConstructor(Type type)
     {
-        return GetActivator(type.GetConstructor([])!);
+        return GetCombatLogEventConstructor(type.GetConstructor([])!);
     }
 
-    public static ObjectActivator GetActivator(ConstructorInfo ctor)
+    public static CombatLogEventConstructor GetCombatLogEventConstructor(ConstructorInfo ctor)
     {
         Type type = ctor.DeclaringType!;
         ParameterInfo[] paramsInfo = ctor.GetParameters();
@@ -33,7 +33,7 @@ internal static class CombatLogEventActivator
             })];
 
         NewExpression newExp = Expression.New(ctor, argsExp);
-        LambdaExpression lambda = Expression.Lambda(typeof(ObjectActivator), newExp, param);
-        return (ObjectActivator)lambda.Compile();
+        LambdaExpression lambda = Expression.Lambda(typeof(CombatLogEventConstructor), newExp, param);
+        return (CombatLogEventConstructor)lambda.Compile();
     }
 }

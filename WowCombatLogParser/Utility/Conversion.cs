@@ -10,10 +10,17 @@ internal static partial class Conversion
     private static partial Regex IsNumber();
 
     private static readonly Regex isNumber = IsNumber();
+
+    private static readonly string[] combatLogTimestampFormats =
+    [
+        "M/d HH:mm:ss.fff",
+        "M/d/yyyy HH:mm:ss.fffff",
+    ];
+
     private static readonly Dictionary<Type, Func<string, object>> _convertableTypes = new()
     {
         { typeof(WowGuid), value => new WowGuid(value) },
-        { typeof(DateTime), value => DateTime.ParseExact(value, "M/d HH:mm:ss.fff", CultureInfo.InvariantCulture) },
+        { typeof(DateTime), value => DateTime.ParseExact(value, combatLogTimestampFormats, CultureInfo.InvariantCulture) },
         { typeof(decimal), value => decimal.Parse(value, CultureInfo.InvariantCulture) },
         { typeof(int), value => ConvertToInt(value) },
         { typeof(bool), value => value != "0" },

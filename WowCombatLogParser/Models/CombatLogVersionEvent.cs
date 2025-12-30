@@ -5,7 +5,7 @@ namespace WoWCombatLogParser;
 
 public partial class CombatLogVersionEvent : CombatLogEvent
 {
-    private static readonly Regex _eventTypeExpr = new(@"(?<timestamp>.*?)\s{2}COMBAT_LOG_VERSION,(?<version>.*?),ADVANCED_LOG_ENABLED,(?<advancedlogenabled>.*?),BUILD_VERSION,(?<buildversion>.*?),PROJECT_ID,(?<projectid>.*)", RegexOptions.Compiled);
+    private static readonly Regex _eventTypeExpr = eventTypeExpr();
 
     public CombatLogVersionEvent(string line) : this()
     {
@@ -21,4 +21,7 @@ public partial class CombatLogVersionEvent : CombatLogEvent
     {
         Version = version;
     }
+
+    [GeneratedRegex(@"(?<timestamp>.*?)\s{2}COMBAT_LOG_VERSION,(?<version>.*?),ADVANCED_LOG_ENABLED,(?<advancedlogenabled>.*?),BUILD_VERSION,(?<buildversion>.*?),PROJECT_ID,(?<projectid>.*)", RegexOptions.Compiled)]
+    private static partial Regex eventTypeExpr();
 }

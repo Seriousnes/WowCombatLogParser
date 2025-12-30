@@ -1,5 +1,4 @@
-﻿using StackExchange.Profiling;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
@@ -114,7 +113,6 @@ public static class Extensions
 
         foreach (var value in values)
         {
-            using var step = MiniProfiler.Current is { } profiler ? profiler.Step($"IndexOf - {value}") : null;
             var index = stream.IndexOf(value, startIndex);
             if (index >= 0 && (result.Value is null || index < result.Position))             
             {
@@ -169,9 +167,9 @@ public static class Extensions
     {
         return start switch
         {
-            EncounterStart raidStart when start.GetType() == typeof(EncounterStart) => new Boss(raidStart),
+            EncounterStart raidStart when start.GetType() == typeof(EncounterStart) => new BossEncounter(raidStart),
             ArenaMatchStart arenaStart when start.GetType() == typeof(ArenaMatchStart) => new ArenaMatch(arenaStart),
-            ChallengeModeStart challengeStart when start.GetType() == typeof(ChallengeModeStart) => new ChallengeMode(challengeStart),
+            ChallengeModeStart challengeStart when start.GetType() == typeof(ChallengeModeStart) => new ChallengeModeEncounter(challengeStart),
             _ => null
         };
     }
@@ -181,7 +179,16 @@ public static class Extensions
         return typeof(T).IsAssignableFrom(type);
     }
 
-    public static DateTime GetTimestamp(this string dateTimeString) => DateTime.TryParseExact(dateTimeString, "M/d HH:mm:ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var timestamp) ? timestamp : DateTime.MinValue;
+    private static readonly string[] combatLogTimestampFormats =
+    [
+        "M/d HH:mm:ss.fff",
+        "M/d HH:mm:ss.fffff",
+    ];
+
+    public static DateTime GetTimestamp(this string dateTimeString) =>
+        DateTime.TryParseExact(dateTimeString, combatLogTimestampFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var timestamp)
+            ? timestamp
+            : DateTime.MinValue;
 
     public static DifficultyInfo GetDifficultyInfo(this Difficulty difficulty) => difficulty switch
     {

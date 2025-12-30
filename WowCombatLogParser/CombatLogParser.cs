@@ -1,9 +1,12 @@
-﻿using StackExchange.Profiling;
-using System;
+﻿using System;
+using System.Buffers;
+using System.Collections.Concurrent;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 using WoWCombatLogParser.IO;
 
 namespace WoWCombatLogParser;
@@ -14,7 +17,7 @@ namespace WoWCombatLogParser;
 /// <remarks>
 /// Typical usage:
 /// <list type="number">
-/// <item><description>Create a parser with an <see cref="ICombatLogEventMapper"/> and an <see cref="ICombatLogSegmentProvider"/>.</description></item>
+/// <item><description>Create a parser with an <see cref="ICombatLogEventMapper"/> and an <see cref="ICombatLogContextProvider"/>.</description></item>
 /// <item><description>Call <see cref="SetFilePath"/> to initialize combat log version and file context.</description></item>
 /// <item><description>Call <see cref="GetSegments"/> then parse segments via <see cref="ParseSegment"/>/<see cref="ParseSegmentAsync"/>.</description></item>
 /// </list>
@@ -72,20 +75,18 @@ public interface ICombatLogParser
     ValueTask<IReadOnlyList<Segment>> GetSegmentsAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Parses all events within the provided segment.
+    /// Parses all events within the provided segment and stores the results on <see cref="Segment.Events"/>.
     /// </summary>
     /// <param name="segment">A segment obtained from <see cref="GetSegments"/>.</param>
-    /// <returns>A list of parsed events.</returns>
-    IReadOnlyList<CombatLogEvent> ParseSegment(Segment segment);
+    void ParseSegment(Segment segment);
 
     /// <summary>
-    /// Asynchronously parses all events within the provided segment.
+    /// Asynchronously parses all events within the provided segment and stores the results on <see cref="Segment.Events"/>.
     /// </summary>
     /// <param name="segment">A segment obtained from <see cref="GetSegments"/>.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>A task producing a list of parsed events.</returns>
     /// <exception cref="OperationCanceledException">Thrown if <paramref name="cancellationToken"/> is cancelled.</exception>
-    ValueTask<IReadOnlyList<CombatLogEvent>> ParseSegmentAsync(Segment segment, CancellationToken cancellationToken = default);
+    ValueTask ParseSegmentAsync(Segment segment, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Loads and parses events for an arbitrary byte range within the current combat log file.
@@ -115,14 +116,6 @@ public interface ICombatLogParser
     /// The dictionary is written to under a lock; however, consumers should not mutate it concurrently with parsing.
     /// </remarks>
     Dictionary<string, List<ParserError>> Errors { get; }
-
-    /// <summary>
-    /// Gets the profiler used to record parsing steps.
-    /// </summary>
-    /// <remarks>
-    /// This property is intended for diagnostics and may be removed in a future version.
-    /// </remarks>
-    MiniProfiler Profiler { get; }
 }
 
 /// <summary>
@@ -135,30 +128,28 @@ public interface ICombatLogParser
 public sealed class CombatLogParser : ICombatLogParser, IDisposable
 {
     private readonly ICombatLogEventMapper mapper;
-    private readonly ICombatLogSegmentProvider segmentProvider;
-    private ICombatLogFileContext? fileContext;
+    private readonly ICombatLogContextProvider contextProvider;
     private string? filePath;
-    private readonly object errorsGate = new();
+    private IReadOnlyList<Segment> segments = [];
+    private long fileLength;
+    private ConcurrentDictionary<string, ConcurrentBag<ParserError>> errors = new();
 
     /// <summary>
     /// Creates a new parser.
     /// </summary>
     /// <param name="mapper">Maps raw combat log lines to concrete event types.</param>
-    /// <param name="segmentProvider">Provides segmentation and segment loading for a combat log file.</param>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="mapper"/> or <paramref name="segmentProvider"/> is <see langword="null"/>.</exception>
-    public CombatLogParser(ICombatLogEventMapper mapper, ICombatLogSegmentProvider segmentProvider)
+    /// <param name="contextProvider">Provides segmentation and segment loading for a combat log file.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="mapper"/> or <paramref name="contextProvider"/> is <see langword="null"/>.</exception>
+    public CombatLogParser(ICombatLogEventMapper mapper, ICombatLogContextProvider contextProvider)
     {
         this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        this.segmentProvider = segmentProvider ?? throw new ArgumentNullException(nameof(segmentProvider));
+        this.contextProvider = contextProvider ?? throw new ArgumentNullException(nameof(contextProvider));
 
         this.mapper.SetCombatLogVersion(Constants.DefaultCombatLogVersion);
     }
 
     /// <inheritdoc />
-    public Dictionary<string, List<ParserError>> Errors { get; } = [];
-
-    /// <inheritdoc />
-    public MiniProfiler Profiler { get; } = MiniProfiler.DefaultOptions.StartProfiler("CombatLogParser")!;
+    public Dictionary<string, List<ParserError>> Errors => errors.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToList());
 
     /// <inheritdoc />
     public CombatLogEvent? GetCombatLogEvent(string line) => GetCombatLogEvent<CombatLogEvent>(line);
@@ -172,15 +163,14 @@ public sealed class CombatLogParser : ICombatLogParser, IDisposable
         }
         catch (Exception exception)
         {
-            var eventType = exception is CombatLogParserException parserException ? parserException.EventType : CombatLogFieldReader.ReadFields(line).EventType;
-            lock (errorsGate)
+            var eventType = exception is CombatLogParserException parserException ? parserException.EventType : CombatLogFieldReader.ReadFields(line).EventType;            
+            if (!errors.TryGetValue(eventType, out var err))
             {
-                if (!Errors.TryGetValue(eventType, out var errors))
-                {
-                    Errors[eventType] = errors = [];
-                }
-                errors.Add(new(exception, line));
+                err = [];
+                errors.TryAdd(eventType, err);
             }
+            err.Add(new ParserError(exception, line));
+
             return null;
         }
     }
@@ -198,11 +188,11 @@ public sealed class CombatLogParser : ICombatLogParser, IDisposable
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"File not found: {filePath}", filePath);
 
-        Errors.Clear();
+        errors.Clear();
         this.filePath = filePath;
 
-        fileContext?.Dispose();
-        fileContext = null;
+        segments = [];
+        fileLength = 0;
 
         using var stream = new FileStream(filePath, new FileStreamOptions
         {
@@ -228,7 +218,18 @@ public sealed class CombatLogParser : ICombatLogParser, IDisposable
             throw new InvalidDataException("First line is not a valid COMBAT_LOG_VERSION header.", exception);
         }
 
-        fileContext = segmentProvider.Open(filePath, GetCombatLogEvent);
+        segments = contextProvider.Open(filePath, this);
+        fileLength = contextProvider.FileLength;
+
+        if (segments.Count == 0)
+        {
+            if (fileLength > int.MaxValue)
+            {
+                throw new InvalidOperationException($"File is too large to represent as a single segment: {fileLength} bytes.");
+            }
+
+            segments = [new Segment(0, (int)fileLength)];
+        }
     }
 
     /// <inheritdoc />
@@ -237,11 +238,7 @@ public sealed class CombatLogParser : ICombatLogParser, IDisposable
         if (filePath is null)
             throw new InvalidOperationException("SetFilePath must be called before GetSegments.");
 
-        if (fileContext is null)
-            throw new InvalidOperationException("File context has not been initialized.");
-
-        using var step = Profiler.Step("Get Segments");
-        return fileContext.Segments;
+        return segments;
     }
 
     /// <inheritdoc />
@@ -252,37 +249,210 @@ public sealed class CombatLogParser : ICombatLogParser, IDisposable
     }
 
     /// <inheritdoc />
-    public IReadOnlyList<CombatLogEvent> ParseSegment(Segment segment)
+    public void ParseSegment(Segment segment)
     {
-        using var step = Profiler.Step("Parse Segment");
-        return segmentProvider.LoadSegment(segment);
+        segment.Events = LoadEvents(segment.StartOffset, segment.Length);
     }
 
     /// <inheritdoc />
-    public ValueTask<IReadOnlyList<CombatLogEvent>> ParseSegmentAsync(Segment segment, CancellationToken cancellationToken = default)
+    public async ValueTask ParseSegmentAsync(Segment segment, CancellationToken cancellationToken = default)
     {
-        using var step = Profiler.Step("Parse Segment (Async)");
-        return segmentProvider.LoadSegmentAsync(segment, cancellationToken);
+        segment.Events = await LoadEventsAsync(segment.StartOffset, segment.Length, cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public IReadOnlyList<CombatLogEvent> LoadEvents(long startOffset, int length)
     {
-        if (fileContext is null)
-            throw new InvalidOperationException("File context has not been initialized.");
+        if (filePath is null)
+            throw new InvalidOperationException("SetFilePath must be called before LoadEvents.");
 
-        using var step = Profiler.Step("Load Events");
-        return fileContext.LoadEvents(startOffset, length);
+        if (startOffset < 0 || length < 0)
+            throw new ArgumentOutOfRangeException(nameof(startOffset));
+
+        if (startOffset + length > fileLength)
+            throw new ArgumentOutOfRangeException(nameof(startOffset));
+
+        if (contextProvider.TryGetSpan(startOffset, length, out var span))
+        {
+            return ParseSequential(span);
+        }
+
+        using var owner = MemoryPool<byte>.Shared.Rent(length);
+        var memory = owner.Memory[..length];
+        contextProvider.ReadExactlyAsync(startOffset, memory).AsTask().GetAwaiter().GetResult();
+        return ParseSequential(memory.Span);
     }
 
     /// <inheritdoc />
     public ValueTask<IReadOnlyList<CombatLogEvent>> LoadEventsAsync(long startOffset, int length, CancellationToken cancellationToken = default)
     {
-        if (fileContext is null)
-            throw new InvalidOperationException("File context has not been initialized.");
+        if (filePath is null)
+            throw new InvalidOperationException("SetFilePath must be called before LoadEventsAsync.");
 
-        using var step = Profiler.Step("Load Events (Async)");
-        return fileContext.LoadEventsAsync(startOffset, length, cancellationToken);
+        if (startOffset < 0 || length < 0)
+            throw new ArgumentOutOfRangeException(nameof(startOffset));
+
+        if (startOffset + length > fileLength)
+            throw new ArgumentOutOfRangeException(nameof(startOffset));
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        unsafe
+        {
+            if (contextProvider.TryGetPointer(startOffset, length, out var pointer))
+            {
+                return ValueTask.FromResult(ParseParallelFromPointer(pointer, length));
+            }
+        }
+
+        return new ValueTask<IReadOnlyList<CombatLogEvent>>(LoadEventsAsyncFromRead(startOffset, length, cancellationToken));
+    }
+
+    private async Task<IReadOnlyList<CombatLogEvent>> LoadEventsAsyncFromRead(long startOffset, int length, CancellationToken cancellationToken)
+    {
+        using var owner = MemoryPool<byte>.Shared.Rent(length);
+        var memory = owner.Memory[..length];
+
+        await contextProvider.ReadExactlyAsync(startOffset, memory, cancellationToken).ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
+        return ParseParallelFromMemory(memory);
+    }
+
+    internal IReadOnlyList<CombatLogEvent> ParseSequential(ReadOnlySpan<byte> data)
+    {
+        var events = new List<CombatLogEvent>(capacity: 1024);
+        int i = 0;
+
+        while (i < data.Length)
+        {
+            int lineBreak = data[i..].IndexOf((byte)'\n');
+            int lineEndExclusive = lineBreak >= 0 ? i + lineBreak : data.Length;
+
+            var line = data[i..lineEndExclusive];
+            if (line.Length > 0 && line[^1] == (byte)'\r')
+            {
+                line = line[..^1];
+            }
+
+            if (!line.IsEmpty)
+            {
+                var lineText = Encoding.UTF8.GetString(line);
+                if (GetCombatLogEvent(lineText) is { } combatLogEvent)
+                {
+                    events.Add(combatLogEvent);
+                }
+            }
+
+            if (lineBreak < 0)
+            {
+                break;
+            }
+
+            i = lineEndExclusive + 1;
+        }
+
+        return events;
+    }
+
+    internal IReadOnlyList<CombatLogEvent> ParseParallelFromMemory(ReadOnlyMemory<byte> data)
+    {
+        var ranges = new List<(int Start, int Length)>(capacity: 1024);
+
+        var span = data.Span;
+        int p = 0;
+        while (p < span.Length)
+        {
+            int lineBreak = span[p..].IndexOf((byte)'\n');
+            int lineEndExclusive = lineBreak >= 0 ? p + lineBreak : span.Length;
+
+            int lineLength = lineEndExclusive - p;
+            if (lineLength > 0 && span[p + lineLength - 1] == (byte)'\r')
+            {
+                lineLength -= 1;
+            }
+
+            if (lineLength > 0)
+            {
+                ranges.Add((p, lineLength));
+            }
+
+            if (lineBreak < 0)
+            {
+                break;
+            }
+
+            p = lineEndExclusive + 1;
+        }
+
+        var results = new CombatLogEvent?[ranges.Count];
+        Parallel.For(0, ranges.Count, idx =>
+        {
+            var (start, length) = ranges[idx];
+            var lineText = Encoding.UTF8.GetString(data.Span.Slice(start, length));
+            results[idx] = GetCombatLogEvent(lineText);
+        });
+
+        var output = new List<CombatLogEvent>(results.Length);
+        for (int idx = 0; idx < results.Length; idx++)
+        {
+            if (results[idx] is { } e)
+            {
+                output.Add(e);
+            }
+        }
+
+        return output;
+    }
+
+    internal unsafe IReadOnlyList<CombatLogEvent> ParseParallelFromPointer(byte* basePtr, int length)
+    {
+        var ranges = new List<(int Start, int Length)>(capacity: 1024);
+
+        int p = 0;
+        while (p < length)
+        {
+            var remaining = new ReadOnlySpan<byte>(basePtr + p, length - p);
+            int lineBreak = remaining.IndexOf((byte)'\n');
+            int lineEndExclusive = lineBreak >= 0 ? p + lineBreak : length;
+
+            int lineLength = lineEndExclusive - p;
+            if (lineLength > 0 && *(basePtr + p + lineLength - 1) == (byte)'\r')
+            {
+                lineLength -= 1;
+            }
+
+            if (lineLength > 0)
+            {
+                ranges.Add((p, lineLength));
+            }
+
+            if (lineBreak < 0)
+            {
+                break;
+            }
+
+            p = lineEndExclusive + 1;
+        }
+
+        var results = new CombatLogEvent?[ranges.Count];
+        Parallel.For(0, ranges.Count, idx =>
+        {
+            var (start, lineLength) = ranges[idx];
+            var line = new ReadOnlySpan<byte>(basePtr + start, lineLength);
+            var lineText = Encoding.UTF8.GetString(line);
+            results[idx] = GetCombatLogEvent(lineText);
+        });
+
+        var output = new List<CombatLogEvent>(results.Length);
+        for (int idx = 0; idx < results.Length; idx++)
+        {
+            if (results[idx] is { } e)
+            {
+                output.Add(e);
+            }
+        }
+
+        return output;
     }
 
     /// <summary>
@@ -290,8 +460,7 @@ public sealed class CombatLogParser : ICombatLogParser, IDisposable
     /// </summary>
     public void Dispose()
     {
-        fileContext?.Dispose();
-        fileContext = null;
+        contextProvider.Dispose();
     }
 }
 

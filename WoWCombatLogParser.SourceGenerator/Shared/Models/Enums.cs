@@ -313,7 +313,8 @@ public enum CombatLogVersion
     Any = -1,
     Wotlk = 9,
     Shadowlands = 19,
-    Dragonflight = 20
+    Dragonflight = 20,
+    TheWarWithin = 22,
 }
 
 public enum ChallengeModeAffixEnum
@@ -372,5 +373,8 @@ public enum ChallengeModeAffixEnum
     [KeystoneLevel(Level = 10)]
     Thundering = 132,
     [KeystoneLevel(Level = 10)]
-    Tormented = 128
+    Tormented = 128,
+    [KeystoneLevel(Level = 2)]
+    [Description("Xal'atath's Bargain: Devour")]
+    XalatathsBargainDevour = 160,
 }

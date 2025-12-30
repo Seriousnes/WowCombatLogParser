@@ -10,7 +10,7 @@ public abstract class CombatLogParsingTestBase(ITestOutputHelper output)
 {
     internal readonly ITestOutputHelper output = output;
 
-    protected ICombatLogParser CombatLogParser = new CombatLogParser(new CombatLogEventMapper(), new MemoryMappedCombatLogSegmentProvider());
+    protected ICombatLogParser CombatLogParser = new CombatLogParser(new CombatLogEventMapper(), new MemoryMappedCombatLogContextProvider());
 
     internal void OutputEncounterSumary(IFight fight)
     {

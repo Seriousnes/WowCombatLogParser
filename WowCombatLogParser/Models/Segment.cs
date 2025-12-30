@@ -1,5 +1,6 @@
 ﻿using System;
-using WoWCombatLogParser.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace WoWCombatLogParser;
 
@@ -16,11 +17,12 @@ namespace WoWCombatLogParser;
 /// Assumes the file's content from <paramref name="start"/> to <paramref name="start"/>+<paramref name="length"/> is unmodified from when 
 /// the instance of <see cref="Segment"/> was created.
 /// </remarks>
-public sealed class Segment(ICombatLogFileContext context, long start, int length)
+public sealed class Segment(long start, int length)
 {
-    public ICombatLogFileContext Context { get; } = context;
     public long StartOffset { get; } = start;
     public int Length { get; } = length;
+
+    public IReadOnlyList<CombatLogEvent>? Events { get; internal set; }
 
     /// <summary>
     /// Event representing the beginning of this segment
@@ -30,4 +32,43 @@ public sealed class Segment(ICombatLogFileContext context, long start, int lengt
     /// Event represending the end of this segment
     /// </summary>
     public IFightEnd? End { get; internal set; }
+
+    public IFight? ToFight()
+    {
+        if (Start is null)
+        {
+            return null;
+        }
+
+        if (Start.GetFight() is not { } fight)
+        {
+            return null;
+        }
+
+        if (Events is null)
+        {
+            throw new InvalidOperationException("Segment must be parsed before calling ToFight.");
+        }
+
+        fight.Range = (StartOffset, StartOffset + Length);
+
+        for (var i = 0; i < Events.Count; i++)
+        {
+            fight.AddEvent(Events[i]);
+        }
+
+        if (End is CombatLogEvent endEvent)
+        {
+            fight.AddEvent(endEvent);
+        }
+
+        fight.Sort();
+        return fight;
+    }
+
+    public async Task<IFight?> ToFightAsync(CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return ToFight();
+    }
 }

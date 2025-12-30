@@ -1,4 +1,6 @@
-﻿using ExpressionDebugger;
+﻿#if DEBUG
+using ExpressionDebugger;
+#endif
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -8,6 +10,7 @@ using WoWCombatLogParser.Parser.EventMapping;
 using WoWCombatLogParser.IO;
 using static WoWCombatLogParser.IO.CombatLogFieldReader;
 using static System.Linq.Expressions.Expression;
+using System.Threading;
 
 namespace WoWCombatLogParser;
 
@@ -21,11 +24,11 @@ public interface ICombatLogEventMapper
 
 public sealed class CombatLogEventMapper : ICombatLogEventMapper
 {
-    private readonly CombatLogVersionedDictionary<string, ObjectActivator> eventConstructors = new();
+    private readonly CombatLogVersionedDictionary<string, CombatLogEventConstructor> eventConstructors = new();
     private readonly Dictionary<Type, CombatLogEventMapping> maps;
-    private readonly Dictionary<Type, ObjectActivator> componentConstructors = [];
-    private readonly object mapsGate = new();
-    private readonly object constructorsGate = new();
+    private readonly Dictionary<Type, CombatLogEventConstructor> componentConstructors = [];
+    private readonly Lock mapsGate = new();
+    private readonly Lock constructorsGate = new();
     private readonly Dictionary<string, MethodInfo> methods = new()
     {
         { nameof(CombatLogEventMapper.MapComponentAsProperties), typeof(CombatLogEventMapper).GetMethod(nameof(CombatLogEventMapper.MapComponentAsProperties), BindingFlags.Instance | BindingFlags.NonPublic)! },
@@ -63,7 +66,7 @@ public sealed class CombatLogEventMapper : ICombatLogEventMapper
 
                 foreach (var CombatLogVersion in applicableCombatLogVersions)
                 {
-                    eventConstructors.TryAdd(CombatLogVersion, p.Affix.Value, GetActivator(constructor));
+                    eventConstructors.TryAdd(CombatLogVersion, p.Affix.Value, GetCombatLogEventConstructor(constructor));
                 }
             });
     }
@@ -277,12 +280,12 @@ public sealed class CombatLogEventMapper : ICombatLogEventMapper
     internal void MapComponentList<T>(List<T> destination, ICombatLogDataField data, bool isKeyValuePair)
         where T : CombatLogEventComponent
     {
-        ObjectActivator constructor;
+        CombatLogEventConstructor? constructor;
         lock (constructorsGate)
         {
-            if (!componentConstructors.TryGetValue(typeof(T), out constructor))
+            if (!componentConstructors.TryGetValue(typeof(T), out constructor) || constructor is null)
             {
-                componentConstructors[typeof(T)] = constructor = GetActivator(typeof(T));
+                componentConstructors[typeof(T)] = constructor = GetCombatLogEventConstructor(typeof(T));
             }
         }
 

@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.32112.339
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11312.210 d18.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWCombatLogParser", "WoWCombatLogParser\WoWCombatLogParser.csproj", "{F71563DA-74B6-461E-A422-479400A7C8B2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWCombatLogParser.Tests", "WoWCombatLogParser.Tests\WoWCombatLogParser.Tests.csproj", "{6B3C9320-17C2-4E11-8A06-4FC039D81F1E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWCombatLogParser.SourceGenerator", "WoWCombatLogParser.SourceGenerator\WoWCombatLogParser.SourceGenerator.csproj", "{F801E147-4371-4D68-88CA-7935D2A7F081}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WowCombatLogParser.App", "WowCombatLogParser.App\WowCombatLogParser.App.csproj", "{41824574-439D-D2E8-1B23-7B97CDBB0D88}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,12 @@ Global
 		{F801E147-4371-4D68-88CA-7935D2A7F081}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F801E147-4371-4D68-88CA-7935D2A7F081}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F801E147-4371-4D68-88CA-7935D2A7F081}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41824574-439D-D2E8-1B23-7B97CDBB0D88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41824574-439D-D2E8-1B23-7B97CDBB0D88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41824574-439D-D2E8-1B23-7B97CDBB0D88}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{41824574-439D-D2E8-1B23-7B97CDBB0D88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41824574-439D-D2E8-1B23-7B97CDBB0D88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41824574-439D-D2E8-1B23-7B97CDBB0D88}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 using WoWCombatLogParser;
+using WoWCombatLogParser.IO;
 
 namespace WowCombatLogParser.App;
 
@@ -24,7 +25,9 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
-        builder.Services.AddSingleton<IParserContext, ParserContext>();
+        builder.Services.AddSingleton<ICombatLogEventMapper, CombatLogEventMapper>();
+        builder.Services.AddSingleton<ICombatLogContextProvider, MemoryMappedCombatLogContextProvider>();
+        builder.Services.AddSingleton<ICombatLogParser, CombatLogParser>();
 
         return builder.Build();
     }

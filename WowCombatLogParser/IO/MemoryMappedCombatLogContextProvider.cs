@@ -1,25 +1,29 @@
 using System;
 using System.Buffers;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using StackExchange.Profiling;
 
 namespace WoWCombatLogParser.IO;
 
-public sealed class MemoryMappedCombatLogSegmentProvider : ICombatLogSegmentProvider
+public sealed class MemoryMappedCombatLogContextProvider : ICombatLogContextProvider
 {
     private readonly SegmentToken[] tokens;
     private readonly int maxStartTokenLength;
     private readonly SearchValues<byte> startTokenFirstBytes;
 
-    private readonly Lock gate = new();
-    private Dictionary<Segment, IReadOnlyList<CombatLogEvent>> segmentCache = [];
-    private Dictionary<Segment, Task<IReadOnlyList<CombatLogEvent>>> segmentTaskCache = [];
+    private MemoryMappedFile? mmf;
+    private MemoryMappedViewAccessor? accessor;
+
+    private unsafe byte* basePtr;
+    private long pointerOffset;
+
+    public long FileLength { get; private set; }
 
     private readonly struct SegmentToken(string start, string end)
     {
@@ -27,7 +31,7 @@ public sealed class MemoryMappedCombatLogSegmentProvider : ICombatLogSegmentProv
         public readonly byte[] EndBytes = Encoding.UTF8.GetBytes(end);
     }
 
-    public MemoryMappedCombatLogSegmentProvider()
+    public MemoryMappedCombatLogContextProvider()
     {
         var assemblyTypes = Assembly.GetExecutingAssembly().GetTypes();
 
@@ -69,33 +73,39 @@ public sealed class MemoryMappedCombatLogSegmentProvider : ICombatLogSegmentProv
         startTokenFirstBytes = SearchValues.Create(firstBytes);
     }
 
-    public ICombatLogFileContext? Open(string filePath, Func<string, CombatLogEvent?> parseLine)
+    public IReadOnlyList<Segment> Open(string filePath, ICombatLogParser parser)
     {
-        if (tokens.Length == 0)
-        {
-            return null;
-        }
-
-        using (gate.EnterScope())
-        {
-            segmentCache = [];
-            segmentTaskCache = [];
-        }
+        Dispose();
 
         var fileInfo = new FileInfo(filePath);
-        if (fileInfo is not { Length: > 0 } )
+        FileLength = fileInfo.Length;
+
+        if (fileInfo is not { Length: > 0 })
         {
-            return null;
+            return [];
         }
 
-        var segments = new List<Segment>();
-        var context = new MemoryMappedCombatLogFileContext(filePath, fileInfo.Length, segments, parseLine);
-
-        using var step = MiniProfiler.Current.Step("Get Segments (MMF)");
+        mmf = MemoryMappedFile.CreateFromFile(filePath, FileMode.Open, null, 0, MemoryMappedFileAccess.Read);
+        accessor = mmf.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read);
 
         unsafe
         {
-            byte* ptr = context.Pointer;
+            byte* p = null;
+            accessor.SafeMemoryMappedViewHandle.AcquirePointer(ref p);
+            basePtr = p;
+            pointerOffset = accessor.PointerOffset;
+        }
+
+        var segments = new List<Segment>();
+
+        if (tokens.Length == 0)
+        {
+            return segments;
+        }
+
+        unsafe
+        {
+            byte* ptr = basePtr + pointerOffset;
 
             long cursor = 0;
             while (cursor < fileInfo.Length)
@@ -168,10 +178,10 @@ public sealed class MemoryMappedCombatLogSegmentProvider : ICombatLogSegmentProv
                 if (segmentEnd > segmentStart)
                 {
                     var segmentLength = checked((int)(segmentEnd - segmentStart));
-                    var segment = new Segment(context, segmentStart, segmentLength)
+                    var segment = new Segment(segmentStart, segmentLength)
                     {
-                        Start = parseLine(DecodeLine(ptr, startLineStart, startLineEnd)) as IFightStart,
-                        End = parseLine(DecodeLine(ptr, endLineStart, endLineEnd)) as IFightEnd,
+                        Start = parser.GetCombatLogEvent(DecodeLine(ptr, startLineStart, startLineEnd)) as IFightStart,
+                        End = parser.GetCombatLogEvent(DecodeLine(ptr, endLineStart, endLineEnd)) as IFightEnd,
                     };
                     segments.Add(segment);
                 }
@@ -180,70 +190,94 @@ public sealed class MemoryMappedCombatLogSegmentProvider : ICombatLogSegmentProv
             }
         }
 
-        return context;
+        return segments;
     }
 
-    public IReadOnlyList<CombatLogEvent> LoadSegment(Segment segment)
+    public bool TryGetSpan(long startOffset, int length, out ReadOnlySpan<byte> span)
     {
-        Task<IReadOnlyList<CombatLogEvent>>? taskToWait = null;
+        span = default;
 
-        using (gate.EnterScope())
+        if (accessor is null)
         {
-            if (segmentCache.TryGetValue(segment, out var cached))
-            {
-                return cached;
-            }
-
-            if (segmentTaskCache.TryGetValue(segment, out var task))
-            {
-                taskToWait = task;
-            }
-            else
-            {
-                var parsed = segment.Context.LoadEvents(segment);
-                segmentCache.Add(segment, parsed);
-                return parsed;
-            }
+            return false;
         }
 
-        taskToWait!.Wait();
-        var completed = taskToWait.Result;
-
-        using (gate.EnterScope())
+        if (startOffset < 0 || length < 0)
         {
-            segmentCache[segment] = completed;
-            segmentTaskCache.Remove(segment);
+            return false;
         }
 
-        return completed;
+        if (startOffset + length > FileLength)
+        {
+            return false;
+        }
+
+        unsafe
+        {
+            span = new ReadOnlySpan<byte>(basePtr + pointerOffset + startOffset, length);
+            return true;
+        }
     }
 
-    public ValueTask<IReadOnlyList<CombatLogEvent>> LoadSegmentAsync(Segment segment, CancellationToken cancellationToken = default)
+    public unsafe bool TryGetPointer(long startOffset, int length, out byte* pointer)
     {
-        using (gate.EnterScope())
+        pointer = null;
+
+        if (accessor is null)
         {
-            if (segmentCache.TryGetValue(segment, out var cached))
-            {
-                return ValueTask.FromResult(cached);
-            }
-
-            if (segmentTaskCache.TryGetValue(segment, out var existing))
-            {
-                if (existing.IsCompletedSuccessfully)
-                {
-                    var result = existing.Result;
-                    segmentCache[segment] = result;
-                    segmentTaskCache.Remove(segment);
-                    return ValueTask.FromResult(result);
-                }
-
-                return new ValueTask<IReadOnlyList<CombatLogEvent>>(existing);
-            }
-
-            var task = segment.Context.LoadEventsAsync(segment, cancellationToken).AsTask();
-            segmentTaskCache.Add(segment, task);
-            return new ValueTask<IReadOnlyList<CombatLogEvent>>(task);
+            return false;
         }
+
+        if (startOffset < 0 || length < 0)
+        {
+            return false;
+        }
+
+        if (startOffset + length > FileLength)
+        {
+            return false;
+        }
+
+        pointer = basePtr + pointerOffset + startOffset;
+        return true;
+    }
+
+    public ValueTask ReadExactlyAsync(long startOffset, Memory<byte> destination, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!TryGetSpan(startOffset, destination.Length, out var span))
+        {
+            throw new ArgumentOutOfRangeException(nameof(startOffset));
+        }
+
+        span.CopyTo(destination.Span);
+        return ValueTask.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        if (accessor is not null)
+        {
+            unsafe
+            {
+                accessor.SafeMemoryMappedViewHandle.ReleasePointer();
+            }
+
+            accessor.Dispose();
+            accessor = null;
+        }
+
+        mmf?.Dispose();
+        mmf = null;
+
+        unsafe
+        {
+            basePtr = null;
+        }
+
+        pointerOffset = 0;
+        FileLength = 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
